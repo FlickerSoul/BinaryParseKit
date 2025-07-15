@@ -1,13 +1,11 @@
 // The Swift Programming Language
 // https://docs.swift.org/swift-book
 
-import BinaryParsing
-import Foundation
-
-public typealias ByteCount = Int
+import BinaryParseKitCommons
+public import BinaryParsing
 
 @attached(peer)
-public macro skip(_ count: ByteCount, because: String) = #externalMacro(
+public macro skip(byteCount: ByteCount, because: String) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "SkipParsingMacro"
 )
@@ -18,13 +16,28 @@ public macro skip(_ count: ByteCount, because: String) = #externalMacro(
 public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "ByteParsingMacro")
 
 @attached(peer)
-public macro parse(_ count: ByteCount) = #externalMacro(
+public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParseKitMacros", type: "ByteParsingMacro")
+
+@attached(peer)
+public macro parse(byteCount: ByteCount) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ByteParsingMacro"
 )
 
 @attached(peer)
-public macro parse(_ count: ByteCount, endianness: Endianness) = #externalMacro(
+public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ByteParsingMacro"
+)
+
+@attached(peer)
+public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ByteParsingMacro"
+)
+
+@attached(peer)
+public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>, endianness: Endianness) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ByteParsingMacro"
 )
@@ -41,8 +54,8 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
     type: "ByteParsingMacro"
 )
 
-@attached(extension, names: arbitrary)
+@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
 public macro ParseStruct() = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ConstructParseStructMacro"
+    type: "ConstructStructParseMacro"
 )

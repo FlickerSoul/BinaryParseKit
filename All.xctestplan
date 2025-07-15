@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "372568C3-3547-4FC0-BCE8-45C4E1876E50",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "BinaryParseKitTests",
+        "name" : "BinaryParseKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "BinaryParseKitMacroTests",
+        "name" : "BinaryParseKitMacroTests"
+      }
+    }
+  ],
+  "version" : 1
+}
