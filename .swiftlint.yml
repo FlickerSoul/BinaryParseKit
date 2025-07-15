@@ -1,0 +1,36 @@
+disabled_rules:
+  - opening_brace
+  - trailing_comma
+  - todo
+nesting:
+  type_level: 2
+line_length:
+  ignores_comments: true
+  ignores_interpolated_strings: true
+  ignores_urls: true
+  warning: 300 # long lines will be truncated by SwiftFormat
+  error: 300
+type_body_length:
+  warning: 500
+  error: 800
+function_body_length:
+  warning: 300
+  error: 500
+file_length:
+  warning: 800
+  error: 1200
+  ignore_comment_only_lines: true
+large_tuple:
+  warning: 3
+  error: 4
+identifier_name:
+  excluded:
+    - id
+    - i
+    - j
+    - x
+    - y
+  allowed_symbols: ["_"]
+cyclomatic_complexity:
+  warning: 20
+  error: 25

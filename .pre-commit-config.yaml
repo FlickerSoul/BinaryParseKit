@@ -1,0 +1,31 @@
+exclude: "Alamofire-master/.*"
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ".*\\.(html|plist)$"
+      - id: end-of-file-fixer
+        exclude: ".*\\.(xcstrings|html|plist)$"
+  - repo: local
+    hooks:
+      - id: swiftformat
+        name: SwiftFormat
+        entry: swiftformat --config .swiftformat.conf .
+        language: system
+        types: [swift]
+        stages: [pre-commit]
+      - id: swiftlint
+        name: SwiftLint
+        entry: swiftlint --fix --quiet --config .swiftlint.yml
+        language: system
+        types: [swift]
+        stages: [pre-commit]
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.13.0
+    hooks:
+      - id: yamlfmt
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-yaml
