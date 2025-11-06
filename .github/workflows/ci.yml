@@ -1,0 +1,75 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/**"
+      - "Package.swift"
+      - "Sources/**"
+      - "Tests/**"
+      - "TestPlans/**"
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - "Package.swift"
+      - "Sources/**"
+      - "Tests/**"
+      - "TestPlans/**"
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runsOn }}
+    env:
+      DEVELOPER_DIR: "/Applications/${{ matrix.xcode }}.app/Contents/Developer"
+    strategy:
+      matrix:
+        include:
+          - xcode: "Xcode_26.0"
+            runsOn: macOS-26
+            name: "macOS 26, SPM 6.2.0 Test"
+          - xcode: "Xcode_16.4"
+            runsOn: macOS-15
+            name: "macOS 15, SPM 6.1.2 Test"
+          - xcode: "Xcode_16.3"
+            runsOn: macOS-15
+            name: "macOS 15, SPM 6.1.0 Test"
+          - xcode: "Xcode_16.2"
+            runsOn: macOS-15
+            name: "macOS 15, SPM 6.0.2 Test"
+          - xcode: "Xcode_16.1"
+            runsOn: macOS-15
+            name: "macOS 15, SPM 6.0.2 Test"
+          - xcode: "Xcode_16.0"
+            runsOn: macOS-15
+            name: "macOS 15, SPM 6.0 Test"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift Version
+        run: xcrun swift --version
+      - name: Install SwiftLint
+        run: brew install swiftlint
+      - name: Install swift-format
+        run: |
+          brew install swift-format
+      - name: Install xcbeautify
+        run: |
+          brew install xcbeautify
+      - name: SwiftLint
+        run: swiftlint lint --strict
+      - name: Swift Format Check
+        run: |
+          swift-format lint --recursive Sources Tests
+      - name: Run Tests
+        run: |
+          TEST_RESULTS_DIR=".build/test-results"
+          mkdir -p $TEST_RESULTS_DIR
+          set -o pipefail && xcrun swift test -c debug --enable-code-coverage --xunit-output $TEST_RESULTS_DIR/xunit.xml 2>&1 | xcbeautify --renderer github-actions
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() }}
+        with:
+          name: Unit Test Results
+          path: .build/test-results/xunit-swift-testing.xml
+          reporter: swift-xunit
+          fail-on-error: true
