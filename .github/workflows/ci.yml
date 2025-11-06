@@ -28,21 +28,6 @@ jobs:
           - xcode: "Xcode_26.0"
             runsOn: macOS-26
             name: "macOS 26, SPM 6.2.0 Test"
-          - xcode: "Xcode_16.4"
-            runsOn: macOS-15
-            name: "macOS 15, SPM 6.1.2 Test"
-          - xcode: "Xcode_16.3"
-            runsOn: macOS-15
-            name: "macOS 15, SPM 6.1.0 Test"
-          - xcode: "Xcode_16.2"
-            runsOn: macOS-15
-            name: "macOS 15, SPM 6.0.2 Test"
-          - xcode: "Xcode_16.1"
-            runsOn: macOS-15
-            name: "macOS 15, SPM 6.0.2 Test"
-          - xcode: "Xcode_16.0"
-            runsOn: macOS-15
-            name: "macOS 15, SPM 6.0 Test"
     steps:
       - uses: actions/checkout@v4
       - name: Swift Version
