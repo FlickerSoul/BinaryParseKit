@@ -101,29 +101,38 @@ struct BinaryParseKitMacroTests {
                     }
                     @inline(__always) func __assertEndianSizedParsable<T: BinaryParseKit.EndianSizedParsable>(_ type: T.Type) {
                     }
+                    // Parse `a` of type Int with endianness and byte count
                     __assertEndianSizedParsable(Int.self)
                     self.a = try .init(parsing: &span, endianness: .big, byteCount: 1)
+                    // Parse `b` of type Int32 with endianness
                     __assertEndianParsable(Int32.self)
                     self.b = try .init(parsing: &span, endianness: .little)
+                    // Skip 2 because of "not needed", before parsing `d`
                     try span.seek(toRelativeOffset: 2)
+                    // Skip 4 because of "also not needed", before parsing `d`
                     try span.seek(toRelativeOffset: 4)
+                    // Parse `d` of type Float16 with endianness
                     __assertEndianParsable(Float16.self)
                     self.d = try .init(parsing: &span, endianness: .big)
+                    // Parse `c` of type CustomValue
                     __assertParsable(CustomValue.self)
                     self.c = try .init(parsing: &span)
+                    // Skip 6 because of "again, not needed", before parsing `e`
                     try span.seek(toRelativeOffset: 6)
+                    // Parse `e` of type CustomValue
                     __assertParsable(CustomValue.self)
                     self.e = try .init(parsing: &span)
+                    // Parse `g` of type CustomValue with byte count
                     __assertSizedParsable(CustomValue.self)
                     self.g = try .init(parsing: &span, byteCount: Int(self.b))
+                    // Skip 7 because of "last one skip", before parsing `f`
                     try span.seek(toRelativeOffset: 7)
+                    // Parse `f` of type CustomValue with endianness and byte count
                     __assertEndianSizedParsable(CustomValue.self)
                     self.f = try .init(parsing: &span, endianness: .little, byteCount: span.endPosition - span.startPosition)
                 }
             }
             """,
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -150,8 +159,6 @@ struct BinaryParseKitMacroTests {
                     severity: .error,
                 ),
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -177,8 +184,6 @@ struct BinaryParseKitMacroTests {
                     severity: .error,
                 ),
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -206,8 +211,6 @@ struct BinaryParseKitMacroTests {
                 ),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -234,8 +237,6 @@ struct BinaryParseKitMacroTests {
                 ),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -266,8 +267,6 @@ struct BinaryParseKitMacroTests {
                 ),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -298,8 +297,6 @@ struct BinaryParseKitMacroTests {
                 ),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -333,8 +330,6 @@ struct BinaryParseKitMacroTests {
             diagnostics: [
                 noParseVarExist,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -362,8 +357,6 @@ struct BinaryParseKitMacroTests {
                 ),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -398,8 +391,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -429,8 +420,6 @@ struct BinaryParseKitMacroTests {
 
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -459,8 +448,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -489,8 +476,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -520,8 +505,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -551,8 +534,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -582,8 +563,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -616,8 +595,6 @@ struct BinaryParseKitMacroTests {
                 ),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -645,8 +622,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 
@@ -675,8 +650,6 @@ struct BinaryParseKitMacroTests {
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
-            macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler,
         )
     }
 }

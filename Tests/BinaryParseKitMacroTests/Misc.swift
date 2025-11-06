@@ -5,6 +5,7 @@
 //  Created by Larry Zeng on 7/18/25.
 //
 
+import SwiftSyntax
 import SwiftSyntaxMacroExpansion
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosGenericTestSupport
@@ -32,5 +33,38 @@ let macroFailureHandler = { @Sendable (failureSpec: TestFailureSpec) in
     _ = Issue.record(
         Comment(stringLiteral: failureSpec.message),
         sourceLocation: failureSpec.location.sourceLocation,
+    )
+}
+
+func assertMacroExpansion(
+    _ originalSource: String,
+    expandedSource expectedExpandedSource: String,
+    diagnostics: [DiagnosticSpec] = [],
+    macroSpecs: [String: MacroSpec] = testMacroSpec,
+    applyFixIts: [String]? = nil,
+    fixedSource expectedFixedSource: String? = nil,
+    testModuleName: String = "TestModule",
+    testFileName: String = "test.swift",
+    indentationWidth: Trivia = .spaces(4),
+    fileID: StaticString = #fileID,
+    filePath: StaticString = #filePath,
+    line: UInt = #line,
+    column: UInt = #column,
+) {
+    SwiftSyntaxMacrosGenericTestSupport.assertMacroExpansion(
+        originalSource,
+        expandedSource: expectedExpandedSource,
+        diagnostics: diagnostics,
+        macroSpecs: macroSpecs,
+        applyFixIts: applyFixIts,
+        fixedSource: expectedFixedSource,
+        testModuleName: testModuleName,
+        testFileName: testFileName,
+        indentationWidth: indentationWidth,
+        failureHandler: macroFailureHandler,
+        fileID: fileID,
+        filePath: filePath,
+        line: line,
+        column: column,
     )
 }

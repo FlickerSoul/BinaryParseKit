@@ -57,26 +57,48 @@ public struct ConstructStructParseMacro: ExtensionMacro {
 
             switch (endianness, byteCount) {
             case let (endianness?, size?):
-                "\(endianSizedParsableFnName)(\(raw: variableType).self)"
-                "self.\(raw: variableName) = try .init(parsing: &span, endianness: \(endianness), byteCount: \(size))"
+                #"""
+                // Parse `\#(raw: variableName)` of type \#(raw: variableType) with endianness and byte count
+                \#(endianSizedParsableFnName)(\#(raw: variableType).self)
+                """#
+                #"""
+                self.\#(raw: variableName) = try .init(parsing: &span, endianness: \#(endianness), byteCount: \#(size))
+                """#
             case (let endianness?, nil):
-                "\(endianParsableFnName)(\(raw: variableType).self)"
-                "self.\(raw: variableName) = try .init(parsing: &span, endianness: \(endianness))"
+                #"""
+                // Parse `\#(raw: variableName)` of type \#(raw: variableType) with endianness
+                \#(endianParsableFnName)(\#(raw: variableType).self)
+                """#
+                #"""
+                self.\#(raw: variableName) = try .init(parsing: &span, endianness: \#(endianness))
+                """#
             case (nil, let size?):
-                "\(sizedParsableFnName)(\(raw: variableType).self)"
-                "self.\(raw: variableName) = try .init(parsing: &span, byteCount: \(size))"
+                #"""
+                // Parse `\#(raw: variableName)` of type \#(raw: variableType) with byte count
+                \#(sizedParsableFnName)(\#(raw: variableType).self)
+                """#
+                #"""
+                self.\#(raw: variableName) = try .init(parsing: &span, byteCount: \#(size))
+                """#
             case (nil, nil):
-                "\(parsableFnName)(\(raw: variableType).self)"
-                "self.\(raw: variableName) = try .init(parsing: &span)"
+                #"""
+                // Parse `\#(raw: variableName)` of type \#(raw: variableType)
+                \#(parsableFnName)(\#(raw: variableType).self)
+                """#
+                #"""
+                self.\#(raw: variableName) = try .init(parsing: &span)
+                """#
             }
         }
 
         @CodeBlockItemListBuilder
-        func generateSkipBlock(variableName _: String, skipInfo: ParseSkipInfo) -> CodeBlockItemListSyntax {
+        func generateSkipBlock(variableName: String, skipInfo: ParseSkipInfo) -> CodeBlockItemListSyntax {
             let byteCount = skipInfo.byteCount
             let reason = skipInfo.reason
-            "// Skip \(raw: byteCount) because \(reason)"
-            "try span.seek(toRelativeOffset: \(raw: byteCount))"
+            #"""
+            // Skip \#(raw: byteCount) because of \#(reason), before parsing `\#(raw: variableName)`
+            try span.seek(toRelativeOffset: \#(raw: byteCount))
+            """#
         }
 
         let extensionSyntax = try ExtensionDeclSyntax("extension \(type): \(raw: packageName).Parsable") {
