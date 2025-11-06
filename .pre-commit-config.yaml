@@ -15,9 +15,15 @@ repos:
         language: system
         types: [swift]
         stages: [pre-commit]
-      - id: swiftlint
-        name: SwiftLint
-        entry: swiftlint --fix --quiet --config .swiftlint.yml
+      - id: swiftlint fix
+        name: SwiftLintFix
+        entry: swiftlint . --fix --config .swiftlint.yml
+        language: system
+        types: [swift]
+        stages: [pre-commit]
+      - id: swiftlint check
+        name: SwiftLintCheck
+        entry: swiftlint . --strict --config .swiftlint.yml
         language: system
         types: [swift]
         stages: [pre-commit]
