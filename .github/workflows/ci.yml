@@ -16,6 +16,9 @@ on:
       - "Sources/**"
       - "Tests/**"
       - "TestPlans/**"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     name: ${{ matrix.name }}
@@ -36,15 +39,15 @@ jobs:
         run: brew install swiftlint --quiet
       - name: Install swift-format
         run: |
-          brew install swift-format --quiet
+          brew install swiftformat --quiet
       - name: Install xcbeautify
         run: |
           brew install xcbeautify --quiet
       - name: SwiftLint
-        run: swiftlint lint --strict
+        run: swiftlint --strict --config .swiftlint.yml .
       - name: Swift Format Check
         run: |
-          swift-format lint --recursive Sources Tests
+          swiftformat --lint-only --config .swiftformat.conf . --strict
       - name: Run Tests
         run: |
           set -o pipefail && \
