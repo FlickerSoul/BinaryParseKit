@@ -29,7 +29,7 @@ private nonisolated(unsafe) let noParseVarExist = DiagnosticSpec(
 )
 
 @Suite(.disabled(if: !shouldRunMacroTest, "macros are not supported and cannot be imported for testing"))
-struct BinaryParseKitMacroTests {
+struct BinaryParseKitMacroTests { // swiftlint:disable:this type_body_length
     @Test
     func successfulParseStructMacroExpansion() {
         assertMacroExpansion(

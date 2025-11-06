@@ -2,6 +2,9 @@ disabled_rules:
   - opening_brace
   - trailing_comma
   - todo
+excluded:
+  - .build/
+  - .swiftpm/
 nesting:
   type_level: 2
 line_length:

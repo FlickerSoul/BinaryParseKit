@@ -41,8 +41,7 @@ public extension EndianParsable {
     ) throws(ThrownParsingError) {
         let result: Self?
 
-        result = try data.withParserSpanIfAvailable {
-            span throws(ThrownParsingError) in
+        result = try data.withParserSpanIfAvailable { span throws(ThrownParsingError) in
             try Self(parsing: &span, endianness: endianness)
         }
 
@@ -88,8 +87,7 @@ public extension EndianSizedParsable {
     ) throws(ThrownParsingError) {
         let result: Self?
 
-        result = try data.withParserSpanIfAvailable {
-            span throws(ThrownParsingError) in
+        result = try data.withParserSpanIfAvailable { span throws(ThrownParsingError) in
             try Self(parsing: &span, endianness: endianness, byteCount: byteCount)
         }
 
@@ -130,8 +128,7 @@ public extension SizedParsable {
     init(parsing data: some RandomAccessCollection<UInt8>, byteCount: Int) throws(ThrownParsingError) {
         let result: Self?
 
-        result = try data.withParserSpanIfAvailable {
-            span throws(ThrownParsingError) in
+        result = try data.withParserSpanIfAvailable { span throws(ThrownParsingError) in
             try Self(parsing: &span, byteCount: byteCount)
         }
 
