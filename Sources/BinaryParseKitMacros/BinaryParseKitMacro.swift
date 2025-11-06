@@ -4,8 +4,9 @@ import SwiftSyntaxMacros
 @main
 struct BinaryParseKitPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        ByteParsingMacro.self,
         SkipParsingMacro.self,
+        ByteParsingMacro.self,
         ConstructStructParseMacro.self,
+        ConstructEnumParseMacro.self,
     ]
 }

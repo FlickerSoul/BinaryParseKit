@@ -21,6 +21,7 @@ import Testing
         "parse": ByteParsingMacro.self,
         "skip": SkipParsingMacro.self,
         "parseRest": ByteParsingMacro.self,
+        "ParseEnum": ConstructEnumParseMacro.self,
     ]
     let testMacroSpec = testMacros.mapValues { MacroSpec(type: $0) }
     let shouldRunMacroTest = true

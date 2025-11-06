@@ -278,3 +278,11 @@ public macro ParseStruct() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructStructParseMacro",
 )
+
+// MARK: - Parse Enum
+
+@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
+public macro ParseEnum() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ConstructEnumParseMacro",
+)
