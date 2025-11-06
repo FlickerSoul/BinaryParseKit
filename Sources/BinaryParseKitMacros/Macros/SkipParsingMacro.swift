@@ -12,7 +12,7 @@ public struct SkipParsingMacro: PeerMacro {
     public static func expansion(
         of _: SwiftSyntax.AttributeSyntax,
         providingPeersOf _: some SwiftSyntax.DeclSyntaxProtocol,
-        in _: some SwiftSyntaxMacros.MacroExpansionContext
+        in _: some SwiftSyntaxMacros.MacroExpansionContext,
     ) throws -> [SwiftSyntax.DeclSyntax] {
         []
     }

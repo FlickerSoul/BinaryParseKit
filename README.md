@@ -3,7 +3,7 @@
 A declarative Swift package for parsing binary data using macros, built on top of Apple's [`swift-binary-parsing`](https://github.com/apple/swift-binary-parsing) framework.
 
 > [!IMPORTANT]
-> This package is currently under active development and its APIs are subjected to drastic changes.  
+> This package is currently under active development and its APIs are subjected to drastic changes.
 
 ## Features
 

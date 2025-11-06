@@ -32,7 +32,7 @@ public import BinaryParsing
 @attached(peer)
 public macro skip(byteCount: ByteCount, because: String) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "SkipParsingMacro"
+    type: "SkipParsingMacro",
 )
 
 // MARK: - Field Parsing
@@ -101,7 +101,7 @@ public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParse
 @attached(peer)
 public macro parse(byteCount: ByteCount) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro"
+    type: "ByteParsingMacro",
 )
 
 /// Parses a field with a byte count determined by another field's value.
@@ -128,7 +128,7 @@ public macro parse(byteCount: ByteCount) = #externalMacro(
 @attached(peer)
 public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro"
+    type: "ByteParsingMacro",
 )
 
 /// Parses a field with both specific byte count and endianness.
@@ -153,7 +153,7 @@ public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>) = #externalM
 @attached(peer)
 public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro"
+    type: "ByteParsingMacro",
 )
 
 /// Parses a field with byte count from another field and specific endianness.
@@ -182,7 +182,7 @@ public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacr
 @attached(peer)
 public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>, endianness: Endianness) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro"
+    type: "ByteParsingMacro",
 )
 
 /// Parses all remaining bytes in the data stream.
@@ -208,7 +208,7 @@ public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>, endianness: 
 @attached(peer)
 public macro parseRest() = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro"
+    type: "ByteParsingMacro",
 )
 
 /// Parses all remaining bytes with a specific endianness.
@@ -235,7 +235,7 @@ public macro parseRest() = #externalMacro(
 @attached(peer)
 public macro parseRest(endianness: Endianness) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro"
+    type: "ByteParsingMacro",
 )
 
 // MARK: - Struct Parsing
@@ -276,5 +276,5 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 @attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
 public macro ParseStruct() = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ConstructStructParseMacro"
+    type: "ConstructStructParseMacro",
 )

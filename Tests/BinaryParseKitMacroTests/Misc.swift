@@ -31,6 +31,6 @@ import Testing
 let macroFailureHandler = { @Sendable (failureSpec: TestFailureSpec) in
     _ = Issue.record(
         Comment(stringLiteral: failureSpec.message),
-        sourceLocation: failureSpec.location.sourceLocation
+        sourceLocation: failureSpec.location.sourceLocation,
     )
 }

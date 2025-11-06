@@ -22,7 +22,7 @@ struct StructParsingTest {
     }
 
     @Test("Data instance is larger than needed (BE)")
-    func testBigEndianDataLargeParse() {
+    func bigEndianDataLargeParse() {
         #expect(throws: ParsingError.self) {
             _ = try DataLargerParseBE(parsing: Data([1, 2, 3, 4, 5, 6]))
         }
@@ -38,7 +38,7 @@ struct StructParsingTest {
     }
 
     @Test("Data instance is larger than needed (LE)")
-    func testLittleEndianDataLargeParse() {
+    func littleEndianDataLargeParse() {
         #expect(throws: ParsingError.self) {
             _ = try DataLargerParseLE(parsing: Data([1, 2, 3, 4, 5, 6]))
         }
@@ -54,7 +54,7 @@ struct StructParsingTest {
     }
 
     @Test("Data instance is exactly sized (BE)")
-    func testBigEndianDataExactParse() {
+    func bigEndianDataExactParse() {
         #expect(throws: Never.self) {
             let parsed = try DataExactParseBE(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0102_0304)
@@ -72,7 +72,7 @@ struct StructParsingTest {
     }
 
     @Test("Data instance is exactly sized (LE)")
-    func testLittleEndianDataExactParse() {
+    func littleEndianDataExactParse() {
         #expect(throws: Never.self) {
             let parsed = try DataExactParseLE(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0403_0201)
@@ -93,7 +93,7 @@ struct StructParsingTest {
     }
 
     @Test("Mixed endianness (BE, LE)")
-    func testMixedEndianness_BE_LE() {
+    func mixedEndianness_BE_LE() {
         #expect(throws: Never.self) {
             let parsed = try BigEndiannessMixedEndianParse(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0102)
@@ -115,7 +115,7 @@ struct StructParsingTest {
     }
 
     @Test("Mixed endianness (LE, BE)")
-    func testMixedEndianness_LE_BE() {
+    func mixedEndianness_LE_BE() {
         #expect(throws: Never.self) {
             let parsed = try LittleEndianMixedEndianParse(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0201)
@@ -161,7 +161,7 @@ struct StructParsingTest {
     }
 
     @Test("Basic types (BE)")
-    func testBigEndianBasicTypeParse() {
+    func bigEndianBasicTypeParse() {
         #expect(throws: Never.self) {
             let parsed = try BasicTypeParseBE(
                 parsing: Data([
@@ -187,7 +187,7 @@ struct StructParsingTest {
                     0x3F, 0x80, 0x00, 0x00,
                     // double (8 bytes, BE): 1.0 encoded as 0x3FF0000000000000
                     0x3F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                ])
+                ]),
             )
             #expect(parsed.int8 == 0x01)
             #expect(parsed.uint8 == 0x02)
@@ -241,7 +241,7 @@ struct StructParsingTest {
 
     @available(iOS 14.0, *)
     @Test("Basic types (LE)")
-    func testLittleEndianBasicTypeParse() {
+    func littleEndianBasicTypeParse() {
         #expect(throws: Never.self) {
             let parsed = try BasicTypeParseLE(
                 parsing: Data([
@@ -268,7 +268,7 @@ struct StructParsingTest {
                     // double (8 bytes, LE): [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F] equals 0x3FF0000000000000
                     // which represents 1.0
                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F,
-                ])
+                ]),
             )
             #expect(parsed.int8 == 0x01)
             #expect(parsed.uint8 == 0x02)
@@ -299,7 +299,7 @@ struct StructParsingTest {
     }
 
     @Test("Skip bytes (BE)")
-    func testBigEndianSkip() {
+    func bigEndianSkip() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructSkipBE(
                 parsing: Data([
@@ -308,7 +308,7 @@ struct StructParsingTest {
                     0x17, // int8
                     0x08, 0x09, // skip
                     0x3C, 0x00, // float16
-                ])
+                ]),
             )
 
             #expect(parsed.int16 == 0x0506)
@@ -333,7 +333,7 @@ struct StructParsingTest {
 
     @available(iOS 14.0, *)
     @Test("Skip bytes (LE)")
-    func testLittleEndianSkip() {
+    func littleEndianSkip() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructSkipLE(
                 parsing: Data([
@@ -342,7 +342,7 @@ struct StructParsingTest {
                     0x17, // int8
                     0x08, 0x09, // skip
                     0x00, 0x3C, // float16
-                ])
+                ]),
             )
 
             #expect(parsed.int16 == 0x0605)
@@ -366,7 +366,7 @@ struct StructParsingTest {
         Data([0x01, 0x02, 0x03]),
         Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
     ])
-    func testBigEndianInputShortThrow(data: Data) {
+    func bigEndianInputShortThrow(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseStructInputShortThrowBE(parsing: data)
         }
@@ -387,7 +387,7 @@ struct StructParsingTest {
         Data([0x01, 0x02, 0x03]),
         Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
     ])
-    func testLittleEndianInputShortThrow(data: Data) {
+    func littleEndianInputShortThrow(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseStructInputShortThrowLE(parsing: data)
         }
@@ -404,14 +404,14 @@ struct StructParsingTest {
     }
 
     @Test("Parse rest (BE)")
-    func testBigEndianParseRest() {
+    func bigEndianParseRest() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestBE(
                 parsing: Data([
                     0x01, 0x02, // skip
                     0x03, 0x04, 0x05, 0x06, // word,
                     0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, // words
-                ])
+                ]),
             )
 
             #expect(parsed.word == 0x0304_0506)
@@ -430,14 +430,14 @@ struct StructParsingTest {
     }
 
     @Test("Parse rest (LE)")
-    func testLittleEndianParseRest() {
+    func littleEndianParseRest() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestLE(
                 parsing: Data([
                     0x01, 0x02, // skip
                     0x03, 0x04, 0x05, 0x06, // word,
                     0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, // words
-                ])
+                ]),
             )
 
             #expect(parsed.word == 0x0605_0403)
@@ -456,13 +456,13 @@ struct StructParsingTest {
     }
 
     @Test("Parse rest with no rest (BE)")
-    func testBigEndianParseRestNoRest() {
+    func bigEndianParseRestNoRest() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestNoRestBE(
                 parsing: Data([
                     0x01, 0x02, // skip
                     0x03, 0x04,
-                ])
+                ]),
             )
 
             #expect(parsed.word == 0x0304)
@@ -481,13 +481,13 @@ struct StructParsingTest {
     }
 
     @Test("Parse rest with no rest (LE)")
-    func testLittleEndianParseRestNoRest() {
+    func littleEndianParseRestNoRest() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestNoRestLE(
                 parsing: Data([
                     0x01, 0x02, // skip
                     0x03, 0x04,
-                ])
+                ]),
             )
 
             #expect(parsed.word == 0x0403)
@@ -510,7 +510,7 @@ struct StructParsingTest {
         Data([0x01]),
         Data([0x01, 0x02]),
     ])
-    func testBigEndianParseRestInputShortThrow(data: Data) {
+    func bigEndianParseRestInputShortThrow(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseRestInputShortThrowBE(parsing: data)
         }
@@ -531,7 +531,7 @@ struct StructParsingTest {
         Data([0x01]),
         Data([0x01, 0x02]),
     ])
-    func testLittleEndianParseRestInputShortThrow(data: Data) {
+    func littleEndianParseRestInputShortThrow(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseRestInputShortThrowLE(parsing: data)
         }
@@ -548,7 +548,7 @@ struct StructParsingTest {
     }
 
     @Test("Parse variable based on another field")
-    func testParseBytesOfVariable() throws {
+    func parseBytesOfVariable() throws {
         let parsed = try ParseBytesOfVariable(parsing: [
             0x01, 0x00, // skip
             0x0C,

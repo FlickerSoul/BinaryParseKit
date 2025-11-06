@@ -9,7 +9,7 @@ private nonisolated(unsafe) let parseStructTopError = DiagnosticSpec(
     message: "Fatal error: Parsing struct's fields has encountered an error.",
     line: 1,
     column: 1,
-    severity: .error
+    severity: .error,
 )
 
 private func specificFieldParsingError(line: Int, column: Int) -> DiagnosticSpec {
@@ -17,7 +17,7 @@ private func specificFieldParsingError(line: Int, column: Int) -> DiagnosticSpec
         message: "Fatal error: Encountered errors during parsing field.",
         line: line,
         column: column,
-        severity: .error
+        severity: .error,
     )
 }
 
@@ -25,13 +25,13 @@ private nonisolated(unsafe) let noParseVarExist = DiagnosticSpec(
     message: "No variables with `@parse` attribute found in the struct. Ensure at least one variable is marked for parsing.",
     line: 1,
     column: 1,
-    severity: .warning
+    severity: .warning,
 )
 
 @Suite(.disabled(if: !shouldRunMacroTest, "macros are not supported and cannot be imported for testing"))
 struct BinaryParseKitMacroTests {
     @Test
-    func testSuccessfulParseStructMacroExpansion() {
+    func successfulParseStructMacroExpansion() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -123,12 +123,12 @@ struct BinaryParseKitMacroTests {
             }
             """,
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testParseStructOnClass() {
+    func parseStructOnClass() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -147,16 +147,16 @@ struct BinaryParseKitMacroTests {
                     message: "@ParseStruct only supports structs. Please use a struct declaration or other macros.",
                     line: 1,
                     column: 1,
-                    severity: .error
+                    severity: .error,
                 ),
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testParseStructOnEnum() {
+    func parseStructOnEnum() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -174,16 +174,16 @@ struct BinaryParseKitMacroTests {
                     message: "@ParseStruct only supports structs. Please use a struct declaration or other macros.",
                     line: 1,
                     column: 1,
-                    severity: .error
+                    severity: .error,
                 ),
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testVariableWithoutTypeAnnotation() {
+    func variableWithoutTypeAnnotation() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -202,17 +202,17 @@ struct BinaryParseKitMacroTests {
                     message: "Variable declarations must have a type annotation to be parsed.",
                     line: 4,
                     column: 9,
-                    severity: .error
+                    severity: .error,
                 ),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testVariableWithoutParseAttribute() {
+    func variableWithoutParseAttribute() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -230,17 +230,17 @@ struct BinaryParseKitMacroTests {
                     message: "The variable declaration must have a `@parse` attribute.",
                     line: 3,
                     column: 9,
-                    severity: .error
+                    severity: .error,
                 ),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testMultipleParseRestAttributes() {
+    func multipleParseRestAttributes() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -262,17 +262,17 @@ struct BinaryParseKitMacroTests {
                     message: "Multiple or non-trailing `@parseRest` attributes are not allowed. Only one trailing `@parseRest` is permitted.",
                     line: 6,
                     column: 9,
-                    severity: .error
+                    severity: .error,
                 ),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testNonTrailingParseRest() {
+    func nonTrailingParseRest() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -294,17 +294,17 @@ struct BinaryParseKitMacroTests {
                     message: "Multiple or non-trailing `@parseRest` attributes are not allowed. Only one trailing `@parseRest` is permitted.",
                     line: 6,
                     column: 9,
-                    severity: .error
+                    severity: .error,
                 ),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testEmptyStructWithNoParseableFields() {
+    func emptyStructWithNoParseableFields() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -334,12 +334,12 @@ struct BinaryParseKitMacroTests {
                 noParseVarExist,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testInvalidVariablePattern() {
+    func invalidVariablePattern() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -358,17 +358,17 @@ struct BinaryParseKitMacroTests {
                     message: "Variable declaration must be an identifier definition.",
                     line: 4,
                     column: 9,
-                    severity: .error
+                    severity: .error,
                 ),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testInvalidParseAttributeArgument() {
+    func invalidParseAttributeArgument() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -387,24 +387,24 @@ struct BinaryParseKitMacroTests {
                     message: "Unknown argument in `@parse`: 'unknownArgument: 42'. Please check the attribute syntax.",
                     line: 3,
                     column: 12,
-                    severity: .error
+                    severity: .error,
                 ),
                 DiagnosticSpec(
                     message: "Fatal error: @parse argument validation failed.",
                     line: 3,
                     column: 5,
-                    severity: .error
+                    severity: .error,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testConflictingByteCountArguments() {
+    func conflictingByteCountArguments() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -423,19 +423,19 @@ struct BinaryParseKitMacroTests {
                     message: "Fatal error: Both `byteCountOf` and `byteCount` cannot be specified at the same time.",
                     line: 3,
                     column: 5,
-                    severity: .error
+                    severity: .error,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
 
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testInvalidByteCountLiteral() {
+    func invalidByteCountLiteral() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -454,18 +454,18 @@ struct BinaryParseKitMacroTests {
                     message: "Failed expectation: byteCount should be an integer literal.",
                     line: 3,
                     column: 5,
-                    severity: .error
+                    severity: .error,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testInvalidByteCountOfKeyPath() {
+    func invalidByteCountOfKeyPath() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -484,18 +484,18 @@ struct BinaryParseKitMacroTests {
                     message: "Failed expectation: byteCountOf should be a KeyPath lietarl expression.",
                     line: 3,
                     column: 5,
-                    severity: .error
+                    severity: .error,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testSkipWithMissingArguments() {
+    func skipWithMissingArguments() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -515,18 +515,18 @@ struct BinaryParseKitMacroTests {
                     message: "Failed expectation: Expected a labeled expression list for `@parseSkip` attribute, but found none.",
                     line: 3,
                     column: 5,
-                    severity: .error
+                    severity: .error,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testSkipWithWrongNumberOfArguments() {
+    func skipWithWrongNumberOfArguments() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -546,18 +546,18 @@ struct BinaryParseKitMacroTests {
                     message: "Fatal error: Expected exactly two arguments for `@parseSkip` attribute, but found 1.",
                     line: 3,
                     column: 5,
-                    severity: .error
+                    severity: .error,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testSkipWithInvalidByteCount() {
+    func skipWithInvalidByteCount() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -577,18 +577,18 @@ struct BinaryParseKitMacroTests {
                     message: "Failed expectation: Expected the first argument of `@parseSkip` to be an integer literal representing byte count.",
                     line: 3,
                     column: 5,
-                    severity: .error
+                    severity: .error,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testComputedPropertyWithParse() {
+    func computedPropertyWithParse() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -612,17 +612,17 @@ struct BinaryParseKitMacroTests {
                 DiagnosticSpec(
                     message: "The variable declaration with accessor(s) (`get` and `set`) cannot be parsed.",
                     line: 4,
-                    column: 9
+                    column: 9,
                 ),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testByteCountParseConvertInParse() {
+    func byteCountParseConvertInParse() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -640,18 +640,18 @@ struct BinaryParseKitMacroTests {
                 DiagnosticSpec(
                     message: "Failed expectation: byteCount should be convertible to Int.",
                     line: 3,
-                    column: 5
+                    column: 5,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 
     @Test
-    func testByteCountParseConvertInSkip() {
+    func byteCountParseConvertInSkip() {
         assertMacroExpansion(
             #"""
             @ParseStruct
@@ -670,13 +670,13 @@ struct BinaryParseKitMacroTests {
                 DiagnosticSpec(
                     message: "Failed expectation: byteCount should be convertible to Int.",
                     line: 3,
-                    column: 5
+                    column: 5,
                 ),
                 specificFieldParsingError(line: 3, column: 5),
                 parseStructTopError,
             ],
             macroSpecs: testMacroSpec,
-            failureHandler: macroFailureHandler
+            failureHandler: macroFailureHandler,
         )
     }
 }

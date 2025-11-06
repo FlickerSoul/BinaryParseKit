@@ -56,7 +56,7 @@ extension Double: EndianParsable {}
 extension UInt8: EndianParsable {
     public init(
         parsing input: inout BinaryParsing.ParserSpan,
-        endianness: BinaryParsing.Endianness
+        endianness: BinaryParsing.Endianness,
     ) throws(ParsingError) {
         try self.init(parsing: &input, endianness: endianness, byteCount: MemoryLayout<Self>.size)
     }
@@ -65,7 +65,7 @@ extension UInt8: EndianParsable {
 extension UInt: EndianParsable {
     public init(
         parsing input: inout BinaryParsing.ParserSpan,
-        endianness: BinaryParsing.Endianness
+        endianness: BinaryParsing.Endianness,
     ) throws(ParsingError) {
         try self.init(parsing: &input, endianness: endianness, byteCount: MemoryLayout<Self>.size)
     }
@@ -74,7 +74,7 @@ extension UInt: EndianParsable {
 extension Int8: EndianParsable {
     public init(
         parsing input: inout BinaryParsing.ParserSpan,
-        endianness: BinaryParsing.Endianness
+        endianness: BinaryParsing.Endianness,
     ) throws(ParsingError) {
         try self.init(parsing: &input, endianness: endianness, byteCount: MemoryLayout<Self>.size)
     }
@@ -83,7 +83,7 @@ extension Int8: EndianParsable {
 extension Int: EndianParsable {
     public init(
         parsing input: inout BinaryParsing.ParserSpan,
-        endianness: BinaryParsing.Endianness
+        endianness: BinaryParsing.Endianness,
     ) throws(ParsingError) {
         try self.init(parsing: &input, endianness: endianness, byteCount: MemoryLayout<Self>.size)
     }

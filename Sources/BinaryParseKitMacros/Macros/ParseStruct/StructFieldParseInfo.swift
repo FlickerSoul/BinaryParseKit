@@ -106,7 +106,7 @@ struct StructFieldParseInfo {
 
     init(
         fromParse attribute: borrowing AttributeSyntax,
-        in context: some MacroExpansionContext
+        in context: some MacroExpansionContext,
     ) throws(ParseStructMacroError) {
         if attribute.arguments == nil {
             self.init(byteCount: .unspecified, endianness: nil)

@@ -17,7 +17,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
         providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
         conformingTo _: [SwiftSyntax.TypeSyntax],
-        in context: some SwiftSyntaxMacros.MacroExpansionContext
+        in context: some SwiftSyntaxMacros.MacroExpansionContext,
     ) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
         guard let structDeclaration = declaration.as(StructDeclSyntax.self) else {
             let error = ParseStructMacroError.onlyStructsAreSupported
@@ -41,7 +41,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
         func generateParseBlock(
             variableName: String,
             variableType: String,
-            fieldParseInfo: StructFieldParseInfo
+            fieldParseInfo: StructFieldParseInfo,
         ) -> CodeBlockItemListSyntax {
             let byteCount: ExprSyntax? = switch fieldParseInfo.byteCount {
             case let .fixed(count):
@@ -81,7 +81,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
 
         let extensionSyntax = try ExtensionDeclSyntax("extension \(type): \(raw: packageName).Parsable") {
             try InitializerDeclSyntax(
-                "\(modifiers)init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError)"
+                "\(modifiers)init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError)",
             ) {
                 parsableFn
                 sizedParsableFn
@@ -95,7 +95,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                             generateParseBlock(
                                 variableName: variableName,
                                 variableType: variableInfo.type,
-                                fieldParseInfo: fieldParseInfo
+                                fieldParseInfo: fieldParseInfo,
                             )
                         case let .skip(skipInfo):
                             generateSkipBlock(variableName: variableName, skipInfo: skipInfo)
@@ -116,7 +116,9 @@ extension ConstructStructParseMacro {
 
         return try (
             funcName,
-            FunctionDeclSyntax("@inline(__always) func \(funcName)<T: \(raw: packageName).Parsable>(_ type: T.Type) {}")
+            FunctionDeclSyntax(
+                "@inline(__always) func \(funcName)<T: \(raw: packageName).Parsable>(_ type: T.Type) {}",
+            ),
         )
     }
 
@@ -127,8 +129,8 @@ extension ConstructStructParseMacro {
         return try (
             funcName,
             FunctionDeclSyntax(
-                "@inline(__always) func \(funcName)<T: \(raw: packageName).SizedParsable>(_ type: T.Type) {}"
-            )
+                "@inline(__always) func \(funcName)<T: \(raw: packageName).SizedParsable>(_ type: T.Type) {}",
+            ),
         )
     }
 
@@ -139,8 +141,8 @@ extension ConstructStructParseMacro {
         return try (
             funcName,
             FunctionDeclSyntax(
-                "@inline(__always) func \(funcName)<T: \(raw: packageName).EndianParsable>(_ type: T.Type) {}"
-            )
+                "@inline(__always) func \(funcName)<T: \(raw: packageName).EndianParsable>(_ type: T.Type) {}",
+            ),
         )
     }
 
@@ -151,8 +153,8 @@ extension ConstructStructParseMacro {
         return try (
             funcName,
             FunctionDeclSyntax(
-                "@inline(__always) func \(funcName)<T: \(raw: packageName).EndianSizedParsable>(_ type: T.Type) {}"
-            )
+                "@inline(__always) func \(funcName)<T: \(raw: packageName).EndianSizedParsable>(_ type: T.Type) {}",
+            ),
         )
     }
 }

@@ -20,13 +20,13 @@ struct ParseSkipInfo {
     init(from attribute: AttributeSyntax) throws(ParseStructMacroError) {
         guard let arguments = attribute.arguments?.as(LabeledExprListSyntax.self) else {
             throw ParseStructMacroError.failedExpectation(
-                message: "Expected a labeled expression list for `@parseSkip` attribute, but found none."
+                message: "Expected a labeled expression list for `@parseSkip` attribute, but found none.",
             )
         }
 
         guard arguments.count == 2 else {
             throw ParseStructMacroError.fatalError(
-                message: "Expected exactly two arguments for `@parseSkip` attribute, but found \(arguments.count)."
+                message: "Expected exactly two arguments for `@parseSkip` attribute, but found \(arguments.count).",
             )
         }
 
@@ -36,13 +36,13 @@ struct ParseSkipInfo {
         guard case let .integerLiteral(byteCount) = byteCountArgument.expression.as(IntegerLiteralExprSyntax.self)?
             .literal.tokenKind else {
             throw ParseStructMacroError.failedExpectation(
-                message: "Expected the first argument of `@parseSkip` to be an integer literal representing byte count."
+                message: "Expected the first argument of `@parseSkip` to be an integer literal representing byte count.",
             )
         }
 
         guard let byteCountValue = ByteCount(byteCount) else {
             throw ParseStructMacroError.failedExpectation(
-                message: "byteCount should be convertible to Int."
+                message: "byteCount should be convertible to Int.",
             )
         }
 

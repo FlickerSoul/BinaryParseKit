@@ -37,7 +37,7 @@ public protocol EndianParsable {
 public extension EndianParsable {
     init(
         parsing data: some RandomAccessCollection<UInt8>,
-        endianness: BinaryParsing.Endianness
+        endianness: BinaryParsing.Endianness,
     ) throws(ThrownParsingError) {
         let result: Self?
 
@@ -49,7 +49,7 @@ public extension EndianParsable {
         guard let result else {
             throw ParsingError(
                 userError: BinaryParserKitError
-                    .failedToParse("Failed to parse \(Self.self) from data.")
+                    .failedToParse("Failed to parse \(Self.self) from data."),
             )
         }
 
@@ -84,7 +84,7 @@ public extension EndianSizedParsable {
     init(
         parsing data: some RandomAccessCollection<UInt8>,
         endianness: BinaryParsing.Endianness,
-        byteCount: Int
+        byteCount: Int,
     ) throws(ThrownParsingError) {
         let result: Self?
 
@@ -96,7 +96,7 @@ public extension EndianSizedParsable {
         guard let result else {
             throw ParsingError(
                 userError: BinaryParserKitError
-                    .failedToParse("Failed to parse \(Self.self) from data.")
+                    .failedToParse("Failed to parse \(Self.self) from data."),
             )
         }
 
@@ -138,7 +138,7 @@ public extension SizedParsable {
         guard let result else {
             throw ParsingError(
                 userError: BinaryParserKitError
-                    .failedToParse("Failed to parse \(Self.self) from data.")
+                    .failedToParse("Failed to parse \(Self.self) from data."),
             )
         }
 
