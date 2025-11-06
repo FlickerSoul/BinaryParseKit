@@ -286,3 +286,23 @@ public macro ParseEnum() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructEnumParseMacro",
 )
+
+// MARK: - Enum Case Parsing
+
+@attached(peer)
+public macro match() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ByteParsingMacro",
+)
+
+@attached(peer)
+public macro match(byte: UInt8) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ByteParsingMacro",
+)
+
+@attached(peer)
+public macro match(bytes: [UInt8]) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ByteParsingMacro",
+)
