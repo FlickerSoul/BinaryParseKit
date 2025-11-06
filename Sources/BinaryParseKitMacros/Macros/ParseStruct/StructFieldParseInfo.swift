@@ -58,7 +58,7 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
         } else if let byteCountOfArgument {
             guard let keyPath = byteCountOfArgument.expression.as(KeyPathExprSyntax.self) else {
                 throw ParseStructMacroError
-                    .failedExpectation(message: "byteCountOf should be a KeyPath lietarl expression.")
+                    .failedExpectation(message: "byteCountOf should be a KeyPath literal expression.")
             }
 
             let selfAccessExpr = ExprSyntax("self\(keyPath.components)")

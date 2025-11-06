@@ -9,8 +9,6 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-private let packageName = "BinaryParseKit"
-
 public struct ConstructStructParseMacro: ExtensionMacro {
     public static func expansion(
         of _: SwiftSyntax.AttributeSyntax,
@@ -32,10 +30,10 @@ public struct ConstructStructParseMacro: ExtensionMacro {
 
         let type = TypeSyntax(type)
 
-        let (parsableFnName, parsableFn) = try generateAssertParsable(in: context)
-        let (sizedParsableFnName, sizedParsableFn) = try generateAssertSizedParsable(in: context)
-        let (endianParsableFnName, endianParsableFn) = try generateAssertEndianParsable(in: context)
-        let (endianSizedParsableFnName, endianSizedParsableFn) = try generateAssertEndianSizedParsable(in: context)
+        let (parsableFnName, parsableFn) = try generateAssertParsable()
+        let (sizedParsableFnName, sizedParsableFn) = try generateAssertSizedParsable()
+        let (endianParsableFnName, endianParsableFn) = try generateAssertEndianParsable()
+        let (endianSizedParsableFnName, endianSizedParsableFn) = try generateAssertEndianSizedParsable()
 
         @CodeBlockItemListBuilder
         func generateParseBlock(
@@ -101,7 +99,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
             """#
         }
 
-        let extensionSyntax = try ExtensionDeclSyntax("extension \(type): \(raw: packageName).Parsable") {
+        let extensionSyntax = try ExtensionDeclSyntax("extension \(type): \(raw: Constants.parsableProtocol)") {
             try InitializerDeclSyntax(
                 "\(modifiers)init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError)",
             ) {
@@ -128,55 +126,5 @@ public struct ConstructStructParseMacro: ExtensionMacro {
         }
 
         return [extensionSyntax]
-    }
-}
-
-extension ConstructStructParseMacro {
-    static func generateAssertParsable(in _: some MacroExpansionContext) throws
-        -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-        let funcName: TokenSyntax = .identifier("__assertParsable")
-
-        return try (
-            funcName,
-            FunctionDeclSyntax(
-                "@inline(__always) func \(funcName)<T: \(raw: packageName).Parsable>(_ type: T.Type) {}",
-            ),
-        )
-    }
-
-    static func generateAssertSizedParsable(in _: some MacroExpansionContext) throws
-        -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-        let funcName: TokenSyntax = .identifier("__assertSizedParsable")
-
-        return try (
-            funcName,
-            FunctionDeclSyntax(
-                "@inline(__always) func \(funcName)<T: \(raw: packageName).SizedParsable>(_ type: T.Type) {}",
-            ),
-        )
-    }
-
-    static func generateAssertEndianParsable(in _: some MacroExpansionContext) throws
-        -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-        let funcName: TokenSyntax = .identifier("__assertEndianParsable")
-
-        return try (
-            funcName,
-            FunctionDeclSyntax(
-                "@inline(__always) func \(funcName)<T: \(raw: packageName).EndianParsable>(_ type: T.Type) {}",
-            ),
-        )
-    }
-
-    static func generateAssertEndianSizedParsable(in _: some MacroExpansionContext) throws
-        -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-        let funcName: TokenSyntax = .identifier("__assertEndianSizedParsable")
-
-        return try (
-            funcName,
-            FunctionDeclSyntax(
-                "@inline(__always) func \(funcName)<T: \(raw: packageName).EndianSizedParsable>(_ type: T.Type) {}",
-            ),
-        )
     }
 }

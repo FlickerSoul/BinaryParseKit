@@ -468,7 +468,7 @@ struct BinaryParseKitMacroTests { // swiftlint:disable:this type_body_length
             """,
             diagnostics: [
                 DiagnosticSpec(
-                    message: "Failed expectation: byteCountOf should be a KeyPath lietarl expression.",
+                    message: "Failed expectation: byteCountOf should be a KeyPath literal expression.",
                     line: 3,
                     column: 5,
                     severity: .error,
