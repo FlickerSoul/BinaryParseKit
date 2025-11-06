@@ -33,13 +33,13 @@ jobs:
       - name: Swift Version
         run: xcrun swift --version
       - name: Install SwiftLint
-        run: brew install swiftlint
+        run: brew install swiftlint --quiet
       - name: Install swift-format
         run: |
-          brew install swift-format
+          brew install swift-format --quiet
       - name: Install xcbeautify
         run: |
-          brew install xcbeautify
+          brew install xcbeautify --quiet
       - name: SwiftLint
         run: swiftlint lint --strict
       - name: Swift Format Check
@@ -47,14 +47,11 @@ jobs:
           swift-format lint --recursive Sources Tests
       - name: Run Tests
         run: |
-          TEST_RESULTS_DIR=".build/test-results"
-          mkdir -p $TEST_RESULTS_DIR
-          set -o pipefail && xcrun swift test -c debug --enable-code-coverage --xunit-output $TEST_RESULTS_DIR/xunit.xml 2>&1 | xcbeautify --renderer github-actions
-      - name: Test Report
-        uses: dorny/test-reporter@v2
-        if: ${{ !cancelled() }}
-        with:
-          name: Unit Test Results
-          path: .build/test-results/xunit-swift-testing.xml
-          reporter: swift-xunit
-          fail-on-error: true
+          set -o pipefail && \
+          xcodebuild test \
+          -scheme BinaryParseKit-Package \
+          -destination 'platform=macOS' \
+          -skipMacroValidation | xcbeautify --renderer github-actions
+
+          # https://github.com/swiftlang/swift-package-manager/issues/9163
+          # set -o pipefail && xcrun swift test -c debug --enable-code-coverage --xunit-output $TEST_RESULTS_DIR/xunit.xml 2>&1 | xcbeautify --renderer github-actions
