@@ -2,7 +2,7 @@ import BinaryParseKit
 import BinaryParsing
 
 extension [UInt8]: SizedParsable {
-    @lifetime(&input)
+    @_lifetime(&input)
     public init(parsing input: inout ParserSpan, byteCount: Int) throws(ThrownParsingError) {
         var subSpan = try input.sliceSpan(byteCount: byteCount)
         self.init(parsingRemainingBytes: &subSpan)
