@@ -17,12 +17,14 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
         case absentParseAttribute
     }
 
-    typealias Action = StructParseAction
+    typealias ParseAction = StructParseAction
+    typealias CaseMatchAction = EnumCaseMatchAction
 
     private let context: C
-    private(set) var actions: [Action] = []
+    private(set) var parseActions: [ParseAction] = []
     private(set) var hasParseRest: Bool = false
-    private(set) var hasParse: Bool = false
+    private var hasParse: Bool = false
+    private(set) var caseMatchAction: CaseMatchAction?
 
     private var errors: [Diagnostic] = []
 
@@ -42,27 +44,56 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
         if identifierToken == "parse" {
             do {
                 let parsed = try StructFieldParseInfo(fromParse: attribute, in: context)
-                actions.append(.parse(parsed))
+                parseActions.append(.parse(parsed))
                 hasParse = true
             } catch {
                 errors.append(.init(node: attribute, message: error))
             }
         } else if identifierToken == "parseRest" {
-            actions.append(.parse(StructFieldParseInfo(fromParseRest: attribute)))
+            parseActions.append(.parse(StructFieldParseInfo(fromParseRest: attribute)))
+            hasParse = true
             hasParseRest = true
         } else if identifierToken == "skip" {
             do {
                 let skip = try ParseSkipInfo(from: attribute)
-                actions.append(.skip(skip))
+                parseActions.append(.skip(skip))
             } catch {
                 errors.append(.init(node: attribute, message: error))
             }
+        } else if identifierToken == "match" {
+            ensureMatchFirst(at: attribute)
+            do {
+                caseMatchAction = try .parseMatch(from: attribute)
+            } catch {
+                errors.append(.init(node: attribute, message: error))
+            }
+        } else if identifierToken == "matchAndTake" {
+            ensureMatchFirst(at: attribute)
+            do {
+                caseMatchAction = try .parseMatchAndTake(from: attribute)
+            } catch {
+                errors.append(.init(node: attribute, message: error))
+            }
+        } else if identifierToken == "matchDefault" {
+            ensureMatchFirst(at: attribute)
+            caseMatchAction = .parseMatchDefault(from: attribute)
         }
 
         return .skipChildren
     }
 
-    func validate(for _: SyntaxProtocol) throws(ParseStructMacroError) {
+    private func ensureMatchFirst(at attribute: AttributeSyntax) {
+        if hasParse {
+            errors.append(
+                .init(
+                    node: attribute,
+                    message: ParseEnumMacroError.matchMustProceedParse,
+                ),
+            )
+        }
+    }
+
+    func validate() throws(ParseStructMacroError) {
         // TODO: more validations
 
         if !errors.isEmpty {

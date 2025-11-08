@@ -4,7 +4,7 @@
 //
 //  Created by Larry Zeng on 11/6/25.
 //
-struct ProtocolName: CustomStringConvertible {
+struct PackageMember: CustomStringConvertible {
     let package: String
     let name: String
 
@@ -24,9 +24,38 @@ struct ProtocolName: CustomStringConvertible {
 
 enum Constants {
     static let packageName = "BinaryParseKit"
-    static let parsableProtocol = ProtocolName(name: "Parsable")
-    static let sizedParsableProtocol = ProtocolName(name: "SizedParsable")
-    static let endianParsableProtocol = ProtocolName(name: "EndianParsable")
-    static let endianSizedParsableProtocol = ProtocolName(name: "EndianSizedParsable")
-    static let expressibleByParsingProtocol = ProtocolName(name: "ExpressibleByParsing")
+}
+
+extension Constants {
+    enum Protocols {
+        static let parsableProtocol = PackageMember(name: "Parsable")
+        static let sizedParsableProtocol = PackageMember(name: "SizedParsable")
+        static let endianParsableProtocol = PackageMember(name: "EndianParsable")
+        static let endianSizedParsableProtocol = PackageMember(name: "EndianSizedParsable")
+        static let expressibleByParsingProtocol = PackageMember(name: "ExpressibleByParsing")
+    }
+}
+
+extension Constants {
+    enum UtilityFunctions {
+        static let matchBytes = PackageMember(name: "__match")
+        static let assertParsable = PackageMember(name: "__assertParsable")
+        static let assertSizedParsable = PackageMember(name: "__assertSizedParsable")
+        static let assertEndianParsable = PackageMember(name: "__assertEndianParsable")
+        static let assertEndianSizedParsable = PackageMember(name: "__assertEndianSizedParsable")
+    }
+}
+
+extension Constants {
+    enum BinaryParserKitError {
+        static let failedToParse = PackageMember(name: "BinaryParserKitError.failedToParse")
+    }
+}
+
+extension Constants {
+    enum BinaryParsing {
+        private static let packageName = "BinaryParsing"
+        static let parserSpan = PackageMember(package: packageName, name: "ParserSpan")
+        static let thrownParsingError = PackageMember(package: packageName, name: "ThrownParsingError")
+    }
 }

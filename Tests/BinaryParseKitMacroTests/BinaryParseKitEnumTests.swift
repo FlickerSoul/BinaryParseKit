@@ -23,7 +23,23 @@ struct TestParsingEnum {
             }
             """,
             expandedSource: """
+            enum TestEnum {
+                case a
+                case b
+            }
 
+            extension TestEnum: BinaryParseKit.Parsable {
+                init(parsing input: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    if BinaryParseKit.__match([0x08], in: input) {
+                        self = .a
+                        return
+                    }
+                    if BinaryParseKit.__match([0x01, 0x02], in: input) {
+                        self = .b
+                        return
+                    }
+                }
+            }
             """,
         )
     }

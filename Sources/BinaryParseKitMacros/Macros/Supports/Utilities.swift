@@ -2,50 +2,71 @@
 //  Utilities.swift
 //  BinaryParseKit
 //
-//  Created by Larry Zeng on 11/6/25.
+//  Created by Larry Zeng on 11/8/25.
 //
 import SwiftSyntax
+import SwiftSyntaxBuilder
 
-func generateAssertParsable() throws -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-    let funcName: TokenSyntax = .identifier("__assertParsable")
+@CodeBlockItemListBuilder
+func generateParseBlock(
+    variableName: TokenSyntax,
+    variableType: TypeSyntax,
+    fieldParseInfo: StructFieldParseInfo,
+) -> CodeBlockItemListSyntax {
+    let byteCount: ExprSyntax? = switch fieldParseInfo.byteCount {
+    case let .fixed(count):
+        ExprSyntax("\(raw: count)")
+    case .variable:
+        ExprSyntax("span.endPosition - span.startPosition")
+    case .unspecified:
+        nil
+    case let .ofVariable(expr):
+        ExprSyntax("Int(\(expr))")
+    }
+    let endianness = fieldParseInfo.endianness
 
-    return try (
-        funcName,
-        FunctionDeclSyntax(
-            "@inline(__always) func \(funcName)<T: \(raw: Constants.parsableProtocol)>(_ type: T.Type) {}",
-        ),
-    )
+    switch (endianness, byteCount) {
+    case let (endianness?, size?):
+        #"""
+        // Parse `\#(variableName)` of type \#(variableType) with endianness and byte count
+        \#(raw: Constants.UtilityFunctions.assertEndianSizedParsable)(\#(variableType).self)
+        """#
+        #"""
+        self.\#(variableName) = try .init(parsing: &span, endianness: \#(endianness), byteCount: \#(size))
+        """#
+    case (let endianness?, nil):
+        #"""
+        // Parse `\#(variableName)` of type \#(variableType) with endianness
+        \#(raw: Constants.UtilityFunctions.assertEndianParsable)(\#(variableType).self)
+        """#
+        #"""
+        self.\#(variableName) = try .init(parsing: &span, endianness: \#(endianness))
+        """#
+    case (nil, let size?):
+        #"""
+        // Parse `\#(variableName)` of type \#(variableType) with byte count
+        \#(raw: Constants.UtilityFunctions.assertSizedParsable)(\#(variableType).self)
+        """#
+        #"""
+        self.\#(variableName) = try .init(parsing: &span, byteCount: \#(size))
+        """#
+    case (nil, nil):
+        #"""
+        // Parse `\#(variableName)` of type \#(variableType)
+        \#(raw: Constants.UtilityFunctions.assertParsable)(\#(variableType).self)
+        """#
+        #"""
+        self.\#(variableName) = try .init(parsing: &span)
+        """#
+    }
 }
 
-func generateAssertSizedParsable() throws -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-    let funcName: TokenSyntax = .identifier("__assertSizedParsable")
-
-    return try (
-        funcName,
-        FunctionDeclSyntax(
-            "@inline(__always) func \(funcName)<T: \(raw: Constants.sizedParsableProtocol)>(_ type: T.Type) {}",
-        ),
-    )
-}
-
-func generateAssertEndianParsable() throws -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-    let funcName: TokenSyntax = .identifier("__assertEndianParsable")
-
-    return try (
-        funcName,
-        FunctionDeclSyntax(
-            "@inline(__always) func \(funcName)<T: \(raw: Constants.endianParsableProtocol)>(_ type: T.Type) {}",
-        ),
-    )
-}
-
-func generateAssertEndianSizedParsable() throws -> (name: TokenSyntax, func: FunctionDeclSyntax) {
-    let funcName: TokenSyntax = .identifier("__assertEndianSizedParsable")
-
-    return try (
-        funcName,
-        FunctionDeclSyntax(
-            "@inline(__always) func \(funcName)<T: \(raw: Constants.endianSizedParsableProtocol)>(_ type: T.Type) {}",
-        ),
-    )
+@CodeBlockItemListBuilder
+func generateSkipBlock(variableName: TokenSyntax, skipInfo: ParseSkipInfo) -> CodeBlockItemListSyntax {
+    let byteCount = skipInfo.byteCount
+    let reason = skipInfo.reason
+    #"""
+    // Skip \#(raw: byteCount) because of \#(reason), before parsing `\#(variableName)`
+    try span.seek(toRelativeOffset: \#(raw: byteCount))
+    """#
 }

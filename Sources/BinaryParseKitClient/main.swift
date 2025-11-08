@@ -44,3 +44,17 @@ print("Version: \(header.version)") // 1
 print("File Size: \(header.fileSize)") // 5
 print("Content: \(String(bytes: header.content, encoding: .utf8)!)") // "Hello"
 print("Footer: \(header.footer)")
+
+@ParseEnum
+enum Channel {
+    @match(byte: 0x00)
+    case internet
+    @match(byte: 0x01)
+    case satellite
+    @match(byte: 0x02)
+    case pigeon
+}
+
+let channel = try Channel(parsing: [0x02])
+
+print("Channel: \(channel)") // pigeon

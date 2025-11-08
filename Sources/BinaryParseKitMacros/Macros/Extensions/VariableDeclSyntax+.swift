@@ -46,15 +46,11 @@ extension PatternBindingListSyntax.Element {
         typeAnnotation != nil
     }
 
-    var identifierName: String? {
-        if case let .identifier(name) = pattern.as(IdentifierPatternSyntax.self)?.identifier.tokenKind {
-            name
-        } else {
-            nil
-        }
+    var identifierName: TokenSyntax? {
+        pattern.as(IdentifierPatternSyntax.self)?.identifier
     }
 
-    var typeName: String? {
-        typeAnnotation?.type.description
+    var typeName: TypeSyntax? {
+        typeAnnotation?.type
     }
 }
