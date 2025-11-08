@@ -24,6 +24,7 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
     private(set) var parseActions: [ParseAction] = []
     private(set) var hasParseRest: Bool = false
     private(set) var hasParse: Bool = false
+    private(set) var hasSkip: Bool = false
     private(set) var caseMatchAction: CaseMatchAction?
 
     private var errors: [Diagnostic] = []
@@ -57,6 +58,7 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
             do {
                 let skip = try ParseSkipInfo(from: attribute)
                 parseActions.append(.skip(skip))
+                hasSkip = true
             } catch {
                 errors.append(.init(node: attribute, message: error))
             }
@@ -83,11 +85,11 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
     }
 
     private func ensureMatchFirst(at attribute: AttributeSyntax) {
-        if hasParse {
+        if hasParse || hasSkip {
             errors.append(
                 .init(
                     node: attribute,
-                    message: ParseEnumMacroError.matchMustProceedParse,
+                    message: ParseEnumMacroError.matchMustProceedParseAndSkip,
                 ),
             )
         }
@@ -102,5 +104,9 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
             }
             throw ParseStructMacroError.fatalError(message: "Encountered errors during parsing field.")
         }
+    }
+
+    func validate(errors: inout [Diagnostic]) {
+        errors.append(contentsOf: self.errors)
     }
 }

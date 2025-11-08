@@ -11,6 +11,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
+    var source: Syntax?
     var byteCountOfArgument: LabeledExprSyntax?
     var byteCountArgument: LabeledExprSyntax?
     var endiannessArgument: LabeledExprSyntax?
@@ -23,6 +24,11 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
+    override func visit(_ node: AttributeSyntax) -> SyntaxVisitorContinueKind {
+        source = Syntax(node)
+        return .visitChildren
+    }
+
     override func visit(_ node: LabeledExprSyntax) -> SyntaxVisitorContinueKind {
         switch node.label?.text {
         case "byteCountOf":
@@ -32,12 +38,19 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
         case "endianness":
             endiannessArgument = node
         case _:
-            errors.append(.init(node: node, message: ParseStructMacroError.unknownParseArgument(node.description)))
+            errors.append(.init(
+                node: node,
+                message: ParseStructMacroError.unknownParseArgument(node.label?.description ?? node.description),
+            ))
         }
         return .skipChildren
     }
 
     func toStructFieldParseInfo() throws(ParseStructMacroError) -> StructFieldParseInfo {
+        guard let source else {
+            throw ParseStructMacroError.fatalError(message: "Source syntax is missing.")
+        }
+
         if byteCountOfArgument != nil, byteCountArgument != nil {
             throw ParseStructMacroError
                 .fatalError(message: "Both `byteCountOf` and `byteCount` cannot be specified at the same time.")
@@ -68,7 +81,11 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
             byteCount = .unspecified
         }
 
-        return .init(byteCount: byteCount, endianness: endiannessArgument?.expression)
+        return .init(
+            byteCount: byteCount,
+            endianness: endiannessArgument?.expression,
+            source: source,
+        )
     }
 
     func validate() throws(ParseStructMacroError) {
@@ -98,10 +115,12 @@ struct StructFieldParseInfo {
     let byteCount: Count
     /// The endianness of this field, if specified
     let endianness: ExprSyntax?
+    let source: Syntax
 
-    init(byteCount: Count, endianness: ExprSyntax? = nil) {
+    init(byteCount: Count, endianness: ExprSyntax? = nil, source: Syntax) {
         self.byteCount = byteCount
         self.endianness = endianness
+        self.source = source
     }
 
     init(
@@ -109,7 +128,7 @@ struct StructFieldParseInfo {
         in context: some MacroExpansionContext,
     ) throws(ParseStructMacroError) {
         if attribute.arguments == nil {
-            self.init(byteCount: .unspecified, endianness: nil)
+            self.init(byteCount: .unspecified, endianness: nil, source: Syntax(attribute))
             return
         }
 
@@ -123,6 +142,6 @@ struct StructFieldParseInfo {
     init(fromParseRest attribute: AttributeSyntax) {
         let endiannessArgument: LabeledExprSyntax? = attribute.arguments?.as(LabeledExprListSyntax.self)?.first
 
-        self.init(byteCount: .variable, endianness: endiannessArgument?.expression)
+        self.init(byteCount: .variable, endianness: endiannessArgument?.expression, source: Syntax(attribute))
     }
 }

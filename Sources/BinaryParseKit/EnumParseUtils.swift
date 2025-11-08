@@ -6,19 +6,20 @@
 //
 import BinaryParsing
 
+/// Matches the given bytes in the input parser span.
 /// - Warning: This function is used to `@parseEnum` macro and should not be used directly.
 @inlinable
-public func __match(_ bytes: [UInt8], in input: inout BinaryParsing.ParserSpan) -> Bool {
-    // FIXME: right now, it's all `matchAndTake` semantic, implement a peak on ParserSpan??
-    (try? input.atomically { span in
-        let toMatchSpan = try span.sliceSpan(byteCount: bytes.count)
-        let toMatch: [UInt8] = unsafe toMatchSpan.withUnsafeBytes(Array.init)
-        if toMatch == bytes {
-            return true
-        } else {
-            throw BinaryParserKitError.failedToParse("Expected bytes \(bytes), found \(toMatch)")
-        }
-    }) ?? false
+public func __match(_ bytes: borrowing [UInt8], in input: inout BinaryParsing.ParserSpan) -> Bool {
+    if bytes.isEmpty { return true }
+
+    do {
+        try input._checkCount(minimum: bytes.count)
+    } catch {
+        return false
+    }
+
+    let toMatch = unsafe input.bytes.extracting(first: bytes.count).withUnsafeBytes(Array.init)
+    return toMatch == bytes
 }
 
 /// - Warning: This function is used to `@parse` macro and should not be used directly.

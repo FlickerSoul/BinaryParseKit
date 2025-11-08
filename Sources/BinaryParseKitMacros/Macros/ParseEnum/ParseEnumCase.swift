@@ -13,9 +13,11 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
 
     private var workEnum: EnumDeclSyntax?
     private var currentParseMacroVisitor: StructFieldVisitor<C>?
-    private var currentCaseElement: EnumCaseElementSyntax?
+    private var currentCaseElements: EnumCaseElementListSyntax?
     private var caseParseInfo: [EnumCaseParseInfo] = []
     private(set) var parsedInfo: EnumParseInfo?
+
+    private var hasMatchDefault = false
 
     private var errors: [Diagnostic] = []
 
@@ -33,30 +35,16 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
         return .visitChildren
     }
 
-    override func visit(_ node: EnumCaseDeclSyntax) -> SyntaxVisitorContinueKind {
-        // has multiple declaration in the same `case`, reject
-        guard node.elements.count <= 1 else {
-            errors.append(.init(node: node, message: ParseEnumMacroError.onlyOneEnumDeclarationForEachCase))
-            return .skipChildren
-        }
-
-        return .visitChildren
-    }
-
     override func visit(_ node: AttributeListSyntax) -> SyntaxVisitorContinueKind {
         currentParseMacroVisitor = StructFieldVisitor(context: context)
         currentParseMacroVisitor?.walk(node)
-        do {
-            try currentParseMacroVisitor?.validate()
-        } catch {
-            errors.append(.init(node: node, message: error))
-        }
+        currentParseMacroVisitor?.validate(errors: &errors)
 
         return .skipChildren
     }
 
-    override func visit(_ node: EnumCaseElementSyntax) -> SyntaxVisitorContinueKind {
-        currentCaseElement = node
+    override func visit(_ node: EnumCaseElementListSyntax) -> SyntaxVisitorContinueKind {
+        currentCaseElements = node
         return .skipChildren
     }
 
@@ -71,7 +59,7 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
         guard node.belongsTo(workEnum) else {
             return
         }
-        guard let currentCaseElement else {
+        guard let currentCaseElements, !currentCaseElements.isEmpty else {
             errors.append(.init(
                 node: node,
                 message: ParseEnumMacroError.unexpectedError(description: "No enum case declaration"),
@@ -98,33 +86,43 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
             return
         }
 
-        let caseParameters = currentCaseElement.parameterClause?.parameters ?? []
+        if matchAction.matchPolicy == .matchDefault {
+            if hasMatchDefault {
+                errors.append(
+                    .init(
+                        node: node,
+                        message: ParseEnumMacroError.onlyOneMatchDefaultAllowed,
+                    ),
+                )
+                return
+            }
 
-        let enumParseActions: [EnumParseAction]
-        do {
-            enumParseActions = try currentParseMacroVisitor.parseActions.convertToEnumParseAction(with: caseParameters)
-        } catch {
-            errors.append(.init(node: caseParameters, message: error))
-            return
+            hasMatchDefault = true
+        } else {
+            if hasMatchDefault {
+                errors.append(
+                    .init(
+                        node: node,
+                        message: ParseEnumMacroError.defaultCaseMustBeLast,
+                    ),
+                )
+            }
         }
 
-        if caseParseInfo.last?.matchAction.matchPolicy == .matchDefault {
-            errors.append(
+        for currentCaseElement in currentCaseElements {
+            let enumParseActions = currentParseMacroVisitor.parseActions.convertToEnumParseAction(
+                with: currentCaseElement,
+                errors: &errors,
+            )
+
+            caseParseInfo.append(
                 .init(
-                    node: node,
-                    message: ParseEnumMacroError.defaultCaseMustBeLast,
+                    matchAction: matchAction,
+                    parseActions: enumParseActions,
+                    caseElementName: currentCaseElement.name,
                 ),
             )
-            return
         }
-
-        caseParseInfo.append(
-            .init(
-                matchAction: matchAction,
-                parseActions: enumParseActions,
-                caseElementName: currentCaseElement.name,
-            ),
-        )
     }
 
     override func visitPost(_ node: EnumDeclSyntax) {
@@ -139,11 +137,11 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
     }
 
     func validate() throws {
-        for error in errors {
-            context.diagnose(error)
-        }
-
         if !errors.isEmpty {
+            for error in errors {
+                context.diagnose(error)
+            }
+
             throw ParseEnumMacroError.unexpectedError(description: "Enum macro parsing encountered errors")
         }
     }
@@ -167,8 +165,11 @@ private extension EnumCaseDeclSyntax {
 
 private extension [StructParseAction] {
     func convertToEnumParseAction(
-        with parameters: EnumCaseParameterListSyntax,
-    ) throws(ParseEnumMacroError) -> [EnumParseAction] {
+        with enumCase: EnumCaseElementSyntax,
+        errors: inout [Diagnostic],
+    ) -> [EnumParseAction] {
+        let arguments = enumCase.parameterClause?.parameters ?? []
+
         var result: [EnumParseAction] = []
         var parseActionIndex = 0
 
@@ -177,30 +178,68 @@ private extension [StructParseAction] {
             parseActionIndex += 1
         }
 
-        for parameter in parameters {
+        for argument in arguments {
             while parseActionIndex < count, case let .skip(skipInfo) = self[parseActionIndex] {
                 addAction(.skip(skipInfo))
             }
 
             guard parseActionIndex < count else {
-                throw ParseEnumMacroError.parameterParseNumberNotMatch
+                errors.append(
+                    .init(
+                        node: argument,
+                        message: ParseEnumMacroError.caseArgumentsMoreThanMacros,
+                    ),
+                )
+                break
             }
 
             guard case let .parse(parseInfo) = self[parseActionIndex] else {
-                throw ParseEnumMacroError.unexpectedError(description: "countered skip action")
+                fatalError("countered skip action")
             }
 
             addAction(
                 .parse(
                     .init(
                         parseInfo: parseInfo,
-                        firstName: parameter.firstName,
-                        type: parameter.type,
+                        firstName: argument.firstName,
+                        type: argument.type,
                     ),
                 ),
             )
         }
 
+        if parseActionIndex != count {
+            while parseActionIndex < count {
+                let parseAction = self[parseActionIndex]
+
+                errors.append(
+                    .init(
+                        node: parseAction.source,
+                        message: ParseEnumMacroError.macrosMoreThanCaseArguments,
+                        notes: [.init(
+                            node: Syntax(enumCase),
+                            message: MacrosMoreThanCaseArgumentsNote(enumCase: enumCase.description),
+                        )],
+                    ),
+                )
+
+                parseActionIndex += 1
+            }
+        }
+
         return result
     }
+}
+
+struct MacrosMoreThanCaseArgumentsNote: NoteMessage {
+    let enumCase: String
+
+    var message: String {
+        "The enum case `\(enumCase)` has less associated values than parse/skip macros."
+    }
+
+    let noteID: SwiftDiagnostics.MessageID = .init(
+        domain: "observer.universe.BinaryParseKit.MoreThanCaseArgumentsNote",
+        id: "macrosMoreThanCaseArguments",
+    )
 }

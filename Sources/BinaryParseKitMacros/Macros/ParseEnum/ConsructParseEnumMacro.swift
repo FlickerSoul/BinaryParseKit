@@ -48,6 +48,10 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                         try IfExprSyntax(
                             "if \(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)",
                         ) {
+                            if caseParseInfo.matchAction.matchPolicy == .matchAndTake {
+                                "try input.seek(toRelativeOffset: \(toBeMatched).count)"
+                            }
+
                             var arguments: OrderedDictionary<TokenSyntax, EnumCaseParameterParseInfo> = [:]
 
                             for parseAction in caseParseInfo.parseActions {

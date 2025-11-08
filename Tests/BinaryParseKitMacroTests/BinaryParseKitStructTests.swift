@@ -1,32 +1,10 @@
+@testable import BinaryParseKitMacros
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacroExpansion
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosGenericTestSupport
 import Testing
-
-private nonisolated(unsafe) let parseStructTopError = DiagnosticSpec(
-    message: "Fatal error: Parsing struct's fields has encountered an error.",
-    line: 1,
-    column: 1,
-    severity: .error,
-)
-
-private func specificFieldParsingError(line: Int, column: Int) -> DiagnosticSpec {
-    .init(
-        message: "Fatal error: Encountered errors during parsing field.",
-        line: line,
-        column: column,
-        severity: .error,
-    )
-}
-
-private nonisolated(unsafe) let noParseVarExist = DiagnosticSpec(
-    message: "No variables with `@parse` attribute found in the struct. Ensure at least one variable is marked for parsing.",
-    line: 1,
-    column: 1,
-    severity: .warning,
-)
 
 extension BinaryParseKitMacroTests {
     @Suite
@@ -146,10 +124,9 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "@ParseStruct only supports structs. Please use a struct declaration or other macros.",
+                        diagnostic: ParseStructMacroError.onlyStructsAreSupported,
                         line: 1,
                         column: 1,
-                        severity: .error,
                     ),
                 ],
             )
@@ -171,10 +148,9 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "@ParseStruct only supports structs. Please use a struct declaration or other macros.",
+                        diagnostic: ParseStructMacroError.onlyStructsAreSupported,
                         line: 1,
                         column: 1,
-                        severity: .error,
                     ),
                 ],
             )
@@ -197,10 +173,9 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Variable declarations must have a type annotation to be parsed.",
+                        diagnostic: ParseStructMacroError.variableDeclNoTypeAnnotation,
                         line: 4,
                         column: 9,
-                        severity: .error,
                     ),
                     parseStructTopError,
                 ],
@@ -223,10 +198,9 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "The variable declaration must have a `@parse` attribute.",
+                        diagnostic: ParseStructMacroError.noParseAttributeOnVariableDecl,
                         line: 3,
                         column: 9,
-                        severity: .error,
                     ),
                     parseStructTopError,
                 ],
@@ -253,10 +227,9 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Multiple or non-trailing `@parseRest` attributes are not allowed. Only one trailing `@parseRest` is permitted.",
+                        diagnostic: ParseStructMacroError.multipleOrNonTrailingParseRest,
                         line: 6,
                         column: 9,
-                        severity: .error,
                     ),
                     parseStructTopError,
                 ],
@@ -283,10 +256,9 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Multiple or non-trailing `@parseRest` attributes are not allowed. Only one trailing `@parseRest` is permitted.",
+                        diagnostic: ParseStructMacroError.multipleOrNonTrailingParseRest,
                         line: 6,
                         column: 9,
-                        severity: .error,
                     ),
                     parseStructTopError,
                 ],
@@ -335,10 +307,9 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Variable declaration must be an identifier definition.",
+                        diagnostic: ParseStructMacroError.notIdentifierDef,
                         line: 4,
                         column: 9,
-                        severity: .error,
                     ),
                     parseStructTopError,
                 ],
@@ -362,16 +333,14 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Unknown argument in `@parse`: 'unknownArgument: 42'. Please check the attribute syntax.",
+                        diagnostic: ParseStructMacroError.unknownParseArgument("unknownArgument"),
                         line: 3,
                         column: 12,
-                        severity: .error,
                     ),
                     DiagnosticSpec(
-                        message: "Fatal error: @parse argument validation failed.",
+                        diagnostic: ParseStructMacroError.fatalError(message: "@parse argument validation failed."),
                         line: 3,
                         column: 5,
-                        severity: .error,
                     ),
                     specificFieldParsingError(line: 3, column: 5),
                     parseStructTopError,
@@ -396,13 +365,13 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Fatal error: Both `byteCountOf` and `byteCount` cannot be specified at the same time.",
+                        diagnostic: ParseStructMacroError.fatalError(
+                            message: "Both `byteCountOf` and `byteCount` cannot be specified at the same time.",
+                        ),
                         line: 3,
                         column: 5,
-                        severity: .error,
                     ),
                     specificFieldParsingError(line: 3, column: 5),
-
                     parseStructTopError,
                 ],
             )
@@ -425,10 +394,10 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Failed expectation: byteCount should be an integer literal.",
+                        diagnostic: ParseStructMacroError
+                            .failedExpectation(message: "byteCount should be an integer literal."),
                         line: 3,
                         column: 5,
-                        severity: .error,
                     ),
                     specificFieldParsingError(line: 3, column: 5),
                     parseStructTopError,
@@ -453,10 +422,10 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Failed expectation: byteCountOf should be a KeyPath literal expression.",
+                        diagnostic: ParseStructMacroError
+                            .failedExpectation(message: "byteCountOf should be a KeyPath literal expression."),
                         line: 3,
                         column: 5,
-                        severity: .error,
                     ),
                     specificFieldParsingError(line: 3, column: 5),
                     parseStructTopError,
@@ -482,10 +451,11 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Failed expectation: Expected a labeled expression list for `@parseSkip` attribute, but found none.",
+                        diagnostic: ParseStructMacroError.failedExpectation(
+                            message: "Expected a labeled expression list for `@parseSkip` attribute, but found none.",
+                        ),
                         line: 3,
                         column: 5,
-                        severity: .error,
                     ),
                     specificFieldParsingError(line: 3, column: 5),
                     parseStructTopError,
@@ -511,10 +481,11 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Fatal error: Expected exactly two arguments for `@parseSkip` attribute, but found 1.",
+                        diagnostic: ParseStructMacroError.fatalError(
+                            message: "Expected exactly two arguments for `@parseSkip` attribute, but found 1.",
+                        ),
                         line: 3,
                         column: 5,
-                        severity: .error,
                     ),
                     specificFieldParsingError(line: 3, column: 5),
                     parseStructTopError,
@@ -540,10 +511,11 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Failed expectation: Expected the first argument of `@parseSkip` to be an integer literal representing byte count.",
+                        diagnostic: ParseStructMacroError.failedExpectation(
+                            message: "Expected the first argument of `@parseSkip` to be an integer literal representing byte count.",
+                        ),
                         line: 3,
                         column: 5,
-                        severity: .error,
                     ),
                     specificFieldParsingError(line: 3, column: 5),
                     parseStructTopError,
@@ -574,7 +546,7 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "The variable declaration with accessor(s) (`get` and `set`) cannot be parsed.",
+                        diagnostic: ParseStructMacroError.parseAccessorVariableDecl,
                         line: 4,
                         column: 9,
                     ),
@@ -600,7 +572,8 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Failed expectation: byteCount should be convertible to Int.",
+                        diagnostic: ParseStructMacroError
+                            .failedExpectation(message: "byteCount should be convertible to Int."),
                         line: 3,
                         column: 5,
                     ),
@@ -628,7 +601,8 @@ extension BinaryParseKitMacroTests {
                 """,
                 diagnostics: [
                     DiagnosticSpec(
-                        message: "Failed expectation: byteCount should be convertible to Int.",
+                        diagnostic: ParseStructMacroError
+                            .failedExpectation(message: "byteCount should be convertible to Int."),
                         line: 3,
                         column: 5,
                     ),
@@ -639,3 +613,25 @@ extension BinaryParseKitMacroTests {
         }
     }
 }
+
+// MARK: - Diagnostic
+
+private nonisolated(unsafe) let parseStructTopError = DiagnosticSpec(
+    diagnostic: ParseStructMacroError.fatalError(message: "Parsing struct's fields has encountered an error."),
+    line: 1,
+    column: 1,
+)
+
+private func specificFieldParsingError(line: Int, column: Int) -> DiagnosticSpec {
+    .init(
+        diagnostic: ParseStructMacroError.fatalError(message: "Encountered errors during parsing field."),
+        line: line,
+        column: column,
+    )
+}
+
+private nonisolated(unsafe) let noParseVarExist = DiagnosticSpec(
+    diagnostic: ParseStructMacroError.emptyParse,
+    line: 1,
+    column: 1,
+)

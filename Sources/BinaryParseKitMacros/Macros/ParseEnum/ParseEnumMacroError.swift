@@ -8,22 +8,27 @@ import SwiftDiagnostics
 
 enum ParseEnumMacroError: Error, DiagnosticMessage {
     case onlyEnumsAreSupported
-    case onlyOneEnumDeclarationForEachCase
-    case parameterParseNumberNotMatch
-    case matchMustProceedParse
+    case caseArgumentsMoreThanMacros
+    case macrosMoreThanCaseArguments
+    case matchMustProceedParseAndSkip
     case missingCaseMatchMacro
     case defaultCaseMustBeLast
+    case onlyOneMatchDefaultAllowed
+    case matchDefaultShouldBeLast
     case unexpectedError(description: String)
 
     var message: String {
         switch self {
         case .onlyEnumsAreSupported: "Only enums are supported by this macro."
-        case .onlyOneEnumDeclarationForEachCase: "Only one enum declaration is allowed for each case."
-        case .parameterParseNumberNotMatch:
-            "The number of the parse macros does not match the number of cases in the enum."
-        case .matchMustProceedParse: "The `match` macro must proceed all `parse` macro."
+        case .caseArgumentsMoreThanMacros:
+            "The associated values in the enum case exceed the number of parse/skip macros."
+        case .macrosMoreThanCaseArguments:
+            "There are more parse/skip macros than the number of cases in the enum."
+        case .matchMustProceedParseAndSkip: "The `match` macro must proceed all `parse` and `skip` macro."
         case .missingCaseMatchMacro: "A `case` declaration must has a `match` macro."
         case .defaultCaseMustBeLast: "The `matchDefault` case must be the last case in the enum."
+        case .onlyOneMatchDefaultAllowed: "Only one `matchDefault` case is allowed in a enum."
+        case .matchDefaultShouldBeLast: "The `matchDefault` case should be the last case in the enum."
         case let .unexpectedError(description: description):
             "Unexpected error: \(description)"
         }

@@ -306,3 +306,27 @@ public macro match(bytes: [UInt8]) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
+
+@attached(peer)
+public macro matchAndTake() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro matchAndTake(byte: UInt8) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro matchAndTake(bytes: [UInt8]) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro matchDefault() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)

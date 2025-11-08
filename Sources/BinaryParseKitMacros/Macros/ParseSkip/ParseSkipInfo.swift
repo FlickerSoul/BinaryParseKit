@@ -11,10 +11,12 @@ import SwiftSyntax
 struct ParseSkipInfo {
     let byteCount: ByteCount
     let reason: ExprSyntax
+    let source: Syntax
 
-    init(byteCount: ByteCount, reason: ExprSyntax) {
+    init(byteCount: ByteCount, reason: ExprSyntax, source: Syntax) {
         self.byteCount = byteCount
         self.reason = reason
+        self.source = source
     }
 
     init(from attribute: AttributeSyntax) throws(ParseStructMacroError) {
@@ -46,6 +48,6 @@ struct ParseSkipInfo {
             )
         }
 
-        self.init(byteCount: byteCountValue, reason: reasonArgument.expression)
+        self.init(byteCount: byteCountValue, reason: reasonArgument.expression, source: Syntax(attribute))
     }
 }
