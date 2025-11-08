@@ -40,10 +40,10 @@ enum EnumParseAction {
 }
 
 struct EnumCaseMatchAction {
-    let matchBytes: ExprSyntax
+    let matchBytes: ExprSyntax?
     let matchPolicy: EnumCaseMatchPolicy
 
-    static func match(bytes: ExprSyntax) -> EnumCaseMatchAction {
+    static func match(bytes: ExprSyntax?) -> EnumCaseMatchAction {
         EnumCaseMatchAction(matchBytes: bytes, matchPolicy: .match)
     }
 
@@ -51,17 +51,12 @@ struct EnumCaseMatchAction {
         EnumCaseMatchAction(matchBytes: "[]", matchPolicy: .matchDefault)
     }
 
-    static func matchAndTake(bytes: ExprSyntax) -> EnumCaseMatchAction {
+    static func matchAndTake(bytes: ExprSyntax?) -> EnumCaseMatchAction {
         EnumCaseMatchAction(matchBytes: bytes, matchPolicy: .matchAndTake)
     }
 
     static func parseMatch(from attribute: AttributeSyntax) throws(ParseEnumMacroError) -> EnumCaseMatchAction {
-        guard let arguments = attribute.arguments?.as(LabeledExprListSyntax.self) else {
-            throw ParseEnumMacroError.unexpectedError(
-                description: "Expected a labeled expression list for `@match` attribute, but found none.",
-            )
-        }
-
+        let arguments = attribute.arguments?.as(LabeledExprListSyntax.self)
         let bytes = try parseBytesArgument(in: arguments, at: 0)
 
         return .match(bytes: bytes)
@@ -72,30 +67,27 @@ struct EnumCaseMatchAction {
     }
 
     static func parseMatchAndTake(from attribute: AttributeSyntax) throws(ParseEnumMacroError) -> EnumCaseMatchAction {
-        guard let arguments = attribute.arguments?.as(LabeledExprListSyntax.self) else {
-            throw ParseEnumMacroError.unexpectedError(
-                description: "Expected a labeled expression list for `@matchAndTake` attribute, but found none.",
-            )
-        }
-
+        let arguments = attribute.arguments?.as(LabeledExprListSyntax.self)
         let bytes = try parseBytesArgument(in: arguments, at: 0)
 
         return .match(bytes: bytes)
     }
 
     private static func parseBytesArgument(
-        in list: LabeledExprListSyntax,
+        in list: LabeledExprListSyntax?,
         at index: Int,
-    ) throws(ParseEnumMacroError) -> ExprSyntax {
-        let byteCountArgument = list[list.index(at: 0)]
+    ) throws(ParseEnumMacroError) -> ExprSyntax? {
+        guard let list else {
+            return nil
+        }
+
+        let byteCountArgument = list[list.index(at: index)]
         return if byteCountArgument.label?.text == "byte" {
             "[\(byteCountArgument.expression)]"
         } else if byteCountArgument.label?.text == "bytes" {
             byteCountArgument.expression
         } else {
-            throw ParseEnumMacroError.unexpectedError(
-                description: "Expected `byte` or `bytes` in \(index)th place of expression list in `@matchAndTake` attribute, but found none.",
-            )
+            nil
         }
     }
 }

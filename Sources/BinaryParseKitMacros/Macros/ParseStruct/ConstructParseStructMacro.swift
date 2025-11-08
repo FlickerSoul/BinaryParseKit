@@ -26,12 +26,12 @@ public struct ConstructStructParseMacro: ExtensionMacro {
         try structFieldInfo.validate(for: structDeclaration)
 
         let type = TypeSyntax(type)
-        let modifiers = declaration.modifiers.trimmed
+        let modifiers = declaration.modifiers
 
         let extensionSyntax =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.parsableProtocol)") {
                 try InitializerDeclSyntax(
-                    "\(modifiers) init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
+                    "\(modifiers)init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
                     for (variableName, variableInfo) in structFieldInfo.variables {
                         for action in variableInfo.parseActions {
@@ -41,6 +41,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                                     variableName: variableName,
                                     variableType: variableInfo.type,
                                     fieldParseInfo: fieldParseInfo,
+                                    useSelf: true,
                                 )
                             case let .skip(skipInfo):
                                 generateSkipBlock(variableName: variableName, skipInfo: skipInfo)

@@ -31,16 +31,22 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
             throw ParseEnumMacroError.unexpectedError(description: "Macro analysis finished without info")
         }
 
-        let modifiers = declaration.modifiers.trimmed
+        let modifiers = declaration.modifiers
 
         let parsingExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.parsableProtocol)") {
                 try InitializerDeclSyntax(
-                    "\(modifiers) init(parsing input: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
+                    "\(modifiers)init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
                     for caseParseInfo in parseInfo.caseParseInfo {
+                        let toBeMatched = if let matchBytes = caseParseInfo.matchAction.matchBytes {
+                            matchBytes
+                        } else {
+                            ExprSyntax("[\(type).\(caseParseInfo.caseElementName).rawValue]") // TODO: add UInt8 __match
+                        }
+
                         try IfExprSyntax(
-                            "if \(raw: Constants.UtilityFunctions.matchBytes)(\(caseParseInfo.matchAction.matchBytes), in: &input)",
+                            "if \(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)",
                         ) {
                             var arguments: OrderedDictionary<TokenSyntax, EnumCaseParameterParseInfo> = [:]
 
@@ -51,7 +57,11 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                         argName
                                     } else {
                                         context.makeUniqueName(
-                                            "\(type).\(caseParseInfo.caseElementName.text).\(arguments.count)",
+                                            "\(type)_\(caseParseInfo.caseElementName.text)_\(arguments.count)"
+                                                .replacingOccurrences(
+                                                    of: ".",
+                                                    with: "_",
+                                                ),
                                         )
                                     }
 
@@ -59,6 +69,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                         variableName: variableName,
                                         variableType: caseArgParseInfo.type,
                                         fieldParseInfo: caseArgParseInfo.parseInfo,
+                                        useSelf: false,
                                     )
 
                                     // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
@@ -75,14 +86,14 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             if arguments.isEmpty {
                                 "self = .\(caseParseInfo.caseElementName)"
                             } else {
-                                "self = .\(caseParseInfo.caseElementName)\(arguments.argumentList)"
+                                "self = .\(caseParseInfo.caseElementName)(\(arguments.argumentList))"
                             }
 
                             "return"
                         }
                     }
 
-                    #"throw \#(raw: Constants.BinaryParserKitError.failedToParse)("Failed to find a match for \#(type), at \(input.startPosition)")"#
+                    #"throw \#(raw: Constants.BinaryParserKitError.failedToParse)("Failed to find a match for \#(type), at \(span.startPosition)")"#
                 }
             }
 

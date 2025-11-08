@@ -9,6 +9,7 @@ import BinaryParsing
 /// - Warning: This function is used to `@parseEnum` macro and should not be used directly.
 @inlinable
 public func __match(_ bytes: [UInt8], in input: inout BinaryParsing.ParserSpan) -> Bool {
+    // FIXME: right now, it's all `matchAndTake` semantic, implement a peak on ParserSpan??
     (try? input.atomically { span in
         let toMatchSpan = try span.sliceSpan(byteCount: bytes.count)
         let toMatch: [UInt8] = unsafe toMatchSpan.withUnsafeBytes(Array.init)

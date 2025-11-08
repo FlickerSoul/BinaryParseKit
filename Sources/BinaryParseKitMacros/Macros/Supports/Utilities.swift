@@ -12,6 +12,7 @@ func generateParseBlock(
     variableName: TokenSyntax,
     variableType: TypeSyntax,
     fieldParseInfo: StructFieldParseInfo,
+    useSelf: Bool,
 ) -> CodeBlockItemListSyntax {
     let byteCount: ExprSyntax? = switch fieldParseInfo.byteCount {
     case let .fixed(count):
@@ -31,33 +32,53 @@ func generateParseBlock(
         // Parse `\#(variableName)` of type \#(variableType) with endianness and byte count
         \#(raw: Constants.UtilityFunctions.assertEndianSizedParsable)(\#(variableType).self)
         """#
-        #"""
-        self.\#(variableName) = try .init(parsing: &span, endianness: \#(endianness), byteCount: \#(size))
-        """#
+
+        let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span, endianness: \#(endianness), byteCount: \#(size))"#
+
+        if useSelf {
+            "self.\(variableName) = \(assigned)"
+        } else {
+            "let \(variableName) = \(assigned)"
+        }
     case (let endianness?, nil):
         #"""
         // Parse `\#(variableName)` of type \#(variableType) with endianness
         \#(raw: Constants.UtilityFunctions.assertEndianParsable)(\#(variableType).self)
         """#
-        #"""
-        self.\#(variableName) = try .init(parsing: &span, endianness: \#(endianness))
-        """#
+
+        let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span, endianness: \#(endianness))"#
+
+        if useSelf {
+            "self.\(variableName) = \(assigned)"
+        } else {
+            "let \(variableName) = \(assigned)"
+        }
     case (nil, let size?):
         #"""
         // Parse `\#(variableName)` of type \#(variableType) with byte count
         \#(raw: Constants.UtilityFunctions.assertSizedParsable)(\#(variableType).self)
         """#
-        #"""
-        self.\#(variableName) = try .init(parsing: &span, byteCount: \#(size))
-        """#
+
+        let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span, byteCount: \#(size))"#
+
+        if useSelf {
+            "self.\(variableName) = \(assigned)"
+        } else {
+            "let \(variableName) = \(assigned)"
+        }
     case (nil, nil):
         #"""
         // Parse `\#(variableName)` of type \#(variableType)
         \#(raw: Constants.UtilityFunctions.assertParsable)(\#(variableType).self)
         """#
-        #"""
-        self.\#(variableName) = try .init(parsing: &span)
-        """#
+
+        let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span)"#
+
+        if useSelf {
+            "self.\(variableName) = \(assigned)"
+        } else {
+            "let \(variableName) = \(assigned)"
+        }
     }
 }
 

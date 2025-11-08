@@ -16,7 +16,7 @@ import Testing
 #if canImport(BinaryParseKitMacros)
     import BinaryParseKitMacros
 
-    nonisolated(unsafe) let testMacros: [String: Macro.Type] = [
+    private nonisolated(unsafe) let testMacros: [String: Macro.Type] = [
         "ParseStruct": ConstructStructParseMacro.self,
         "parse": ByteParsingMacro.self,
         "skip": SkipParsingMacro.self,
@@ -26,11 +26,11 @@ import Testing
         "matchDefault": ByteParsingMacro.self,
         "matchAndTake": ByteParsingMacro.self,
     ]
-    let testMacroSpec = testMacros.mapValues { MacroSpec(type: $0) }
-    let shouldRunMacroTest = true
+    private let testMacroSpec = testMacros.mapValues { MacroSpec(type: $0) }
+    private let shouldRunMacroTest = true
 #else
-    let testMacroSpec = [String: MacroSpec]()
-    let shouldRunMacroTest = false
+    private let testMacroSpec = [String: MacroSpec]()
+    private let shouldRunMacroTest = false
 #endif
 
 let macroFailureHandler = { @Sendable (failureSpec: TestFailureSpec) in
@@ -72,3 +72,6 @@ func assertMacroExpansion(
         column: column,
     )
 }
+
+@Suite(.disabled(if: !shouldRunMacroTest, "macros are not supported and cannot be imported for testing"))
+struct BinaryParseKitMacroTests {}
