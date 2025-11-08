@@ -153,6 +153,7 @@ extension BinaryParseKitMacroTests {
                             // Parse `__macro_local_12TestEnum_a_0fMu_` of type SomeType with byte count
                             BinaryParseKit.__assertSizedParsable(SomeType.self)
                             let __macro_local_12TestEnum_a_0fMu_ = try SomeType(parsing: &span, byteCount: 1)
+                            // construct `a` with above associated values
                             self = .a(__macro_local_12TestEnum_a_0fMu_)
                             return
                         }
@@ -163,6 +164,7 @@ extension BinaryParseKitMacroTests {
                             // Parse `value` of type SomeType with endianness
                             BinaryParseKit.__assertEndianParsable(SomeType.self)
                             let value = try SomeType(parsing: &span, endianness: .big)
+                            // construct `b` with above associated values
                             self = .b(__macro_local_12TestEnum_b_0fMu_, value: value)
                             return
                         }
@@ -173,6 +175,7 @@ extension BinaryParseKitMacroTests {
                             // Parse `value` of type SomeType with endianness
                             BinaryParseKit.__assertEndianParsable(SomeType.self)
                             let value = try SomeType(parsing: &span, endianness: .little)
+                            // construct `c` with above associated values
                             self = .c(code: code, value: value)
                             return
                         }

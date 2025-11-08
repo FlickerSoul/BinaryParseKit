@@ -86,7 +86,10 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             if arguments.isEmpty {
                                 "self = .\(caseParseInfo.caseElementName)"
                             } else {
-                                "self = .\(caseParseInfo.caseElementName)(\(arguments.argumentList))"
+                                """
+                                // construct `\(caseParseInfo.caseElementName)` with above associated values
+                                self = .\(caseParseInfo.caseElementName)(\(arguments.argumentList))
+                                """
                             }
 
                             "return"

@@ -33,7 +33,7 @@ import Testing
     private let shouldRunMacroTest = false
 #endif
 
-let macroFailureHandler = { @Sendable (failureSpec: TestFailureSpec) in
+private let macroFailureHandler = { @Sendable (failureSpec: TestFailureSpec) in
     _ = Issue.record(
         Comment(stringLiteral: failureSpec.message),
         sourceLocation: failureSpec.location.sourceLocation,
