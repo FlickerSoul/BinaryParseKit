@@ -18,13 +18,13 @@ import Testing
 
     private nonisolated(unsafe) let testMacros: [String: Macro.Type] = [
         "ParseStruct": ConstructStructParseMacro.self,
-        "parse": ByteParsingMacro.self,
-        "skip": SkipParsingMacro.self,
-        "parseRest": ByteParsingMacro.self,
+        "parse": EmptyPeerMacro.self,
+        "skip": EmptyPeerMacro.self,
+        "parseRest": EmptyPeerMacro.self,
         "ParseEnum": ConstructEnumParseMacro.self,
-        "match": ByteParsingMacro.self,
-        "matchDefault": ByteParsingMacro.self,
-        "matchAndTake": ByteParsingMacro.self,
+        "match": EmptyPeerMacro.self,
+        "matchDefault": EmptyPeerMacro.self,
+        "matchAndTake": EmptyPeerMacro.self,
     ]
     private let testMacroSpec = testMacros.mapValues { MacroSpec(type: $0) }
     private let shouldRunMacroTest = true
