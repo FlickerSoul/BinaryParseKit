@@ -40,9 +40,9 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
             return .skipChildren
         }
 
-        hasParse = node.hasParseAttribute()
         let structFieldVisitor = StructFieldVisitor(context: context)
         structFieldVisitor.walk(node.attributes)
+        hasParse = structFieldVisitor.hasParse
 
         do {
             try structFieldVisitor.validate()

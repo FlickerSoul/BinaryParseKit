@@ -13,24 +13,6 @@ extension VariableDeclSyntax {
             modifier.name.tokenKind == .keyword(.static)
         }
     }
-
-    func hasParseAttribute() -> Bool {
-        let parseAttributes = attributes
-            .filter { attribute in
-                guard case let .attribute(attribute) = attribute else {
-                    return false
-                }
-
-                let attributeIdentifier = attribute.attributeName.as(IdentifierTypeSyntax.self)?.name.tokenKind
-                return attributeIdentifier == .identifier("parse") || attributeIdentifier == .identifier("parseRest")
-            }
-
-        if parseAttributes.count != 1 {
-            return false
-        }
-
-        return true
-    }
 }
 
 extension PatternBindingListSyntax.Element {

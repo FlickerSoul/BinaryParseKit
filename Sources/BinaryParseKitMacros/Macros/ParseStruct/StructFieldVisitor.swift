@@ -23,7 +23,7 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
     private let context: C
     private(set) var parseActions: [ParseAction] = []
     private(set) var hasParseRest: Bool = false
-    private var hasParse: Bool = false
+    private(set) var hasParse: Bool = false
     private(set) var caseMatchAction: CaseMatchAction?
 
     private var errors: [Diagnostic] = []

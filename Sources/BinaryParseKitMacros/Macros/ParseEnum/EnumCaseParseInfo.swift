@@ -70,7 +70,7 @@ struct EnumCaseMatchAction {
         let arguments = attribute.arguments?.as(LabeledExprListSyntax.self)
         let bytes = try parseBytesArgument(in: arguments, at: 0)
 
-        return .match(bytes: bytes)
+        return .matchAndTake(bytes: bytes)
     }
 
     private static func parseBytesArgument(

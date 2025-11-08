@@ -21,7 +21,7 @@ enum ParseEnumMacroError: Error, DiagnosticMessage {
         case .onlyOneEnumDeclarationForEachCase: "Only one enum declaration is allowed for each case."
         case .parameterParseNumberNotMatch:
             "The number of the parse macros does not match the number of cases in the enum."
-        case .matchMustProceedParse: "The `match` macro must be proceed all `parse` macro."
+        case .matchMustProceedParse: "The `match` macro must proceed all `parse` macro."
         case .missingCaseMatchMacro: "A `case` declaration must has a `match` macro."
         case .defaultCaseMustBeLast: "The `matchDefault` case must be the last case in the enum."
         case let .unexpectedError(description: description):
