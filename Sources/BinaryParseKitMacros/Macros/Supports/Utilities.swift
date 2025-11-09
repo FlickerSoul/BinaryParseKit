@@ -11,7 +11,7 @@ import SwiftSyntaxBuilder
 func generateParseBlock(
     variableName: TokenSyntax,
     variableType: TypeSyntax,
-    fieldParseInfo: StructFieldParseInfo,
+    fieldParseInfo: ParseMacroInfo,
     useSelf: Bool,
 ) -> CodeBlockItemListSyntax {
     let byteCount: ExprSyntax? = switch fieldParseInfo.byteCount {
@@ -83,7 +83,7 @@ func generateParseBlock(
 }
 
 @CodeBlockItemListBuilder
-func generateSkipBlock(variableName: TokenSyntax, skipInfo: ParseSkipInfo) -> CodeBlockItemListSyntax {
+func generateSkipBlock(variableName: TokenSyntax, skipInfo: SkipMacroInfo) -> CodeBlockItemListSyntax {
     let byteCount = skipInfo.byteCount
     let reason = skipInfo.reason
     #"""

@@ -1,5 +1,5 @@
 //
-//  StructFieldParseInfo.swift
+//  ParseMacroInfo.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 7/15/25.
@@ -46,7 +46,7 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
         return .skipChildren
     }
 
-    func toStructFieldParseInfo() throws(ParseStructMacroError) -> StructFieldParseInfo {
+    func toStructFieldParseInfo() throws(ParseStructMacroError) -> ParseMacroInfo {
         guard let source else {
             throw ParseStructMacroError.fatalError(message: "Source syntax is missing.")
         }
@@ -55,7 +55,7 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
             throw ParseStructMacroError
                 .fatalError(message: "Both `byteCountOf` and `byteCount` cannot be specified at the same time.")
         }
-        let byteCount: StructFieldParseInfo.Count
+        let byteCount: ParseMacroInfo.Count
 
         if let byteCountArgument {
             guard case let .integerLiteral(byteCountLiteral) = byteCountArgument.expression
@@ -99,7 +99,7 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
     }
 }
 
-struct StructFieldParseInfo {
+struct ParseMacroInfo {
     enum Count {
         /// A fixed byte count, specified by `byteCount` argument
         case fixed(ByteCount)

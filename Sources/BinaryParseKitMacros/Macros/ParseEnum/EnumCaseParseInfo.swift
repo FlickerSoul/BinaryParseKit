@@ -29,14 +29,14 @@ enum EnumCaseMatchPolicy {
 /// will yield two ``EnumParseInfo`` items
 /// where the first has `type` of `Bool` and no `name`, and the second has `type` of `UInt` and `name` of `channel`.
 struct EnumCaseParameterParseInfo {
-    let parseInfo: StructFieldParseInfo
+    let parseInfo: ParseMacroInfo
     let firstName: TokenSyntax?
     let type: TypeSyntax
 }
 
 enum EnumParseAction {
     case parse(EnumCaseParameterParseInfo)
-    case skip(ParseSkipInfo)
+    case skip(SkipMacroInfo)
 }
 
 struct EnumCaseMatchAction {

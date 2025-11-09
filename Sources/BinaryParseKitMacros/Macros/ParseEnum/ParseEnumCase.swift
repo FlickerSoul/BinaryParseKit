@@ -12,7 +12,7 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
     private let context: C
 
     private var workEnum: EnumDeclSyntax?
-    private var currentParseMacroVisitor: StructFieldVisitor<C>?
+    private var currentParseMacroVisitor: MacroAttributeCollector<C>?
     private var currentCaseElements: EnumCaseElementListSyntax?
     private var caseParseInfo: [EnumCaseParseInfo] = []
     private(set) var parsedInfo: EnumParseInfo?
@@ -36,7 +36,7 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
     }
 
     override func visit(_ node: AttributeListSyntax) -> SyntaxVisitorContinueKind {
-        currentParseMacroVisitor = StructFieldVisitor(context: context)
+        currentParseMacroVisitor = MacroAttributeCollector(context: context)
         currentParseMacroVisitor?.walk(node)
         currentParseMacroVisitor?.validate(errors: &errors)
 

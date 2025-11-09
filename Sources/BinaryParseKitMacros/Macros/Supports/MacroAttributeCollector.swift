@@ -1,5 +1,5 @@
 //
-//  StructFieldVisitor.swift
+//  MacroAttributeCollector.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 7/17/25.
@@ -9,7 +9,7 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
+class MacroAttributeCollector<C: MacroExpansionContext>: SyntaxVisitor {
     private enum MacroError: Error {
         case invalidParseAttribute
         case invalidParseRestAttribute
@@ -44,19 +44,19 @@ class StructFieldVisitor<C: MacroExpansionContext>: SyntaxVisitor {
 
         if identifierToken == "parse" {
             do {
-                let parsed = try StructFieldParseInfo(fromParse: attribute, in: context)
+                let parsed = try ParseMacroInfo(fromParse: attribute, in: context)
                 parseActions.append(.parse(parsed))
                 hasParse = true
             } catch {
                 errors.append(.init(node: attribute, message: error))
             }
         } else if identifierToken == "parseRest" {
-            parseActions.append(.parse(StructFieldParseInfo(fromParseRest: attribute)))
+            parseActions.append(.parse(ParseMacroInfo(fromParseRest: attribute)))
             hasParse = true
             hasParseRest = true
         } else if identifierToken == "skip" {
             do {
-                let skip = try ParseSkipInfo(from: attribute)
+                let skip = try SkipMacroInfo(from: attribute)
                 parseActions.append(.skip(skip))
                 hasSkip = true
             } catch {

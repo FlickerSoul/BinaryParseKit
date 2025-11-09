@@ -22,7 +22,7 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
     private let context: C
 
     private var hasParse: Bool = false
-    private var structFieldVisitor: StructFieldVisitor<C>?
+    private var structFieldVisitor: MacroAttributeCollector<C>?
     private var existParseRestContent: Bool = false
 
     private(set) var variables: ParseVariableMapping = [:]
@@ -40,7 +40,7 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
             return .skipChildren
         }
 
-        let structFieldVisitor = StructFieldVisitor(context: context)
+        let structFieldVisitor = MacroAttributeCollector(context: context)
         structFieldVisitor.walk(node.attributes)
         hasParse = structFieldVisitor.hasParse
 

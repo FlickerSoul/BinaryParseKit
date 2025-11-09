@@ -1,5 +1,5 @@
 //
-//  ParseSkipInfo.swift
+//  SkipMacroInfo.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 7/15/25.
@@ -8,7 +8,7 @@
 import BinaryParseKitCommons
 import SwiftSyntax
 
-struct ParseSkipInfo {
+struct SkipMacroInfo {
     let byteCount: ByteCount
     let reason: ExprSyntax
     let source: Syntax

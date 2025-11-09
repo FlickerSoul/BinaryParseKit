@@ -7,8 +7,8 @@
 import SwiftSyntax
 
 enum StructParseAction {
-    case parse(StructFieldParseInfo)
-    case skip(ParseSkipInfo)
+    case parse(ParseMacroInfo)
+    case skip(SkipMacroInfo)
 
     var source: Syntax {
         switch self {
