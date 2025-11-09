@@ -42,14 +42,16 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                         let toBeMatched = if let matchBytes = caseParseInfo.matchAction.matchBytes {
                             matchBytes
                         } else {
-                            ExprSyntax("[\(type).\(caseParseInfo.caseElementName).rawValue]") // TODO: add UInt8 __match
+                            ExprSyntax(
+                                "(\(type).\(caseParseInfo.caseElementName) as MatchableRawRepresentable) .bytesToMatch()",
+                            )
                         }
 
                         try IfExprSyntax(
                             "if \(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)",
                         ) {
                             if caseParseInfo.matchAction.matchPolicy == .matchAndTake {
-                                "try input.seek(toRelativeOffset: \(toBeMatched).count)"
+                                "try span.seek(toRelativeOffset: \(toBeMatched).count)"
                             }
 
                             var arguments: OrderedDictionary<TokenSyntax, EnumCaseParameterParseInfo> = [:]

@@ -142,3 +142,7 @@ public extension SizedParsable {
         self = result
     }
 }
+
+public protocol MatchableRawRepresentable: RawRepresentable {
+    func bytesToMatch() -> [UInt8]
+}

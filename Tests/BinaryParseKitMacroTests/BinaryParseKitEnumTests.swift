@@ -105,11 +105,11 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([TestEnum.a.rawValue], in: &span) {
+                        if BinaryParseKit.__match((TestEnum.a as MatchableRawRepresentable) .bytesToMatch(), in: &span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match([TestEnum.b.rawValue], in: &span) {
+                        if BinaryParseKit.__match((TestEnum.b as MatchableRawRepresentable) .bytesToMatch(), in: &span) {
                             self = .b
                             return
                         }
@@ -208,7 +208,7 @@ extension BinaryParseKitMacroTests {
                 extension TestEnum: BinaryParseKit.Parsable {
                     init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x01], in: &span) {
-                            try input.seek(toRelativeOffset: [0x01].count)
+                            try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
                             return
                         }
@@ -247,7 +247,7 @@ extension BinaryParseKitMacroTests {
                 extension TestEnum: BinaryParseKit.Parsable {
                     init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x01], in: &span) {
-                            try input.seek(toRelativeOffset: [0x01].count)
+                            try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
                             return
                         }
