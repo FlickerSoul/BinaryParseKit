@@ -105,11 +105,11 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match((TestEnum.a as MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.a as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match((TestEnum.b as MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.b as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
                             self = .b
                             return
                         }
