@@ -4,7 +4,6 @@
 //
 //  Created by Larry Zeng on 7/16/25.
 //
-import BinaryParseKitCommons
 import BinaryParsing
 
 // MARK: - Floating Point Conformances
@@ -86,6 +85,14 @@ extension Int: EndianParsable {
         endianness: BinaryParsing.Endianness,
     ) throws(ParsingError) {
         try self.init(parsing: &input, endianness: endianness, byteCount: MemoryLayout<Self>.size)
+    }
+}
+
+// MARK: - MatchableRawValue
+
+public extension MatchableRawRepresentable where Self.RawValue == UInt8 {
+    func bytesToMatch() -> [UInt8] {
+        [rawValue]
     }
 }
 

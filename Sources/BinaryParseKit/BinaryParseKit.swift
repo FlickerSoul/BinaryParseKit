@@ -1,7 +1,7 @@
 // The Swift Programming Language
 // https://docs.swift.org/swift-book
 
-import BinaryParseKitCommons
+@_exported public import BinaryParseKitCommons
 public import BinaryParsing
 
 // MARK: - Skip Parsing
@@ -32,7 +32,7 @@ public import BinaryParsing
 @attached(peer)
 public macro skip(byteCount: ByteCount, because: String) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "SkipParsingMacro",
+    type: "EmptyPeerMacro",
 )
 
 // MARK: - Field Parsing
@@ -53,7 +53,7 @@ public macro skip(byteCount: ByteCount, because: String) = #externalMacro(
 /// }
 /// ```
 @attached(peer)
-public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "ByteParsingMacro")
+public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "EmptyPeerMacro")
 
 /// Parses a field with a specific endianness.
 ///
@@ -76,7 +76,7 @@ public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "Byt
 /// }
 /// ```
 @attached(peer)
-public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParseKitMacros", type: "ByteParsingMacro")
+public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParseKitMacros", type: "EmptyPeerMacro")
 
 /// Parses a field with a specific byte count.
 ///
@@ -101,7 +101,7 @@ public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParse
 @attached(peer)
 public macro parse(byteCount: ByteCount) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro",
+    type: "EmptyPeerMacro",
 )
 
 /// Parses a field with a byte count determined by another field's value.
@@ -128,7 +128,7 @@ public macro parse(byteCount: ByteCount) = #externalMacro(
 @attached(peer)
 public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro",
+    type: "EmptyPeerMacro",
 )
 
 /// Parses a field with both specific byte count and endianness.
@@ -153,7 +153,7 @@ public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>) = #externalM
 @attached(peer)
 public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro",
+    type: "EmptyPeerMacro",
 )
 
 /// Parses a field with byte count from another field and specific endianness.
@@ -182,7 +182,7 @@ public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacr
 @attached(peer)
 public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>, endianness: Endianness) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro",
+    type: "EmptyPeerMacro",
 )
 
 /// Parses all remaining bytes in the data stream.
@@ -208,7 +208,7 @@ public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>, endianness: 
 @attached(peer)
 public macro parseRest() = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro",
+    type: "EmptyPeerMacro",
 )
 
 /// Parses all remaining bytes with a specific endianness.
@@ -235,7 +235,7 @@ public macro parseRest() = #externalMacro(
 @attached(peer)
 public macro parseRest(endianness: Endianness) = #externalMacro(
     module: "BinaryParseKitMacros",
-    type: "ByteParsingMacro",
+    type: "EmptyPeerMacro",
 )
 
 // MARK: - Struct Parsing
@@ -277,4 +277,56 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 public macro ParseStruct() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructStructParseMacro",
+)
+
+// MARK: - Parse Enum
+
+@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
+public macro ParseEnum() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ConstructEnumParseMacro",
+)
+
+// MARK: - Enum Case Parsing
+
+@attached(peer)
+public macro match() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro match(byte: UInt8) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro match(bytes: [UInt8]) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro matchAndTake() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro matchAndTake(byte: UInt8) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro matchAndTake(bytes: [UInt8]) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro matchDefault() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
 )

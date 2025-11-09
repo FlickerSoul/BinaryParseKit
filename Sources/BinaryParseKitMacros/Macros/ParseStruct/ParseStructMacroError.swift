@@ -50,7 +50,7 @@ enum ParseStructMacroError: Error, DiagnosticMessage {
     }
 
     var diagnosticID: SwiftDiagnostics.MessageID {
-        .init(domain: "observer.universe.BinaryParseKit", id: "\(self)")
+        .init(domain: "observer.universe.BinaryParseKit.ParseStructMacroError", id: "\(self)")
     }
 
     var severity: SwiftDiagnostics.DiagnosticSeverity {

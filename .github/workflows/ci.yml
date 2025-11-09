@@ -20,9 +20,27 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: macOS-26
+    env:
+      DEVELOPER_DIR: "/Applications/Xcode_26.0.app/Contents/Developer"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift Version
+        run: xcrun swift --version
+      - name: Install SwiftLint
+        run: brew install swiftlint --quiet
+      - name: Install swift-format
+        run: brew install swiftformat --quiet
+      - name: SwiftLint
+        run: swiftlint --strict --config .swiftlint.yml .
+      - name: Swift Format Check
+        run: swiftformat --lint-only --config .swiftformat.conf . --strict
   test:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runsOn }}
+    needs: lint
     env:
       DEVELOPER_DIR: "/Applications/${{ matrix.xcode }}.app/Contents/Developer"
     strategy:
@@ -35,19 +53,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Swift Version
         run: xcrun swift --version
-      - name: Install SwiftLint
-        run: brew install swiftlint --quiet
-      - name: Install swift-format
-        run: |
-          brew install swiftformat --quiet
       - name: Install xcbeautify
-        run: |
-          brew install xcbeautify --quiet
-      - name: SwiftLint
-        run: swiftlint --strict --config .swiftlint.yml .
-      - name: Swift Format Check
-        run: |
-          swiftformat --lint-only --config .swiftformat.conf . --strict
+        run: brew install xcbeautify --quiet
       - name: Run Tests
         run: |
           set -o pipefail && \

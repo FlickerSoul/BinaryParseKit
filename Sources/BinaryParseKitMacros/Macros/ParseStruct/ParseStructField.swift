@@ -13,16 +13,16 @@ import SwiftSyntaxMacros
 
 class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
     struct VariableInfo {
-        let type: String
+        let type: TypeSyntax
         let parseActions: [StructParseAction]
     }
 
-    typealias ParseVariableMapping = OrderedDictionary<String, VariableInfo>
+    typealias ParseVariableMapping = OrderedDictionary<TokenSyntax, VariableInfo>
 
     private let context: C
 
     private var hasParse: Bool = false
-    private var structFieldVisitor: StructFieldVisitor<C>?
+    private var structFieldVisitor: MacroAttributeCollector<C>?
     private var existParseRestContent: Bool = false
 
     private(set) var variables: ParseVariableMapping = [:]
@@ -40,12 +40,12 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
             return .skipChildren
         }
 
-        hasParse = node.hasParseAttribute()
-        let structFieldVisitor = StructFieldVisitor(context: context)
+        let structFieldVisitor = MacroAttributeCollector(context: context)
         structFieldVisitor.walk(node.attributes)
+        hasParse = structFieldVisitor.hasParse
 
         do {
-            try structFieldVisitor.validate(for: node.attributes)
+            try structFieldVisitor.validate()
             self.structFieldVisitor = structFieldVisitor
             return .visitChildren
         } catch {
@@ -102,7 +102,7 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
             throw .invalidTypeAnnotation
         }
 
-        variables[variableName] = .init(type: typeName, parseActions: structFieldVisitor.actions)
+        variables[variableName] = .init(type: typeName, parseActions: structFieldVisitor.parseActions)
     }
 
     func validate(for node: some SwiftSyntax.SyntaxProtocol) throws(ParseStructMacroError) {
