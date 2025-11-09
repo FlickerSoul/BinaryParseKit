@@ -73,8 +73,8 @@ struct EnumParsingTest {
         let second = try RawRepresentableUInt8(parsing: Data([0x20]))
         #expect(second == .second)
 
-        let thid = try RawRepresentableUInt8(parsing: Data([0x30]))
-        #expect(thid == .third)
+        let third = try RawRepresentableUInt8(parsing: Data([0x30]))
+        #expect(third == .third)
     }
 
     @Test
