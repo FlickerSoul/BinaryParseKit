@@ -1,13 +1,13 @@
 {
-  "originHash" : "fbf0509eb6b08786124443a262d72a94182affa13a8d3b53ba807b3d8c2f3eb7",
+  "originHash" : "8bbc373bcf8db755460e717ab6cbb79a66408d9aee27c6d562fa53fe12e22529",
   "pins" : [
     {
       "identity" : "swift-binary-parsing",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-binary-parsing",
       "state" : {
-        "revision" : "2897231396f97c2ea151936e64b84f4e238c3ad9",
-        "version" : "0.0.1"
+        "branch" : "main",
+        "revision" : "13532cf777cbd2e112954ccc9ada37edb06fe84a"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
       "state" : {
-        "revision" : "ad9f6723fd29591e6c0a19a9c4982cae51d65b1d",
-        "version" : "1.1.5"
+        "revision" : "c11818f3cae0780656baa430b49e7f163f08dffd",
+        "version" : "1.1.6"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "0687f71944021d616d34d922343dcef086855920",
-        "version" : "600.0.1"
+        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
+        "version" : "602.0.0"
       }
     }
   ],

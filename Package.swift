@@ -19,8 +19,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0-latest"),
-        .package(url: "https://github.com/apple/swift-binary-parsing", .upToNextMinor(from: "0.0.1")),
+        .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
+        .package(url: "https://github.com/apple/swift-binary-parsing", branch: "main"),
         .package(
             url: "https://github.com/apple/swift-collections.git",
             .upToNextMinor(from: "1.1.0"),
