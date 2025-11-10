@@ -16,7 +16,7 @@ import Testing
 #if canImport(BinaryParseKitMacros)
     import BinaryParseKitMacros
 
-    private nonisolated(unsafe) let testMacros: [String: Macro.Type] = [
+    private let testMacros: [String: Macro.Type] = [
         "ParseStruct": ConstructStructParseMacro.self,
         "parse": EmptyPeerMacro.self,
         "skip": EmptyPeerMacro.self,

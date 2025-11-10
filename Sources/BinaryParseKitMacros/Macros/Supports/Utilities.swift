@@ -30,7 +30,7 @@ func generateParseBlock(
     case let (endianness?, size?):
         #"""
         // Parse `\#(variableName)` of type \#(variableType) with endianness and byte count
-        \#(raw: Constants.UtilityFunctions.assertEndianSizedParsable)(\#(variableType).self)
+        \#(raw: Constants.UtilityFunctions.assertEndianSizedParsable)((\#(variableType)).self)
         """#
 
         let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span, endianness: \#(endianness), byteCount: \#(size))"#
@@ -43,7 +43,7 @@ func generateParseBlock(
     case (let endianness?, nil):
         #"""
         // Parse `\#(variableName)` of type \#(variableType) with endianness
-        \#(raw: Constants.UtilityFunctions.assertEndianParsable)(\#(variableType).self)
+        \#(raw: Constants.UtilityFunctions.assertEndianParsable)((\#(variableType)).self)
         """#
 
         let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span, endianness: \#(endianness))"#
@@ -56,7 +56,7 @@ func generateParseBlock(
     case (nil, let size?):
         #"""
         // Parse `\#(variableName)` of type \#(variableType) with byte count
-        \#(raw: Constants.UtilityFunctions.assertSizedParsable)(\#(variableType).self)
+        \#(raw: Constants.UtilityFunctions.assertSizedParsable)((\#(variableType)).self)
         """#
 
         let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span, byteCount: \#(size))"#
@@ -69,7 +69,7 @@ func generateParseBlock(
     case (nil, nil):
         #"""
         // Parse `\#(variableName)` of type \#(variableType)
-        \#(raw: Constants.UtilityFunctions.assertParsable)(\#(variableType).self)
+        \#(raw: Constants.UtilityFunctions.assertParsable)((\#(variableType)).self)
         """#
 
         let assigned: ExprSyntax = #"try \#(variableType)(parsing: &span)"#
