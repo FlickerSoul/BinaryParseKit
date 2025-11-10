@@ -73,33 +73,33 @@ extension BinaryParseKitMacroTests {
                 extension Header: BinaryParseKit.Parsable {
                     public init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         // Parse `a` of type Int with endianness and byte count
-                        BinaryParseKit.__assertEndianSizedParsable(Int.self)
+                        BinaryParseKit.__assertEndianSizedParsable((Int).self)
                         self.a = try Int(parsing: &span, endianness: .big, byteCount: 1)
                         // Parse `b` of type Int32 with endianness
-                        BinaryParseKit.__assertEndianParsable(Int32.self)
+                        BinaryParseKit.__assertEndianParsable((Int32).self)
                         self.b = try Int32(parsing: &span, endianness: .little)
                         // Skip 2 because of "not needed", before parsing `d`
                         try span.seek(toRelativeOffset: 2)
                         // Skip 4 because of "also not needed", before parsing `d`
                         try span.seek(toRelativeOffset: 4)
                         // Parse `d` of type Float16 with endianness
-                        BinaryParseKit.__assertEndianParsable(Float16.self)
+                        BinaryParseKit.__assertEndianParsable((Float16).self)
                         self.d = try Float16(parsing: &span, endianness: .big)
                         // Parse `c` of type CustomValue
-                        BinaryParseKit.__assertParsable(CustomValue.self)
+                        BinaryParseKit.__assertParsable((CustomValue).self)
                         self.c = try CustomValue(parsing: &span)
                         // Skip 6 because of "again, not needed", before parsing `e`
                         try span.seek(toRelativeOffset: 6)
                         // Parse `e` of type CustomValue
-                        BinaryParseKit.__assertParsable(CustomValue.self)
+                        BinaryParseKit.__assertParsable((CustomValue).self)
                         self.e = try CustomValue(parsing: &span)
                         // Parse `g` of type CustomValue with byte count
-                        BinaryParseKit.__assertSizedParsable(CustomValue.self)
+                        BinaryParseKit.__assertSizedParsable((CustomValue).self)
                         self.g = try CustomValue(parsing: &span, byteCount: Int(self.b))
                         // Skip 7 because of "last one skip", before parsing `f`
                         try span.seek(toRelativeOffset: 7)
                         // Parse `f` of type CustomValue with endianness and byte count
-                        BinaryParseKit.__assertEndianSizedParsable(CustomValue.self)
+                        BinaryParseKit.__assertEndianSizedParsable((CustomValue).self)
                         self.f = try CustomValue(parsing: &span, endianness: .little, byteCount: span.endPosition - span.startPosition)
                     }
                 }
@@ -642,13 +642,13 @@ extension BinaryParseKitMacroTests {
             extension Header: BinaryParseKit.Parsable {
                 init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                     // Parse `a` of type Int
-                    BinaryParseKit.__assertParsable(Int.self)
+                    BinaryParseKit.__assertParsable((Int).self)
                     self.a = try Int(parsing: &span)
                     // Parse `b` of type Int
-                    BinaryParseKit.__assertParsable(Int.self)
+                    BinaryParseKit.__assertParsable((Int).self)
                     self.b = try Int(parsing: &span)
                     // Parse `c` of type Int
-                    BinaryParseKit.__assertParsable(Int.self)
+                    BinaryParseKit.__assertParsable((Int).self)
                     self.c = try Int(parsing: &span)
                 }
             }
