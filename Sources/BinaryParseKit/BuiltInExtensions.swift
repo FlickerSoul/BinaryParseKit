@@ -5,6 +5,7 @@
 //  Created by Larry Zeng on 7/16/25.
 //
 import BinaryParsing
+import Foundation
 
 extension UInt8: @retroactive ExpressibleByParsing {}
 extension UInt8: EndianSizedParsable {}
@@ -18,3 +19,5 @@ extension Int16: EndianSizedParsable, EndianParsable {}
 extension Int32: EndianSizedParsable, EndianParsable {}
 extension Int: EndianSizedParsable {}
 extension Int64: EndianSizedParsable, EndianParsable {}
+
+extension Data: SizedParsable {}
