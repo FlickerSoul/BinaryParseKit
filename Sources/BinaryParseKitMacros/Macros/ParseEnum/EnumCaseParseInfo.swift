@@ -41,6 +41,7 @@ struct EnumCaseParameterParseInfo {
 }
 
 enum EnumParseAction {
+    case parseStore(ParseStoreMacroInfo)
     case parse(EnumCaseParameterParseInfo)
     case skip(SkipMacroInfo)
 }

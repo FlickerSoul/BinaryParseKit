@@ -193,19 +193,22 @@ private extension [StructParseAction] {
                 break
             }
 
-            guard case let .parse(parseInfo) = self[parseActionIndex] else {
+            switch self[parseActionIndex] {
+            case let .parseStore(parseStoreInfo):
+                addAction(.parseStore(parseStoreInfo))
+            case let .parse(parseInfo):
+                addAction(
+                    .parse(
+                        .init(
+                            parseInfo: parseInfo,
+                            firstName: argument.firstName,
+                            type: argument.type,
+                        ),
+                    ),
+                )
+            case .skip:
                 fatalError("countered skip action")
             }
-
-            addAction(
-                .parse(
-                    .init(
-                        parseInfo: parseInfo,
-                        firstName: argument.firstName,
-                        type: argument.type,
-                    ),
-                ),
-            )
         }
 
         if parseActionIndex != count {

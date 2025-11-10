@@ -36,11 +36,14 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                     for (variableName, variableInfo) in structFieldInfo.variables {
                         for action in variableInfo.parseActions {
                             switch action {
+                            case let .parseStore(parseStoreInfo):
+                                generateParseStoreBlock(from: parseStoreInfo, in: context)
                             case let .parse(fieldParseInfo):
                                 generateParseBlock(
                                     variableName: variableName,
                                     variableType: variableInfo.type,
-                                    fieldParseInfo: fieldParseInfo,
+                                    byteCount: fieldParseInfo.byteCount,
+                                    endianness: fieldParseInfo.endianness,
                                     useSelf: true,
                                 )
                             case let .skip(skipInfo):

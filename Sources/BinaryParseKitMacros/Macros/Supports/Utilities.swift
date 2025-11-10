@@ -6,15 +6,17 @@
 //
 import SwiftSyntax
 import SwiftSyntaxBuilder
+import SwiftSyntaxMacros
 
 @CodeBlockItemListBuilder
 func generateParseBlock(
     variableName: TokenSyntax,
     variableType: TypeSyntax,
-    fieldParseInfo: ParseMacroInfo,
+    byteCount: ParseMacroInfo.Count,
+    endianness: ExprSyntax?,
     useSelf: Bool,
 ) -> CodeBlockItemListSyntax {
-    let byteCount: ExprSyntax? = switch fieldParseInfo.byteCount {
+    let byteCount: ExprSyntax? = switch byteCount {
     case let .fixed(count):
         ExprSyntax("\(raw: count)")
     case .variable:
@@ -24,7 +26,6 @@ func generateParseBlock(
     case let .ofVariable(expr):
         ExprSyntax("Int(\(expr))")
     }
-    let endianness = fieldParseInfo.endianness
 
     switch (endianness, byteCount) {
     case let (endianness?, size?):
@@ -90,4 +91,20 @@ func generateSkipBlock(variableName: TokenSyntax, skipInfo: SkipMacroInfo) -> Co
     // Skip \#(raw: byteCount) because of \#(reason), before parsing `\#(variableName)`
     try span.seek(toRelativeOffset: \#(raw: byteCount))
     """#
+}
+
+@CodeBlockItemListBuilder
+func generateParseStoreBlock(
+    from info: ParseStoreMacroInfo,
+    in context: some MacroExpansionContext,
+) -> CodeBlockItemListSyntax {
+    let variableName = context.makeUniqueName(info.variableName)
+
+    generateParseBlock(
+        variableName: variableName,
+        variableType: info.type,
+        byteCount: info.byteCount.toParseInfoCount(),
+        endianness: info.endianness,
+        useSelf: false,
+    )
 }

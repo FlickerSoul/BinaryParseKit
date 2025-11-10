@@ -238,6 +238,12 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
+@attached(peer)
+public macro parse<T>(byteCount: ByteCount, as type: T, storeAs field: String) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
 // MARK: - Struct Parsing
 
 /// Generates a `Parsable` implementation for a struct with annotated fields.

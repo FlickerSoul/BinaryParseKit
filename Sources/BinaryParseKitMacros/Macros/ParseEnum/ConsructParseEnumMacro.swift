@@ -58,6 +58,8 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
 
                             for parseAction in caseParseInfo.parseActions {
                                 switch parseAction {
+                                case let .parseStore(parseStoreInfo):
+                                    generateParseStoreBlock(from: parseStoreInfo, in: context)
                                 case let .parse(caseArgParseInfo):
                                     let variableName = if let argName = caseArgParseInfo.firstName {
                                         argName
@@ -74,7 +76,8 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                     generateParseBlock(
                                         variableName: variableName,
                                         variableType: caseArgParseInfo.type,
-                                        fieldParseInfo: caseArgParseInfo.parseInfo,
+                                        byteCount: caseArgParseInfo.parseInfo.byteCount,
+                                        endianness: caseArgParseInfo.parseInfo.endianness,
                                         useSelf: false,
                                     )
 

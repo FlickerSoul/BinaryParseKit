@@ -7,11 +7,14 @@
 import SwiftSyntax
 
 enum StructParseAction {
+    case parseStore(ParseStoreMacroInfo)
     case parse(ParseMacroInfo)
     case skip(SkipMacroInfo)
 
     var source: Syntax {
         switch self {
+        case let .parseStore(parseStore):
+            parseStore.source
         case let .parse(parse):
             parse.source
         case let .skip(skip):
