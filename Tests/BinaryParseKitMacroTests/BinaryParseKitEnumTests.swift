@@ -592,6 +592,84 @@ extension BinaryParseKitMacroTests {
                 ],
             )
         }
+
+        @Test
+        func `no comments in code generation`() {
+            assertMacroExpansion("""
+            @ParseEnum
+            enum TestEnum {
+                @match
+                @parse
+                case a(
+                    value: Int // some value
+                )
+
+                @match
+                @parse
+                case b(
+                    value:  // some value
+                        Int // some value
+                )
+
+                @match
+                @parse
+                @parse
+                case c(
+                    Int, // some value
+                    value: // some value
+                        Int // some value
+                )
+            }
+            """, expandedSource: #"""
+            enum TestEnum {
+                case a(
+                    value: Int // some value
+                )
+                case b(
+                    value:  // some value
+                        Int // some value
+                )
+                case c(
+                    Int, // some value
+                    value: // some value
+                        Int // some value
+                )
+            }
+
+            extension TestEnum: BinaryParseKit.Parsable {
+                init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    if BinaryParseKit.__match((TestEnum.a as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                        // Parse `value` of type Int
+                        BinaryParseKit.__assertParsable(Int.self)
+                        let value = try Int(parsing: &span)
+                        // construct `a` with above associated values
+                        self = .a(value: value)
+                        return
+                    }
+                    if BinaryParseKit.__match((TestEnum.b as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                        // Parse `value` of type Int
+                        BinaryParseKit.__assertParsable(Int.self)
+                        let value = try Int(parsing: &span)
+                        // construct `b` with above associated values
+                        self = .b(value: value)
+                        return
+                    }
+                    if BinaryParseKit.__match((TestEnum.c as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                        // Parse `__macro_local_12TestEnum_c_0fMu_` of type Int
+                        BinaryParseKit.__assertParsable(Int.self)
+                        let __macro_local_12TestEnum_c_0fMu_ = try Int(parsing: &span)
+                        // Parse `value` of type Int
+                        BinaryParseKit.__assertParsable(Int.self)
+                        let value = try Int(parsing: &span)
+                        // construct `c` with above associated values
+                        self = .c(__macro_local_12TestEnum_c_0fMu_, value: value)
+                        return
+                    }
+                    throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                }
+            }
+            """#)
+        }
     }
 }
 

@@ -76,7 +76,7 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
 
             let selfAccessExpr = ExprSyntax("self\(keyPath.components)")
 
-            byteCount = .ofVariable(selfAccessExpr)
+            byteCount = .ofVariable(selfAccessExpr.trimmed)
         } else {
             byteCount = .unspecified
         }
@@ -119,7 +119,7 @@ struct ParseMacroInfo {
 
     init(byteCount: Count, endianness: ExprSyntax? = nil, source: Syntax) {
         self.byteCount = byteCount
-        self.endianness = endianness
+        self.endianness = endianness?.trimmed
         self.source = source
     }
 

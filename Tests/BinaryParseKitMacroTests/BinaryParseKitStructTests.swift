@@ -611,6 +611,49 @@ extension BinaryParseKitMacroTests {
                 ],
             )
         }
+
+        @Test
+        func `no comments and spaces in code generation`() {
+            assertMacroExpansion("""
+            @ParseStruct
+            struct Header {
+                @parse
+                var a: Int  // some comments
+
+                @parse
+                var b: // some comments
+                        Int // some comments
+
+                @parse
+                var  // some comments
+                    c: // some comments
+                        Int // some comments
+            }
+            """, expandedSource: """
+            struct Header {
+                var a: Int  // some comments
+                var b: // some comments
+                        Int // some comments
+                var  // some comments
+                    c: // some comments
+                        Int // some comments
+            }
+
+            extension Header: BinaryParseKit.Parsable {
+                init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    // Parse `a` of type Int
+                    BinaryParseKit.__assertParsable(Int.self)
+                    self.a = try Int(parsing: &span)
+                    // Parse `b` of type Int
+                    BinaryParseKit.__assertParsable(Int.self)
+                    self.b = try Int(parsing: &span)
+                    // Parse `c` of type Int
+                    BinaryParseKit.__assertParsable(Int.self)
+                    self.c = try Int(parsing: &span)
+                }
+            }
+            """)
+        }
     }
 }
 

@@ -32,6 +32,12 @@ struct EnumCaseParameterParseInfo {
     let parseInfo: ParseMacroInfo
     let firstName: TokenSyntax?
     let type: TypeSyntax
+
+    init(parseInfo: ParseMacroInfo, firstName: TokenSyntax?, type: TypeSyntax) {
+        self.parseInfo = parseInfo
+        self.firstName = firstName?.trimmed
+        self.type = type.trimmed
+    }
 }
 
 enum EnumParseAction {
@@ -111,6 +117,12 @@ struct EnumCaseParseInfo {
     let matchAction: EnumCaseMatchAction
     let parseActions: [EnumParseAction]
     let caseElementName: TokenSyntax
+
+    init(matchAction: EnumCaseMatchAction, parseActions: [EnumParseAction], caseElementName: TokenSyntax) {
+        self.matchAction = matchAction
+        self.parseActions = parseActions
+        self.caseElementName = caseElementName.trimmed
+    }
 }
 
 struct EnumParseInfo {

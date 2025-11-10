@@ -15,6 +15,11 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
     struct VariableInfo {
         let type: TypeSyntax
         let parseActions: [StructParseAction]
+
+        init(type: TypeSyntax, parseActions: [StructParseAction]) {
+            self.type = type.trimmed
+            self.parseActions = parseActions
+        }
     }
 
     typealias ParseVariableMapping = OrderedDictionary<TokenSyntax, VariableInfo>
@@ -102,7 +107,7 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
             throw .invalidTypeAnnotation
         }
 
-        variables[variableName] = .init(type: typeName, parseActions: structFieldVisitor.parseActions)
+        variables[variableName.trimmed] = .init(type: typeName, parseActions: structFieldVisitor.parseActions)
     }
 
     func validate(for node: some SwiftSyntax.SyntaxProtocol) throws(ParseStructMacroError) {
