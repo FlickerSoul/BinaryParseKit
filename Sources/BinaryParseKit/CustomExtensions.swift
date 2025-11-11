@@ -88,14 +88,6 @@ extension Int: EndianParsable {
     }
 }
 
-// MARK: - MatchableRawValue
-
-public extension MatchableRawRepresentable where Self.RawValue == UInt8 {
-    func bytesToMatch() -> [UInt8] {
-        [rawValue]
-    }
-}
-
 // MARK: - RawRepresentable
 
 //

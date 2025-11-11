@@ -22,18 +22,22 @@ public func __match(_ bytes: borrowing [UInt8], in input: inout BinaryParsing.Pa
     return toMatch == bytes
 }
 
+/// Asserts that the given type conforms to `Parsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
 @inlinable
 public func __assertParsable(_: (some Parsable).Type) {}
 
+/// Asserts that the given type conforms to `SizedParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
 @inlinable
 public func __assertSizedParsable(_: (some SizedParsable).Type) {}
 
+/// Asserts that the given type conforms to `EndianParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
 @inlinable
 public func __assertEndianParsable(_: (some EndianParsable).Type) {}
 
+/// Asserts that the given type conforms to `EndianSizedParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
 @inlinable
 public func __assertEndianSizedParsable(_: (some EndianSizedParsable).Type) {}
