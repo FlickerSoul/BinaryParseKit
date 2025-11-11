@@ -26,11 +26,18 @@ jobs:
         run: xcrun swift --version
       - name: Build DocC
         run: |
-          swift package --allow-writing-to-directory ./docs \
-            generate-documentation \
-            --target BinaryParseKit \
-            --output-path ./docs \
-            --transform-for-static-hosting
+          xcodebuild docbuild \
+            -scheme BinaryParseKit-Package \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath ./DerivedData
+
+          # Find the generated .doccarchive
+          DOCC_ARCHIVE=$(find ./DerivedData -name "BinaryParseKit.doccarchive" | head -n 1)
+
+          # Process the archive for static hosting
+          xcrun docc process-archive \
+            transform-for-static-hosting "$DOCC_ARCHIVE" \
+            --output-path ./docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
