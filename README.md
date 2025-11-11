@@ -14,6 +14,13 @@ A declarative Swift package for parsing binary data using macros, built on top o
 - **Skip functionality**: Skip unwanted bytes with documentation
 - **Custom byte counts**: Parse types with specific byte lengths
 - **Remaining data parsing**: Parse all remaining bytes in a buffer
+- **Enum parsing**: Parse enums with pattern matching and associated values
+
+## Requirements
+
+- Swift 6.2+
+- Xcode 26.0+
+- macOS 15.0+ / iOS 18.0+ / tvOS 18.0+ / watchOS 11.0+ / visionOS 2.0+
 
 ## Installation
 
@@ -107,7 +114,9 @@ print(packet.payload.message) // "hello world!"
 
 ## Usage
 
-### Basic Parsing
+### Struct Parsing
+
+#### Struct Parsing Macros
 
 Mark your struct with `@ParseStruct` and annotate fields with parsing macros:
 
@@ -125,8 +134,9 @@ struct Header {
 }
 ```
 
-### Parsing Macros
+Available struct parsing macros:
 
+- **`@ParseStruct`** - Mark a struct for binary parsing
 - **`@parse`** - Use the type's default parsing behavior
 - **`@parse(endianness: .big/.little)`** - Parse with specific endianness
 - **`@parse(byteCount: Int)`** - Parse a specific number of bytes
@@ -134,18 +144,7 @@ struct Header {
 - **`@parseRest()`** - Parse all remaining bytes
 - **`@skip(byteCount: Int, because: String)`** - Skip bytes with documentation
 
-### Protocol Conformances
-
-BinaryParseKit defines four parsing protocols:
-
-- **`Parsable`** - Basic parsing without additional parameters
-- **`EndianParsable`** - Parsing with endianness specification
-- **`SizedParsable`** - Parsing with byte count specification
-- **`EndianSizedParsable`** - Parsing with both endianness and byte count
-
-Most built-in types already conform to these protocols. For custom types, implement the appropriate protocol(s).
-
-### Variable-Length Fields
+#### Variable-Length Fields
 
 Parse fields whose length depends on previously parsed values:
 
@@ -159,8 +158,6 @@ struct VariableMessage {
     let data: Data
 }
 ```
-
-### Complex Structures
 
 Combine multiple techniques for complex binary formats:
 
@@ -182,11 +179,111 @@ struct ComplexPacket {
 }
 ```
 
-## Requirements
+### Enum Parsing
 
-- Swift 6.2+
-- Xcode 26.0+
-- macOS 15.0+ / iOS 18.0+ / tvOS 18.0+ / watchOS 11.0+ / visionOS 2.0+
+#### Enum Parsing Macros
+
+Parse enums with pattern matching and associated values using the `@ParseEnum` macro:
+
+**Basic Enum Matching**
+
+```swift
+@ParseEnum
+enum MessageType {
+    @match(byte: 0x01)
+    case connect
+
+    @match(bytes: [0x02, 0x03])
+    case data
+
+    @match(byte: 0xFF)
+    case disconnect
+}
+
+let msgType = try MessageType(parsing: Data([0x01]))
+// msgType == .connect
+```
+
+**Enums with Associated Values**
+
+Use `@matchAndTake` to consume the match pattern and `@parse` to parse associated values:
+
+```swift
+@ParseEnum
+enum Command: Equatable {
+    @matchAndTake(byte: 0x01)
+    @parse(endianness: .big)
+    case setValue(UInt16)
+
+    @matchAndTake(byte: 0x02)
+    @parse(endianness: .big)
+    @parse(endianness: .big)
+    case setRange(start: UInt16, end: UInt16)
+
+    @matchAndTake(byte: 0xFF)
+    case reset
+}
+
+let cmd = try Command(parsing: Data([0x01, 0x12, 0x34]))
+// cmd == .setValue(0x1234)
+```
+
+**Raw Representable Enums**
+
+For enums with raw values, conform to `MatchableRawRepresentable` (or `Matchable`):
+
+```swift
+@ParseEnum
+enum StatusCode: UInt8, MatchableRawRepresentable {
+    @match
+    case success = 0x00
+
+    @match
+    case error
+
+    @match
+    case pending
+}
+```
+
+**Default Cases**
+
+Use `@matchDefault` to handle unrecognized values:
+
+```swift
+@ParseEnum
+enum PacketType {
+    @match(byte: 0x01)
+    case known
+
+    @matchDefault
+    case unknown
+}
+```
+
+Available enum parsing macros:
+
+- **`@ParseEnum`** - Mark an enum for binary parsing
+- **`@match(byte: UInt8)`** - Match a single byte
+- **`@match(bytes: [UInt8])`** - Match a sequence of bytes, but doesn't shrink the remaining buffer
+- **`@matchAndTake(byte:)`** and **`@matchAndTake(bytes:)`** - Match and consume bytes in the remaining buffer
+- **`@matchDefault`** - Default case for unrecognized patterns, which doesn't consume any bytes in the remaining buffer
+- **`@parse`** - Parse associated values (same options as struct fields)
+- **`@skip`** - Skip bytes (same options as struct fields)
+
+### Protocol Conformances
+
+BinaryParseKit defines four parsing protocols:
+
+- **`Parsable`** - Basic parsing without additional parameters
+- **`EndianParsable`** - Parsing with endianness specification
+- **`SizedParsable`** - Parsing with byte count specification
+- **`EndianSizedParsable`** - Parsing with both endianness and byte count
+
+Most built-in types already conform to these protocols. For custom types, implement the appropriate protocol(s).
+
+In addition, as mentioned in the previous enum parsing section,
+`Matchable` and `MatchableRawRepresentable` is introduced to allow each case to provide bytes for matching in the process.
 
 ## Contributing
 
@@ -208,10 +305,10 @@ If you encounter any issues, have feature requests, or want to suggest improveme
 
 Some areas we're considering for future development:
 
-- **Enum parsing** - Support for parsing enums with associated values
-- **More convenient APIs** - Shorter syntax and better autocomplete support
-- **Advanced validation** - Runtime validation of parsing constraints
-- **Performance optimizations** - Further optimization of generated parsing code
+- **More convenient APIs** - Shorter syntax and better autocomplete support, such as merging `ParseStruct` and `ParseEnum`
+- **Advanced validation** - Runtime validation of parsing constraints, such as require minimal byte size checking in front instead of at each parsing
+- **Performance optimizations** - Further optimization of generated parsing code, such as linear time enum matching for constant bytes provided (`O( max(n, m) )` instead of `O(n * m)`, where `n` is the number of cases and `m` is the max number of bytes provided for each case)
+- **Porting to prio iOS/macOS 26** - because `Span` is introduced only in iOS/macOS 26, port of using `withUnsafePointer` can be provided to prior versions of OSes for better compatibility
 
 Your feedback on these directions and other ideas is highly appreciated!
 
