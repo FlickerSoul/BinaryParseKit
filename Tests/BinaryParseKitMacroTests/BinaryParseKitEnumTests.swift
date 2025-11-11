@@ -105,11 +105,11 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match((TestEnum.a as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.a as any Matchable).bytesToMatch(), in: &span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match((TestEnum.b as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.b as any Matchable).bytesToMatch(), in: &span) {
                             self = .b
                             return
                         }
@@ -638,7 +638,7 @@ extension BinaryParseKitMacroTests {
 
             extension TestEnum: BinaryParseKit.Parsable {
                 init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                    if BinaryParseKit.__match((TestEnum.a as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                    if BinaryParseKit.__match((TestEnum.a as any Matchable).bytesToMatch(), in: &span) {
                         // Parse `value` of type Int
                         BinaryParseKit.__assertParsable((Int).self)
                         let value = try Int(parsing: &span)
@@ -646,7 +646,7 @@ extension BinaryParseKitMacroTests {
                         self = .a(value: value)
                         return
                     }
-                    if BinaryParseKit.__match((TestEnum.b as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                    if BinaryParseKit.__match((TestEnum.b as any Matchable).bytesToMatch(), in: &span) {
                         // Parse `value` of type Int
                         BinaryParseKit.__assertParsable((Int).self)
                         let value = try Int(parsing: &span)
@@ -654,7 +654,7 @@ extension BinaryParseKitMacroTests {
                         self = .b(value: value)
                         return
                     }
-                    if BinaryParseKit.__match((TestEnum.c as any MatchableRawRepresentable) .bytesToMatch(), in: &span) {
+                    if BinaryParseKit.__match((TestEnum.c as any Matchable).bytesToMatch(), in: &span) {
                         // Parse `__macro_local_12TestEnum_c_0fMu_` of type Int
                         BinaryParseKit.__assertParsable((Int).self)
                         let __macro_local_12TestEnum_c_0fMu_ = try Int(parsing: &span)

@@ -43,7 +43,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             matchBytes
                         } else {
                             ExprSyntax(
-                                "(\(type).\(caseParseInfo.caseElementName) as any MatchableRawRepresentable) .bytesToMatch()",
+                                "(\(type).\(caseParseInfo.caseElementName) as any Matchable).bytesToMatch()",
                             )
                         }
 
