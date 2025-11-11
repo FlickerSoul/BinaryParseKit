@@ -281,6 +281,19 @@ public macro ParseStruct() = #externalMacro(
 
 // MARK: - Parse Enum
 
+/// Generates a `Parsable` implementation for an enum with annotated cases.
+///
+/// This macro analyzes the enum's cases marked with `@match`, `@matchAndTake`, and `@matchDefault` with optional
+/// associated values,
+/// whose parsing can be specified using ``parse(byteCount:)``  and ``skip(byteCount:because:)`` macros.
+///
+/// The generated code includes:
+/// - A `Parsable` conformance
+///
+/// - Note: All enum cases must be marked with `@match` variants, which is intentional by design, which I don't think is
+/// necessary and is possible to be lifted int the future.
+/// - Note: Only one `@matchDefault` case is allowed per enum, and has to be declared at the end of all other cases.
+/// - Note: any `match` macro has to proceed `parse` and `skip` macros.
 @attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
 public macro ParseEnum() = #externalMacro(
     module: "BinaryParseKitMacros",
@@ -289,42 +302,221 @@ public macro ParseEnum() = #externalMacro(
 
 // MARK: - Enum Case Parsing
 
+/// Defines a match case using the enum's raw value without consuming bytes from the buffer.
+///
+/// Use this macro for `MatchableRawRepresentable` enums where each case's raw value
+/// serves as the match pattern. The matched bytes are NOT consumed from the buffer.
+///
+/// - Note: This declaration can only be used when the enum conforms to ``Matchable`` (or ``MatchableRawRepresentable``)
+/// protocol.
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum StatusCode: UInt8, MatchableRawRepresentable {
+///     @match
+///     case success = 0x00  // Matches byte 0x00 without advancing the pointer
+///
+///     @match
+///     case error = 0x01    // Matches byte 0x01 without advancing the pointer
+/// }
+///
+/// let status = try StatusCode(parsing: Data([0x00]))
+/// // status == .success, buffer pointer remains at 0x00
+/// ```
 @attached(peer)
 public macro match() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Matches a single byte pattern without consuming it from the buffer.
+///
+/// Use this macro to match a specific byte value. The matched byte is NOT consumed,
+/// allowing it to be used by subsequent parsing operations.
+///
+/// - Parameter byte: The byte value to match (0x00 - 0xFF)
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum MessageType {
+///     @match(byte: 0x01)
+///     case ping  // Matches 0x01 without advancing the pointer
+///
+///     @match(byte: 0x02)
+///     case pong  // Matches 0x02 without advancing the pointer
+/// }
+///
+/// let msg = try MessageType(parsing: Data([0x01]))
+/// // msg == .ping, buffer pointer remains at 0x01
+/// ```
 @attached(peer)
 public macro match(byte: UInt8) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Matches a sequence of bytes without consuming them from the buffer.
+///
+/// Use this macro to match a specific byte pattern. The matched bytes are NOT consumed,
+/// allowing them to be used by subsequent parsing operations.
+///
+/// - Parameter bytes: The byte sequence to match
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum FrameType {
+///     @match(bytes: [0xFF, 0xD8])
+///     case jpegHeader  // Matches JPEG magic bytes without advancing the pointer
+///
+///     @match(bytes: [0x89, 0x50, 0x4E, 0x47])
+///     case pngHeader   // Matches PNG magic bytes without advancing the pointer
+/// }
+///
+/// let frame = try FrameType(parsing: Data([0xFF, 0xD8]))
+/// // frame == .jpegHeader, buffer pointer remains at 0xFF
+/// ```
 @attached(peer)
 public macro match(bytes: [UInt8]) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Matches and consumes bytes from the buffer using the enum's raw value.
+///
+/// Use this macro for `MatchableRawRepresentable` enums where each case's raw value
+/// serves as the match pattern. The matched bytes ARE consumed from the buffer,
+/// making this suitable for cases with associated values that need to parse subsequent data.
+///
+/// - Note: This declaration can only be used when the enum conforms to ``Matchable`` (or ``MatchableRawRepresentable``)
+/// protocol.
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum Command: UInt8, MatchableRawRepresentable {
+///     @matchAndTake
+///     @parse(endianness: .big)
+///     case setValue(UInt16) = 0x01  // Matches and consumes 0x01, then parses UInt16
+///
+///     @matchAndTake
+///     @parse(endianness: .big)
+///     case getValue(UInt16) = 0x02  // Matches and consumes 0x02, then parses UInt16
+/// }
+///
+/// let cmd = try Command(parsing: Data([0x01, 0x12, 0x34]))
+/// // cmd == .setValue(0x1234)
+/// ```
 @attached(peer)
 public macro matchAndTake() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Matches and consumes a single byte from the buffer.
+///
+/// Use this macro to match a specific byte value and remove it from the buffer.
+/// This is typically used before parsing associated values, allowing the subsequent
+/// data to be parsed without the match byte.
+///
+/// - Parameter byte: The byte value to match and consume (0x00 - 0xFF)
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum Packet: Equatable {
+///     @matchAndTake(byte: 0x01)
+///     @parse(endianness: .big)
+///     case data(UInt32)  // Matches 0x01, consumes it, then parses UInt32
+///
+///     @matchAndTake(byte: 0xFF)
+///     case terminate     // Matches and consumes 0xFF
+/// }
+///
+/// let packet = try Packet(parsing: Data([0x01, 0x12, 0x34, 0x56, 0x78]))
+/// // packet == .data(0x12345678)
+/// ```
 @attached(peer)
 public macro matchAndTake(byte: UInt8) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Matches and consumes a sequence of bytes from the buffer.
+///
+/// Use this macro to match a specific byte pattern and remove it from the buffer.
+/// This is useful for protocol headers or magic numbers that precede payload data.
+///
+/// - Parameter bytes: The byte sequence to match and consume
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum Protocol: Equatable {
+///     @matchAndTake(bytes: [0xCA, 0xFE])
+///     @parse(endianness: .big)
+///     case messageV1(UInt32)  // Matches [0xCA, 0xFE], consumes them, parses UInt32
+///
+///     @matchAndTake(bytes: [0xDE, 0xAD, 0xBE, 0xEF])
+///     @parse(endianness: .big)
+///     case messageV2(UInt64)  // Matches [0xDE, 0xAD, 0xBE, 0xEF], consumes them, parses UInt64
+/// }
+///
+/// let proto = try Protocol(parsing: Data([0xCA, 0xFE, 0x12, 0x34, 0x56, 0x78]))
+/// // proto == .messageV1(0x12345678)
+/// ```
 @attached(peer)
 public macro matchAndTake(bytes: [UInt8]) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Defines a default case for enum parsing when no other cases match.
+///
+/// Use this macro to handle any byte patterns that don't match the explicit cases.
+/// The buffer pointer remains at the current position and does not advance.
+///
+/// - Note: Only one `@matchDefault` case is allowed per enum, and it must be declared at the end of all other cases.
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum PacketType {
+///     @match(byte: 0x01)
+///     case data
+///
+///     @match(byte: 0x02)
+///     case control
+///
+///     @matchDefault
+///     case unknown  // Matches any other byte value
+/// }
+///
+/// let packet1 = try PacketType(parsing: Data([0x01]))
+/// // packet1 == .data, buffer pointer remains at 0x01
+///
+/// let packet2 = try PacketType(parsing: Data([0xFF]))
+/// // packet2 == .unknown, buffer pointer remains at 0xFF
+/// ```
+///
+/// Example with associated values:
+/// ```swift
+/// @ParseEnum
+/// enum Command: Equatable {
+///     @matchAndTake(byte: 0x01)
+///     @parse(endianness: .big)
+///     case knownCommand(UInt16)
+///
+///     @matchDefault
+///     @parse(endianness: .big)
+///     case unknownCommand(UInt16)
+/// }
+///
+/// let cmd = try Command(parsing: Data([0xFF, 0x12, 0x34]))
+/// // cmd == .unknownCommand(0xFF12)
+/// ```
 @attached(peer)
 public macro matchDefault() = #externalMacro(
     module: "BinaryParseKitMacros",
