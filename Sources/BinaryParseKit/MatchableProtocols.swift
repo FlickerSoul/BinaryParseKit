@@ -12,7 +12,6 @@ public protocol Matchable {
 
 /// A protocol for types that conform to `RawRepresentable` and `Matchable`.
 /// It provides a default implementation for `RawRepresentable` whose `RawValue` conforms to `Matchable`.
-/// - SeeAlso: ``bytesToMatch()-1kmth``
 public protocol MatchableRawRepresentable: RawRepresentable, Matchable {}
 
 /// Default implementation of `bytesToMatch()` for `MatchableRawRepresentable` where `RawValue` conforms to `Matchable`.
