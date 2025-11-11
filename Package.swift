@@ -25,6 +25,7 @@ let package = Package(
             url: "https://github.com/apple/swift-collections.git",
             .upToNextMinor(from: "1.1.0"),
         ),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.5"),
     ],
     targets: [
         .macro(
