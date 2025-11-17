@@ -20,10 +20,6 @@ extension PatternBindingListSyntax.Element {
         accessorBlock != nil
     }
 
-    var hasInitializer: Bool {
-        initializer != nil
-    }
-
     var hasTypeAnnotation: Bool {
         typeAnnotation != nil
     }
