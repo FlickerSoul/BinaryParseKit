@@ -117,7 +117,7 @@ func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListS
                     LabeledExprSyntax(
                         label: "intel",
                         expression: ExprSyntax(
-                            "try (\(binding) as any \(raw: Constants.Protocols.printableProtocol)).parsedIntel()",
+                            "try \(raw: Constants.UtilityFunctions.getPrintIntel)(\(binding))",
                         ),
                     )
                 } else {

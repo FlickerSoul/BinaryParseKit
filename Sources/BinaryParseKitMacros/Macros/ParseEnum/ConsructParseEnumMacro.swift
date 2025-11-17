@@ -102,7 +102,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
 
         let printerExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
-                try FunctionDeclSyntax("\(modifiers)func parsedIntel() throws -> PrinterIntel") {
+                try FunctionDeclSyntax("\(modifiers)func printerIntel() throws -> PrinterIntel") {
                     try SwitchExprSyntax("switch self") {
                         for caseParseInfo in parseInfo.caseParseInfo {
                             var parseSkipMacroInfo: [PrintableFieldInfo] = []

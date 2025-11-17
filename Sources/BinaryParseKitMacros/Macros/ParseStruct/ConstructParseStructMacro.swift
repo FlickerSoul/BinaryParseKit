@@ -53,7 +53,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
 
         let printerExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
-                try FunctionDeclSyntax("\(modifiers)func parsedIntel() throws -> PrinterIntel") {
+                try FunctionDeclSyntax("\(modifiers)func printerIntel() throws -> PrinterIntel") {
                     var parseSkipMacroInfo: [PrintableFieldInfo] = []
 
                     for (variableName, variableInfo) in structFieldInfo.variables {

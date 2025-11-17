@@ -107,10 +107,10 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension Header: BinaryParseKit.Printable {
-                    public func parsedIntel() throws -> PrinterIntel {
+                    public func printerIntel() throws -> PrinterIntel {
                         return .struct(
                             .init(
-                                fields: [.init(byteCount: Swift.Int(1), endianness: .big, intel: try (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: .little, intel: try (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: Swift.Int(4), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(4)))), .init(byteCount: nil, endianness: .big, intel: try (d as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: try (c as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(6), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(6)))), .init(byteCount: nil, endianness: nil, intel: try (e as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(self.b), endianness: nil, intel: try (g as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(7), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(7)))), .init(byteCount: nil, endianness: .little, intel: try (f as any BinaryParseKit.Printable).parsedIntel())]
+                                fields: [.init(byteCount: Swift.Int(1), endianness: .big, intel: try BinaryParseKit.__getPrinterIntel(a)), .init(byteCount: nil, endianness: .little, intel: try BinaryParseKit.__getPrinterIntel(b)), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: Swift.Int(4), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(4)))), .init(byteCount: nil, endianness: .big, intel: try BinaryParseKit.__getPrinterIntel(d)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(c)), .init(byteCount: Swift.Int(6), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(6)))), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(e)), .init(byteCount: Swift.Int(self.b), endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(g)), .init(byteCount: Swift.Int(7), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(7)))), .init(byteCount: nil, endianness: .little, intel: try BinaryParseKit.__getPrinterIntel(f))]
                             )
                         )
                     }
@@ -297,7 +297,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension Header: BinaryParseKit.Printable {
-                    public func parsedIntel() throws -> PrinterIntel {
+                    public func printerIntel() throws -> PrinterIntel {
                         return .struct(
                             .init(
                                 fields: []
@@ -676,10 +676,10 @@ extension BinaryParseKitMacroTests {
             }
 
             extension Header: BinaryParseKit.Printable {
-                func parsedIntel() throws -> PrinterIntel {
+                func printerIntel() throws -> PrinterIntel {
                     return .struct(
                         .init(
-                            fields: [.init(byteCount: nil, endianness: nil, intel: try (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: try (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: try (c as any BinaryParseKit.Printable).parsedIntel())]
+                            fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(a)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(b)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(c))]
                         )
                     )
                 }

@@ -14,7 +14,7 @@ extension FixedWidthInteger {
 }
 
 public extension Printable where Self: FixedWidthInteger {
-    func parsedIntel() -> PrinterIntel {
+    func printerIntel() -> PrinterIntel {
         .builtIn(
             .init(bytes: toBytes()),
         )
@@ -46,7 +46,7 @@ extension BinaryFloatingPoint {
 }
 
 public extension Printable where Self: BinaryFloatingPoint {
-    func parsedIntel() -> PrinterIntel {
+    func printerIntel() -> PrinterIntel {
         .builtIn(
             .init(bytes: toBytes()),
         )
@@ -60,7 +60,7 @@ extension Double: Printable {}
 // MARK: - Array
 
 extension [UInt8]: Printable {
-    public func parsedIntel() -> PrinterIntel {
+    public func printerIntel() -> PrinterIntel {
         .builtIn(
             .init(
                 bytes: self,

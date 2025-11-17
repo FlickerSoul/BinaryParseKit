@@ -568,7 +568,7 @@ extension String: SizedParsable {
 }
 
 extension String: Printable {
-    public func parsedIntel() -> PrinterIntel {
+    public func printerIntel() -> PrinterIntel {
         .builtIn(
             .init(
                 bytes: .init(data(using: .utf8) ?? Data()),

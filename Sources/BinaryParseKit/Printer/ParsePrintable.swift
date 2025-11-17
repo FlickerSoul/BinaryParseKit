@@ -7,19 +7,18 @@
 public protocol Printable {
     func printParsed<P: ParsablePrinter>(printer: P) throws(ParsablePrinterError) -> P.PrinterOutput
 
-    func parsedIntel() throws -> PrinterIntel
+    func printerIntel() throws -> PrinterIntel
 }
 
 public extension Printable {
     func printParsed<P: ParsablePrinter>(printer: P) throws(ParsablePrinterError) -> P.PrinterOutput {
-        let intel: PrinterIntel
-
         do {
-            intel = try parsedIntel()
+            let intel = try printerIntel()
+            return try printer.print(intel)
+        } catch let error as ParsablePrinterError {
+            throw error
         } catch {
             throw .intelConstructionFailed(underlying: error)
         }
-
-        return try printer.print(intel)
     }
 }

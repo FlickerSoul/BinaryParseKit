@@ -46,6 +46,7 @@ extension Constants {
         static let assertSizedParsable = PackageMember(name: "__assertSizedParsable")
         static let assertEndianParsable = PackageMember(name: "__assertEndianParsable")
         static let assertEndianSizedParsable = PackageMember(name: "__assertEndianSizedParsable")
+        static let getPrintIntel = PackageMember(name: "__getPrinterIntel")
     }
 }
 

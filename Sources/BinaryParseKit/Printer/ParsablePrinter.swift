@@ -8,6 +8,7 @@
 public enum ParsablePrinterError: Swift.Error {
     case noPrinterIntel
     case intelConstructionFailed(underlying: any Error)
+    case notPrintable(type: Any.Type)
 }
 
 public protocol ParsablePrinter {
