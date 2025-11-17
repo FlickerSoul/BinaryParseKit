@@ -6,14 +6,14 @@
 //
 import BinaryParsing
 
-public enum PrinterIntel {
+public enum PrinterIntel: Equatable {
     case `struct`(StructPrintIntel)
     case `enum`(EnumCasePrinterIntel)
     case builtIn(BuiltInPrinterIntel)
     case skip(SkipPrinterIntel)
 }
 
-public struct SkipPrinterIntel {
+public struct SkipPrinterIntel: Equatable {
     public typealias ByteCount = Int
 
     public let byteCount: ByteCount
@@ -23,7 +23,7 @@ public struct SkipPrinterIntel {
     }
 }
 
-public struct BuiltInPrinterIntel {
+public struct BuiltInPrinterIntel: Equatable {
     /// - Note: bytes in big endian
     public let bytes: [UInt8]
     /// - Note: if true, `bytes` won't be flipped based on endianness
@@ -35,7 +35,7 @@ public struct BuiltInPrinterIntel {
     }
 }
 
-public struct FieldPrinterIntel {
+public struct FieldPrinterIntel: Equatable {
     public typealias ByteCount = Int
 
     public let byteCount: ByteCount?
@@ -53,7 +53,7 @@ public struct FieldPrinterIntel {
     }
 }
 
-public struct StructPrintIntel {
+public struct StructPrintIntel: Equatable {
     public let fields: [FieldPrinterIntel]
 
     public init(fields: [FieldPrinterIntel]) {
@@ -61,7 +61,7 @@ public struct StructPrintIntel {
     }
 }
 
-public struct EnumCasePrinterIntel {
+public struct EnumCasePrinterIntel: Equatable {
     public enum CaseParseType {
         case match
         case matchAndTake
