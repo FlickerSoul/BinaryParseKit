@@ -39,13 +39,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                     "\(modifiers)init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
                     for caseParseInfo in parseInfo.caseParseInfo {
-                        let toBeMatched = if let matchBytes = caseParseInfo.matchAction.matchBytes {
-                            matchBytes
-                        } else {
-                            ExprSyntax(
-                                "(\(type).\(caseParseInfo.caseElementName) as any Matchable).bytesToMatch()",
-                            )
-                        }
+                        let toBeMatched = caseParseInfo.bytesToMatch(of: type)
 
                         try IfExprSyntax(
                             "if \(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)",
@@ -106,7 +100,143 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                 }
             }
 
-        return [parsingExtension]
+        let printerExtension =
+            try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
+                try FunctionDeclSyntax("\(modifiers)func parsedIntel() -> PrinterIntel") {
+                    try SwitchExprSyntax("switch self") {
+                        for caseParseInfo in parseInfo.caseParseInfo {
+                            var parseSkipMacroInfo: [(
+                                binding: TokenSyntax?,
+                                byteCount: ExprSyntax?,
+                                endianness: ExprSyntax?,
+                            )] = []
+
+                            let arguments = LabeledExprListSyntax {
+                                for (index, parseAction) in caseParseInfo.parseActions.enumerated() {
+                                    switch parseAction {
+                                    case let .parse(enumCaseParameterParseInfo):
+                                        let argumentBindingToken = context.makeUniqueName(
+                                            "\(caseParseInfo.caseElementName)_\(enumCaseParameterParseInfo.firstName ?? "index_\(raw: index)")",
+                                        )
+                                        // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                        let _ = parseSkipMacroInfo.append(
+                                            (
+                                                binding: argumentBindingToken,
+                                                byteCount: enumCaseParameterParseInfo.parseInfo.byteCount
+                                                    .toExprSyntax(),
+                                                endianness: enumCaseParameterParseInfo.parseInfo.endianness,
+                                            ),
+                                        )
+
+                                        LabeledExprSyntax(
+                                            label: nil,
+                                            expression: PatternExprSyntax(
+                                                pattern: IdentifierPatternSyntax(
+                                                    identifier: argumentBindingToken,
+                                                ),
+                                            ),
+                                        )
+                                    case let .skip(skipMacroInfo):
+                                        // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                        let _ = parseSkipMacroInfo.append(
+                                            (
+                                                binding: nil,
+                                                byteCount: "\(raw: skipMacroInfo.byteCount)",
+                                                endianness: nil,
+                                            ),
+                                        )
+                                    }
+                                }
+                            }
+
+                            let caseLabel = SwitchCaseLabelSyntax(
+                                caseItems: SwitchCaseItemListSyntax {
+                                    if !arguments.isEmpty {
+                                        SwitchCaseItemSyntax(
+                                            pattern: ValueBindingPatternSyntax(
+                                                bindingSpecifier: .keyword(.let),
+                                                pattern: ExpressionPatternSyntax(
+                                                    expression: FunctionCallExprSyntax(
+                                                        calledExpression: MemberAccessExprSyntax(name: caseParseInfo
+                                                            .caseElementName),
+                                                        leftParen: .leftParenToken(),
+                                                        arguments: arguments,
+                                                        rightParen: .rightParenToken(),
+                                                    ),
+                                                ),
+                                            ),
+                                        )
+                                    } else {
+                                        SwitchCaseItemSyntax(
+                                            pattern: ExpressionPatternSyntax(
+                                                expression: MemberAccessExprSyntax(
+                                                    name: caseParseInfo.caseElementName,
+                                                ),
+                                            ),
+                                        )
+                                    }
+                                })
+
+                            let caseCodeBlock = CodeBlockItemListSyntax {
+                                let toBeMatched = caseParseInfo.bytesToMatch(of: type)
+                                let matchPolicy = caseParseInfo.matchAction.matchPolicy
+
+                                let fields = ArrayExprSyntax(
+                                    elements: ArrayElementListSyntax {
+                                        for (binding, byteCount, endianness) in parseSkipMacroInfo {
+                                            ArrayElementSyntax(
+                                                expression:
+                                                FunctionCallExprSyntax(callee: MemberAccessExprSyntax(name: "init")) {
+                                                    LabeledExprSyntax(
+                                                        label: "byteCount",
+                                                        expression: byteCount ?? ExprSyntax("nil"),
+                                                    )
+                                                    LabeledExprSyntax(
+                                                        label: "bigEndian",
+                                                        expression: endianness ?? ExprSyntax("nil"),
+                                                    )
+                                                    if let binding {
+                                                        LabeledExprSyntax(
+                                                            label: "intel",
+                                                            expression: ExprSyntax(
+                                                                "(\(binding) as any \(raw: Constants.Protocols.printableProtocol)).parsedIntel()",
+                                                            ),
+                                                        )
+                                                    } else {
+                                                        LabeledExprSyntax(
+                                                            label: "intel",
+                                                            expression: ExprSyntax(
+                                                                ".skip(.init(byteCount: \(byteCount)))",
+                                                            ),
+                                                        )
+                                                    }
+                                                },
+                                            )
+                                        }
+                                    })
+
+                                #"""
+                                return .enum(
+                                    .init(
+                                        enumCaseName: "\#(caseParseInfo.caseElementName)",
+                                        bytes: \#(toBeMatched),
+                                        parseType: .\#(raw: matchPolicy),
+                                        fields: \#(fields),
+                                    )
+                                )
+                                """#
+                            }
+
+                            SwitchCaseSyntax(
+                                label: .case(caseLabel),
+                                statements: caseCodeBlock,
+                            )
+                        }
+                    }
+                }
+            }
+
+        return [parsingExtension, printerExtension]
     }
 }
 

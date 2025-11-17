@@ -8,6 +8,7 @@
 import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 
+// swiftlint:disable file_length line_length
 extension BinaryParseKitMacroTests {
     @Suite
     struct `Test Parsing Enum` { // swiftlint:disable:this type_name type_body_length
@@ -41,6 +42,31 @@ extension BinaryParseKitMacroTests {
                             return
                         }
                         throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    public func parsedIntel() -> PrinterIntel {
+                        switch self {
+                        case .a:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "a",
+                                    bytes: [0x08],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        case .b:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "b",
+                                    bytes: [0x01, 0x02],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        }
                     }
                 }
                 """#,
@@ -79,6 +105,31 @@ extension BinaryParseKitMacroTests {
                         throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
                     }
                 }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    func parsedIntel() -> PrinterIntel {
+                        switch self {
+                        case .a:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "a",
+                                    bytes: [0x02, 0x03],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        case .b:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "b",
+                                    bytes: [0x01],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        }
+                    }
+                }
                 """#,
             )
         }
@@ -105,15 +156,40 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match((TestEnum.a as any Matchable).bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match((TestEnum.b as any Matchable).bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                             self = .b
                             return
                         }
                         throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    func parsedIntel() -> PrinterIntel {
+                        switch self {
+                        case .a:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "a",
+                                    bytes: (TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(),
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        case .b:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "b",
+                                    bytes: (TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(),
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        }
                     }
                 }
                 """#,
@@ -137,6 +213,7 @@ extension BinaryParseKitMacroTests {
 
                     @match(byte: 0x09)
                     @parse(endianness: .little)
+                    @skip(byteCount: 2, because: "some reason")
                     @parse(endianness: .little)
                     case c(code: UInt8, value: SomeType)
                 }
@@ -173,6 +250,8 @@ extension BinaryParseKitMacroTests {
                             // Parse `code` of type UInt8 with endianness
                             BinaryParseKit.__assertEndianParsable((UInt8).self)
                             let code = try UInt8(parsing: &span, endianness: .little)
+                            // Skip 2 because of "some reason", before parsing `c`
+                            try span.seek(toRelativeOffset: 2)
                             // Parse `value` of type SomeType with endianness
                             BinaryParseKit.__assertEndianParsable((SomeType).self)
                             let value = try SomeType(parsing: &span, endianness: .little)
@@ -181,6 +260,40 @@ extension BinaryParseKitMacroTests {
                             return
                         }
                         throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    func parsedIntel() -> PrinterIntel {
+                        switch self {
+                        case let .a(__macro_local_9a_index_0fMu_):
+                            return .enum(
+                                .init(
+                                    enumCaseName: "a",
+                                    bytes: [0x08],
+                                    parseType: .match,
+                                    fields: [.init(byteCount: 1, bigEndian: nil, intel: (__macro_local_9a_index_0fMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                                )
+                            )
+                        case let .b(__macro_local_9b_index_0fMu_, __macro_local_7b_valuefMu_):
+                            return .enum(
+                                .init(
+                                    enumCaseName: "b",
+                                    bytes: [0x01, 0x02],
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, bigEndian: nil, intel: (__macro_local_9b_index_0fMu_ as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: .big, intel: (__macro_local_7b_valuefMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                                )
+                            )
+                        case let .c(__macro_local_6c_codefMu_, __macro_local_7c_valuefMu_):
+                            return .enum(
+                                .init(
+                                    enumCaseName: "c",
+                                    bytes: [0x09],
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, bigEndian: .little, intel: (__macro_local_6c_codefMu_ as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: 2, bigEndian: nil, intel: .skip(.init(byteCount: 2))), .init(byteCount: nil, bigEndian: .little, intel: (__macro_local_7c_valuefMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                                )
+                            )
+                        }
                     }
                 }
                 """#,
@@ -217,6 +330,31 @@ extension BinaryParseKitMacroTests {
                             return
                         }
                         throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    func parsedIntel() -> PrinterIntel {
+                        switch self {
+                        case .a:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "a",
+                                    bytes: [0x01],
+                                    parseType: .matchAndTake,
+                                    fields: [],
+                                )
+                            )
+                        case .b:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "b",
+                                    bytes: [0x02, 0x03],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        }
                     }
                 }
                 """#,
@@ -260,6 +398,40 @@ extension BinaryParseKitMacroTests {
                             return
                         }
                         throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    func parsedIntel() -> PrinterIntel {
+                        switch self {
+                        case .a:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "a",
+                                    bytes: [0x01],
+                                    parseType: .matchAndTake,
+                                    fields: [],
+                                )
+                            )
+                        case .b:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "b",
+                                    bytes: [0x02, 0x03],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        case .c:
+                            return .enum(
+                                .init(
+                                    enumCaseName: "c",
+                                    bytes: [],
+                                    parseType: .matchDefault,
+                                    fields: [],
+                                )
+                            )
+                        }
                     }
                 }
                 """#,
@@ -638,7 +810,7 @@ extension BinaryParseKitMacroTests {
 
             extension TestEnum: BinaryParseKit.Parsable {
                 init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                    if BinaryParseKit.__match((TestEnum.a as any Matchable).bytesToMatch(), in: &span) {
+                    if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                         // Parse `value` of type Int
                         BinaryParseKit.__assertParsable((Int).self)
                         let value = try Int(parsing: &span)
@@ -646,7 +818,7 @@ extension BinaryParseKitMacroTests {
                         self = .a(value: value)
                         return
                     }
-                    if BinaryParseKit.__match((TestEnum.b as any Matchable).bytesToMatch(), in: &span) {
+                    if BinaryParseKit.__match((TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                         // Parse `value` of type Int
                         BinaryParseKit.__assertParsable((Int).self)
                         let value = try Int(parsing: &span)
@@ -654,7 +826,7 @@ extension BinaryParseKitMacroTests {
                         self = .b(value: value)
                         return
                     }
-                    if BinaryParseKit.__match((TestEnum.c as any Matchable).bytesToMatch(), in: &span) {
+                    if BinaryParseKit.__match((TestEnum.c as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                         // Parse `__macro_local_12TestEnum_c_0fMu_` of type Int
                         BinaryParseKit.__assertParsable((Int).self)
                         let __macro_local_12TestEnum_c_0fMu_ = try Int(parsing: &span)
@@ -666,6 +838,40 @@ extension BinaryParseKitMacroTests {
                         return
                     }
                     throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                }
+            }
+
+            extension TestEnum: BinaryParseKit.Printable {
+                func parsedIntel() -> PrinterIntel {
+                    switch self {
+                    case let .a(__macro_local_7a_valuefMu_):
+                        return .enum(
+                            .init(
+                                enumCaseName: "a",
+                                bytes: (TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(),
+                                parseType: .match,
+                                fields: [.init(byteCount: nil, bigEndian: nil, intel: (__macro_local_7a_valuefMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                            )
+                        )
+                    case let .b(__macro_local_7b_valuefMu_):
+                        return .enum(
+                            .init(
+                                enumCaseName: "b",
+                                bytes: (TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(),
+                                parseType: .match,
+                                fields: [.init(byteCount: nil, bigEndian: nil, intel: (__macro_local_7b_valuefMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                            )
+                        )
+                    case let .c(__macro_local_9c_index_0fMu_, __macro_local_7c_valuefMu_):
+                        return .enum(
+                            .init(
+                                enumCaseName: "c",
+                                bytes: (TestEnum.c as any BinaryParseKit.Matchable).bytesToMatch(),
+                                parseType: .match,
+                                fields: [.init(byteCount: nil, bigEndian: nil, intel: (__macro_local_9c_index_0fMu_ as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: nil, intel: (__macro_local_7c_valuefMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                            )
+                        )
+                    }
                 }
             }
             """#)
@@ -682,3 +888,5 @@ private nonisolated(unsafe) let validationFailedDiagnostic = DiagnosticSpec(
     line: 1,
     column: 1,
 )
+
+// swiftlint:enable file_length line_length
