@@ -56,16 +56,3 @@ public extension Printable where Self: BinaryFloatingPoint {
 extension Float16: Printable {}
 extension Float: Printable {}
 extension Double: Printable {}
-
-// MARK: - Array
-
-extension [UInt8]: Printable {
-    public func printerIntel() -> PrinterIntel {
-        .builtIn(
-            .init(
-                bytes: self,
-                fixedEndianness: true,
-            ),
-        )
-    }
-}

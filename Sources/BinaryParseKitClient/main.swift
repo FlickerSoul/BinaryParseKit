@@ -9,6 +9,17 @@ extension [UInt8]: SizedParsable {
     }
 }
 
+extension [UInt8]: Printable {
+    public func printerIntel() -> PrinterIntel {
+        .builtIn(
+            .init(
+                bytes: self,
+                fixedEndianness: true,
+            ),
+        )
+    }
+}
+
 @ParseStruct
 struct FileHeader {
     @parse(byteCount: 4, endianness: .big)
