@@ -24,7 +24,9 @@ public struct SkipPrinterIntel {
 }
 
 public struct BuiltInPrinterIntel {
+    /// - Note: bytes in big endian
     public let bytes: [UInt8]
+    /// - Note: if true, `bytes` won't be flipped based on endianness
     public let fixedEndianness: Bool
 
     public init(bytes: [UInt8], fixedEndianness: Bool = false) {
