@@ -1,5 +1,5 @@
 //
-//  RawBytePrinter.swift
+//  ByteArrayPrinter.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 11/14/25.
@@ -54,40 +54,3 @@ public extension ParsablePrinter where Self == ByteArrayPrinter {
         ByteArrayPrinter()
     }
 }
-
-public struct HexStringPrinter: ParsablePrinter {
-    let separator: String
-    let prefix: String
-
-    public func print(_ intel: PrinterIntel) throws(ParsablePrinterError) -> String {
-        try ByteArrayPrinter()
-            .print(intel)
-            .map { unsafe String(format: "\(prefix)%02X", $0) }
-            .joined(separator: separator)
-    }
-}
-
-public extension ParsablePrinter where Self == HexStringPrinter {
-    static func hexString(separator: String = "", prefix: String = "") -> Self {
-        HexStringPrinter(
-            separator: separator,
-            prefix: prefix,
-        )
-    }
-}
-
-#if canImport(Foundation)
-    import Foundation
-
-    public struct DataPrinter: ParsablePrinter {
-        public func print(_ intel: PrinterIntel) throws(ParsablePrinterError) -> Data {
-            try Data(ByteArrayPrinter().print(intel))
-        }
-    }
-
-    public extension ParsablePrinter where Self == DataPrinter {
-        static var data: Self {
-            DataPrinter()
-        }
-    }
-#endif
