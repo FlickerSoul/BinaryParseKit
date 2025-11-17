@@ -45,6 +45,9 @@ print("File Size: \(header.fileSize)") // 5
 print("Content: \(String(bytes: header.content, encoding: .utf8)!)") // "Hello"
 print("Footer: \(header.footer)")
 
+let headerHex = try? header.printParsed(printer: .hexString(separator: ", ", prefix: "0x"))
+print("Hex: \(headerHex ?? "Error")")
+
 @ParseEnum
 enum Channel {
     @match(byte: 0x00)

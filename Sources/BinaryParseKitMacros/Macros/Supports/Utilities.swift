@@ -109,7 +109,7 @@ func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListS
                     expression: info.byteCount ?? ExprSyntax("nil"),
                 )
                 LabeledExprSyntax(
-                    label: "bigEndian",
+                    label: "endianness",
                     expression: info.endianness ?? ExprSyntax("nil"),
                 )
 

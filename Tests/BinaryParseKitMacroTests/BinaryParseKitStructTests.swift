@@ -110,7 +110,7 @@ extension BinaryParseKitMacroTests {
                     public func parsedIntel() -> PrinterIntel {
                         return .struct(
                             .init(
-                                fields: [.init(byteCount: Swift.Int(1), bigEndian: .big, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: .little, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(2), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: Swift.Int(4), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(4)))), .init(byteCount: nil, bigEndian: .big, intel: (d as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(6), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(6)))), .init(byteCount: nil, bigEndian: nil, intel: (e as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(self.b), bigEndian: nil, intel: (g as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(7), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(7)))), .init(byteCount: nil, bigEndian: .little, intel: (f as any BinaryParseKit.Printable).parsedIntel())]
+                                fields: [.init(byteCount: Swift.Int(1), endianness: .big, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: .little, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: Swift.Int(4), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(4)))), .init(byteCount: nil, endianness: .big, intel: (d as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(6), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(6)))), .init(byteCount: nil, endianness: nil, intel: (e as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(self.b), endianness: nil, intel: (g as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(7), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(7)))), .init(byteCount: nil, endianness: .little, intel: (f as any BinaryParseKit.Printable).parsedIntel())]
                             )
                         )
                     }
@@ -679,7 +679,7 @@ extension BinaryParseKitMacroTests {
                 func parsedIntel() -> PrinterIntel {
                     return .struct(
                         .init(
-                            fields: [.init(byteCount: nil, bigEndian: nil, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: nil, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel())]
+                            fields: [.init(byteCount: nil, endianness: nil, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel())]
                         )
                     )
                 }

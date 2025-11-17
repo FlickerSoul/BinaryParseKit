@@ -37,16 +37,16 @@ public struct FieldPrinterIntel {
     public typealias ByteCount = Int
 
     public let byteCount: ByteCount?
-    public let bigEndian: Endianness?
+    public let endianness: Endianness?
     public let intel: PrinterIntel
 
     public init(
         byteCount: ByteCount?,
-        bigEndian: Endianness?,
+        endianness: Endianness?,
         intel: PrinterIntel,
     ) {
         self.byteCount = byteCount
-        self.bigEndian = bigEndian
+        self.endianness = endianness
         self.intel = intel
     }
 }
