@@ -12,12 +12,40 @@ public protocol HexStringPrinterFormatter {
 }
 
 public struct DefaultHexStringPrinterFormatter: HexStringPrinterFormatter {
+    public enum CharacterCase {
+        case upper
+        case lower
+
+        var formatString: StaticString {
+            switch self {
+            case .upper: "%02X"
+            case .lower: "%02x"
+            }
+        }
+    }
+
     let separator: String
     let prefix: String
+    let characterCase: CharacterCase
+
+    /// Create a default hex string formatter
+    /// - Parameters:
+    ///  - separator: The separator between each byte. Default is empty string.
+    ///  - prefix: The prefix for each byte which will be prefixed before `%02X` or `%02x`. Default is empty string.
+    ///  - characterCase: The character case for hex digits. Default is ``CharacterCase/upper``
+    public init(
+        separator: String = "",
+        prefix: String = "",
+        characterCase: CharacterCase = .upper,
+    ) {
+        self.separator = separator
+        self.prefix = prefix
+        self.characterCase = characterCase
+    }
 
     public func format(bytes: ByteSource) -> String {
         bytes
-            .map { unsafe String(format: "\(prefix)%02X", $0) }
+            .map { unsafe String(format: "\(prefix)\(characterCase.formatString)", $0) }
             .joined(separator: separator)
     }
 }
