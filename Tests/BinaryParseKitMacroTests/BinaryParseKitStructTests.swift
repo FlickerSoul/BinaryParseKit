@@ -107,10 +107,10 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension Header: BinaryParseKit.Printable {
-                    public func parsedIntel() -> PrinterIntel {
+                    public func parsedIntel() throws -> PrinterIntel {
                         return .struct(
                             .init(
-                                fields: [.init(byteCount: Swift.Int(1), endianness: .big, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: .little, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: Swift.Int(4), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(4)))), .init(byteCount: nil, endianness: .big, intel: (d as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(6), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(6)))), .init(byteCount: nil, endianness: nil, intel: (e as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(self.b), endianness: nil, intel: (g as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(7), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(7)))), .init(byteCount: nil, endianness: .little, intel: (f as any BinaryParseKit.Printable).parsedIntel())]
+                                fields: [.init(byteCount: Swift.Int(1), endianness: .big, intel: try (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: .little, intel: try (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: Swift.Int(4), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(4)))), .init(byteCount: nil, endianness: .big, intel: try (d as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: try (c as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(6), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(6)))), .init(byteCount: nil, endianness: nil, intel: try (e as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(self.b), endianness: nil, intel: try (g as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(7), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(7)))), .init(byteCount: nil, endianness: .little, intel: try (f as any BinaryParseKit.Printable).parsedIntel())]
                             )
                         )
                     }
@@ -297,7 +297,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension Header: BinaryParseKit.Printable {
-                    public func parsedIntel() -> PrinterIntel {
+                    public func parsedIntel() throws -> PrinterIntel {
                         return .struct(
                             .init(
                                 fields: []
@@ -676,10 +676,10 @@ extension BinaryParseKitMacroTests {
             }
 
             extension Header: BinaryParseKit.Printable {
-                func parsedIntel() -> PrinterIntel {
+                func parsedIntel() throws -> PrinterIntel {
                     return .struct(
                         .init(
-                            fields: [.init(byteCount: nil, endianness: nil, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel())]
+                            fields: [.init(byteCount: nil, endianness: nil, intel: try (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: try (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, endianness: nil, intel: try (c as any BinaryParseKit.Printable).parsedIntel())]
                         )
                     )
                 }

@@ -7,6 +7,7 @@
 
 public enum ParsablePrinterError: Swift.Error {
     case noPrinterIntel
+    case intelConstructionFailed(underlying: any Error)
 }
 
 public protocol ParsablePrinter {
@@ -26,5 +27,9 @@ public extension ParsablePrinter {
 
     func print(_ intel: BuiltInPrinterIntel) throws(ParsablePrinterError) -> PrinterOutput {
         try print(.builtIn(intel))
+    }
+
+    func print(_ printable: any Printable) throws(ParsablePrinterError) -> PrinterOutput {
+        try printable.printParsed(printer: self)
     }
 }
