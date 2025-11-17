@@ -51,6 +51,52 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                 }
             }
 
-        return [extensionSyntax]
+        let printerExtension =
+            try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
+                try FunctionDeclSyntax("\(modifiers)func parsedIntel() -> PrinterIntel") {
+                    let fields = ArrayExprSyntax(
+                        elements: ArrayElementListSyntax {
+                            for (variableName, variableInfo) in structFieldInfo.variables {
+                                var parseSkipMacroInfo: [PrintableFieldInfo] = []
+                                for parseAction in variableInfo.parseActions {
+                                    switch parseAction {
+                                    case let .parse(parseInfo):
+                                        // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                        let _ = parseSkipMacroInfo.append(
+                                            .init(
+                                                binding: variableName,
+                                                byteCount: parseInfo.byteCount.toExprSyntax()
+                                                    .map { "\(raw: Constants.Swift.byteCountType)(\($0))" },
+                                                endianness: parseInfo.endianness,
+                                            ),
+                                        )
+                                    case let .skip(skipInfo):
+                                        // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                        let _ = parseSkipMacroInfo.append(
+                                            .init(
+                                                binding: nil,
+                                                byteCount: "\(raw: Constants.Swift.byteCountType)(\(raw: skipInfo.byteCount))",
+                                                endianness: nil,
+                                            ),
+                                        )
+                                    }
+                                }
+
+                                generatePrintableFields(parseSkipMacroInfo)
+                            }
+                        },
+                    )
+
+                    #"""
+                    return .struct(
+                        .init(
+                            fields: \#(fields)
+                        )
+                    )
+                    """#
+                }
+            }
+
+        return [extensionSyntax, printerExtension]
     }
 }

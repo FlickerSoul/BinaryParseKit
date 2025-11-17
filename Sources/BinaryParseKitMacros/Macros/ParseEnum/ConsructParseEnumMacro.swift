@@ -105,11 +105,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                 try FunctionDeclSyntax("\(modifiers)func parsedIntel() -> PrinterIntel") {
                     try SwitchExprSyntax("switch self") {
                         for caseParseInfo in parseInfo.caseParseInfo {
-                            var parseSkipMacroInfo: [(
-                                binding: TokenSyntax?,
-                                byteCount: ExprSyntax?,
-                                endianness: ExprSyntax?,
-                            )] = []
+                            var parseSkipMacroInfo: [PrintableFieldInfo] = []
 
                             let arguments = LabeledExprListSyntax {
                                 for (index, parseAction) in caseParseInfo.parseActions.enumerated() {
@@ -120,10 +116,12 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                         )
                                         // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
                                         let _ = parseSkipMacroInfo.append(
-                                            (
+                                            .init(
                                                 binding: argumentBindingToken,
-                                                byteCount: enumCaseParameterParseInfo.parseInfo.byteCount
-                                                    .toExprSyntax(),
+                                                byteCount: enumCaseParameterParseInfo.parseInfo
+                                                    .byteCount
+                                                    .toExprSyntax()
+                                                    .map { "\(raw: Constants.Swift.byteCountType)(\($0))" },
                                                 endianness: enumCaseParameterParseInfo.parseInfo.endianness,
                                             ),
                                         )
@@ -139,9 +137,9 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                     case let .skip(skipMacroInfo):
                                         // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
                                         let _ = parseSkipMacroInfo.append(
-                                            (
+                                            .init(
                                                 binding: nil,
-                                                byteCount: "\(raw: skipMacroInfo.byteCount)",
+                                                byteCount: "\(raw: Constants.Swift.byteCountType)(\(raw: skipMacroInfo.byteCount))",
                                                 endianness: nil,
                                             ),
                                         )
@@ -181,39 +179,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                 let toBeMatched = caseParseInfo.bytesToMatch(of: type)
                                 let matchPolicy = caseParseInfo.matchAction.matchPolicy
 
-                                let fields = ArrayExprSyntax(
-                                    elements: ArrayElementListSyntax {
-                                        for (binding, byteCount, endianness) in parseSkipMacroInfo {
-                                            ArrayElementSyntax(
-                                                expression:
-                                                FunctionCallExprSyntax(callee: MemberAccessExprSyntax(name: "init")) {
-                                                    LabeledExprSyntax(
-                                                        label: "byteCount",
-                                                        expression: byteCount ?? ExprSyntax("nil"),
-                                                    )
-                                                    LabeledExprSyntax(
-                                                        label: "bigEndian",
-                                                        expression: endianness ?? ExprSyntax("nil"),
-                                                    )
-                                                    if let binding {
-                                                        LabeledExprSyntax(
-                                                            label: "intel",
-                                                            expression: ExprSyntax(
-                                                                "(\(binding) as any \(raw: Constants.Protocols.printableProtocol)).parsedIntel()",
-                                                            ),
-                                                        )
-                                                    } else {
-                                                        LabeledExprSyntax(
-                                                            label: "intel",
-                                                            expression: ExprSyntax(
-                                                                ".skip(.init(byteCount: \(byteCount)))",
-                                                            ),
-                                                        )
-                                                    }
-                                                },
-                                            )
-                                        }
-                                    })
+                                let fields = ArrayExprSyntax(elements: generatePrintableFields(parseSkipMacroInfo))
 
                                 #"""
                                 return .enum(

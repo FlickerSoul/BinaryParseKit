@@ -69,3 +69,10 @@ extension Constants {
         static let enumCasePrinterIntel = PackageMember(name: "EnumCasePrinterIntel")
     }
 }
+
+extension Constants {
+    enum Swift {
+        private static let packageName = "Swift"
+        static let byteCountType = PackageMember(package: packageName, name: "Int")
+    }
+}

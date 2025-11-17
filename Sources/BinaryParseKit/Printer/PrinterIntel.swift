@@ -14,28 +14,34 @@ public enum PrinterIntel {
 }
 
 public struct SkipPrinterIntel {
-    public let byteCount: Int
+    public typealias ByteCount = Int
 
-    public init(byteCount: Int) {
+    public let byteCount: ByteCount
+
+    public init(byteCount: ByteCount) {
         self.byteCount = byteCount
     }
 }
 
 public struct BuiltInPrinterIntel {
     public let bytes: [UInt8]
+    public let fixedEndianness: Bool
 
-    public init(bytes: [UInt8]) {
+    public init(bytes: [UInt8], fixedEndianness: Bool = false) {
         self.bytes = bytes
+        self.fixedEndianness = fixedEndianness
     }
 }
 
 public struct FieldPrinterIntel {
-    public let byteCount: Int?
+    public typealias ByteCount = Int
+
+    public let byteCount: ByteCount?
     public let bigEndian: Endianness?
     public let intel: PrinterIntel
 
     public init(
-        byteCount: Int?,
+        byteCount: ByteCount?,
         bigEndian: Endianness?,
         intel: PrinterIntel,
     ) {

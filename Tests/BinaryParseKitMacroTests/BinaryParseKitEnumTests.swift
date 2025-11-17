@@ -272,7 +272,7 @@ extension BinaryParseKitMacroTests {
                                     enumCaseName: "a",
                                     bytes: [0x08],
                                     parseType: .match,
-                                    fields: [.init(byteCount: 1, bigEndian: nil, intel: (__macro_local_9a_index_0fMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                                    fields: [.init(byteCount: Swift.Int(1), bigEndian: nil, intel: (__macro_local_9a_index_0fMu_ as any BinaryParseKit.Printable).parsedIntel())],
                                 )
                             )
                         case let .b(__macro_local_9b_index_0fMu_, __macro_local_7b_valuefMu_):
@@ -290,7 +290,7 @@ extension BinaryParseKitMacroTests {
                                     enumCaseName: "c",
                                     bytes: [0x09],
                                     parseType: .match,
-                                    fields: [.init(byteCount: nil, bigEndian: .little, intel: (__macro_local_6c_codefMu_ as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: 2, bigEndian: nil, intel: .skip(.init(byteCount: 2))), .init(byteCount: nil, bigEndian: .little, intel: (__macro_local_7c_valuefMu_ as any BinaryParseKit.Printable).parsedIntel())],
+                                    fields: [.init(byteCount: nil, bigEndian: .little, intel: (__macro_local_6c_codefMu_ as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(2), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: nil, bigEndian: .little, intel: (__macro_local_7c_valuefMu_ as any BinaryParseKit.Printable).parsedIntel())],
                                 )
                             )
                         }

@@ -566,3 +566,14 @@ extension String: SizedParsable {
         try self.init(parsingUTF8: &input, count: byteCount)
     }
 }
+
+extension String: Printable {
+    public func parsedIntel() -> PrinterIntel {
+        .builtIn(
+            .init(
+                bytes: .init(data(using: .utf8) ?? Data()),
+                fixedEndianness: true,
+            ),
+        )
+    }
+}

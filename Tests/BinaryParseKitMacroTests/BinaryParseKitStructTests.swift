@@ -6,6 +6,8 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 
+// swiftlint:disable line_length
+
 extension BinaryParseKitMacroTests {
     @Suite
     struct `Test Parsing Struct` { // swiftlint:disable:this type_name type_body_length
@@ -101,6 +103,16 @@ extension BinaryParseKitMacroTests {
                         // Parse `f` of type CustomValue with endianness and byte count
                         BinaryParseKit.__assertEndianSizedParsable((CustomValue).self)
                         self.f = try CustomValue(parsing: &span, endianness: .little, byteCount: span.endPosition - span.startPosition)
+                    }
+                }
+
+                extension Header: BinaryParseKit.Printable {
+                    public func parsedIntel() -> PrinterIntel {
+                        return .struct(
+                            .init(
+                                fields: [.init(byteCount: Swift.Int(1), bigEndian: .big, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: .little, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(2), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: Swift.Int(4), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(4)))), .init(byteCount: nil, bigEndian: .big, intel: (d as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(6), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(6)))), .init(byteCount: nil, bigEndian: nil, intel: (e as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(self.b), bigEndian: nil, intel: (g as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: Swift.Int(7), bigEndian: nil, intel: .skip(.init(byteCount: Swift.Int(7)))), .init(byteCount: nil, bigEndian: .little, intel: (f as any BinaryParseKit.Printable).parsedIntel())]
+                            )
+                        )
                     }
                 }
                 """,
@@ -281,6 +293,16 @@ extension BinaryParseKitMacroTests {
 
                 extension Header: BinaryParseKit.Parsable {
                     public init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    }
+                }
+
+                extension Header: BinaryParseKit.Printable {
+                    public func parsedIntel() -> PrinterIntel {
+                        return .struct(
+                            .init(
+                                fields: []
+                            )
+                        )
                     }
                 }
                 """,
@@ -652,6 +674,16 @@ extension BinaryParseKitMacroTests {
                     self.c = try Int(parsing: &span)
                 }
             }
+
+            extension Header: BinaryParseKit.Printable {
+                func parsedIntel() -> PrinterIntel {
+                    return .struct(
+                        .init(
+                            fields: [.init(byteCount: nil, bigEndian: nil, intel: (a as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: nil, intel: (b as any BinaryParseKit.Printable).parsedIntel()), .init(byteCount: nil, bigEndian: nil, intel: (c as any BinaryParseKit.Printable).parsedIntel())]
+                        )
+                    )
+                }
+            }
             """)
         }
     }
@@ -678,3 +710,5 @@ private nonisolated(unsafe) let noParseVarExist = DiagnosticSpec(
     line: 1,
     column: 1,
 )
+
+// swiftlint:enable line_length
