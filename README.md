@@ -15,6 +15,7 @@ A declarative Swift package for parsing binary data using macros, built on top o
 - **Custom byte counts**: Parse types with specific byte lengths
 - **Remaining data parsing**: Parse all remaining bytes in a buffer
 - **Enum parsing**: Parse enums with pattern matching and associated values
+- **Parser is printer**: Serialize parsed structures back into binary data
 
 ## Requirements
 

@@ -8,9 +8,13 @@ BinaryParseKit provides a convenient and type-safe way to parse binary data in S
 
 ## Topics
 
-### Articles
+### Get Started
 
-- <doc:Guide>
+- <doc:GetStarted>
+
+### Printing
+
+- <doc:ParsedPrinter>
 
 ### Struct Parsing Macros
 
