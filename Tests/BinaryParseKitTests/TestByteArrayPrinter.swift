@@ -10,6 +10,12 @@ import BinaryParsing
 import Foundation
 import Testing
 
+typealias BuiltInPrinterIntel = PrinterIntel.BuiltInPrinterIntel
+typealias FieldPrinterIntel = PrinterIntel.FieldPrinterIntel
+typealias StructPrintIntel = PrinterIntel.StructPrintIntel
+typealias EnumCasePrinterIntel = PrinterIntel.EnumCasePrinterIntel
+typealias SkipPrinterIntel = PrinterIntel.SkipPrinterIntel
+
 @Suite
 struct ByteArrayPrinterTest {
     let printer = ByteArrayPrinter()

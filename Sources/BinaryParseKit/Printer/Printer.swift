@@ -18,15 +18,15 @@ public protocol Printer {
 }
 
 public extension Printer {
-    func print(_ intel: StructPrintIntel) throws(PrinterError) -> PrinterOutput {
+    func print(_ intel: PrinterIntel.StructPrintIntel) throws(PrinterError) -> PrinterOutput {
         try print(.struct(intel))
     }
 
-    func print(_ intel: EnumCasePrinterIntel) throws(PrinterError) -> PrinterOutput {
+    func print(_ intel: PrinterIntel.EnumCasePrinterIntel) throws(PrinterError) -> PrinterOutput {
         try print(.enum(intel))
     }
 
-    func print(_ intel: BuiltInPrinterIntel) throws(PrinterError) -> PrinterOutput {
+    func print(_ intel: PrinterIntel.BuiltInPrinterIntel) throws(PrinterError) -> PrinterOutput {
         try print(.builtIn(intel))
     }
 
