@@ -8,8 +8,11 @@
 // MARK: - Integer
 
 extension FixedWidthInteger {
-    func toBytes() -> [UInt8] {
-        unsafe withUnsafeBytes(of: bigEndian, Array.init)
+    func toBytes(useBigEndian: Bool = true) -> [UInt8] {
+        unsafe withUnsafeBytes(
+            of: useBigEndian ? bigEndian : littleEndian,
+            Array.init,
+        )
     }
 }
 

@@ -36,20 +36,24 @@ public struct ByteArrayPrinter: Printer {
             }
             return Self.trimBytes(results, to: byteCount)
         case let .builtIn(builtInPrinterIntel):
-            let bytes = Self.trimBytes(builtInPrinterIntel.bytes, to: byteCount)
-            if endianness?.isLittleEndian == true, !builtInPrinterIntel.fixedEndianness {
-                return bytes.reversed()
-            } else {
-                return bytes
-            }
+            let littleEndian = endianness?.isLittleEndian == true && !builtInPrinterIntel.fixedEndianness
+            return Self.trimBytes(
+                littleEndian ? builtInPrinterIntel.bytes.reversed() : builtInPrinterIntel.bytes,
+                to: byteCount,
+                bigEndian: !littleEndian,
+            )
         case let .skip(skipPrinterIntel):
             return Array(repeating: 0, count: skipPrinterIntel.byteCount)
         }
     }
 
-    private static func trimBytes(_ bytes: [UInt8], to byteCount: Int?) -> [UInt8] {
+    private static func trimBytes(_ bytes: [UInt8], to byteCount: Int?, bigEndian: Bool = true) -> [UInt8] {
         if let byteCount {
-            Array(bytes.prefix(byteCount))
+            if bigEndian {
+                Array(bytes.suffix(byteCount))
+            } else {
+                Array(bytes.prefix(byteCount))
+            }
         } else {
             bytes
         }

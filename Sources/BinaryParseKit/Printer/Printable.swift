@@ -4,6 +4,10 @@
 //
 //  Created by Larry Zeng on 11/13/25.
 //
+
+/// A protocol for types that can be printed in a format specified by `printer` that conforms to ``Printer``.
+///
+/// The conforming type must implement the `printerIntel()` method to provide the necessary information for printing.
 public protocol Printable {
     func printParsed<P: Printer>(printer: P) throws(PrinterError) -> P.PrinterOutput
 

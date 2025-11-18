@@ -206,7 +206,7 @@ struct ByteArrayPrinterTest {
         let structIntel = StructPrintIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
-        #expect(result == [0x01, 0x02, 0x03])
+        #expect(result == [0x04, 0x05, 0x06])
     }
 
     @Test
@@ -225,7 +225,7 @@ struct ByteArrayPrinterTest {
         let structIntel = StructPrintIntel(fields: [field1, field2])
         let result = try printer.print(.struct(structIntel))
 
-        #expect(result == [0x01, 0x02, 0x05, 0x06])
+        #expect(result == [0x03, 0x04, 0x05, 0x06])
     }
 
     @Test
@@ -244,7 +244,7 @@ struct ByteArrayPrinterTest {
     func `byteCount trims little endian built-in printer intel`() throws {
         // Big endian bytes [0x01, 0x02, 0x03, 0x04, 0x05, 0x06]
         // which is little endian [0x06, 0x05, 0x04, 0x03, 0x02, 0x01]
-        // with byteCount 2 should give [0x02, 0x01]
+        // with byteCount 2 should give [0x06, 0x05]
         let intel = PrinterIntel.builtIn(
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
         )
@@ -252,7 +252,7 @@ struct ByteArrayPrinterTest {
         let structIntel = StructPrintIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
-        #expect(result == [0x02, 0x01])
+        #expect(result == [0x06, 0x05])
     }
 
     // MARK: - Complex Integration Tests
@@ -289,7 +289,7 @@ struct ByteArrayPrinterTest {
         let structIntel = StructPrintIntel(fields: fields)
         let result = try printer.print(.struct(structIntel))
 
-        #expect(result == [0x01, 0x02, 0x00, 0x00, 0x04, 0x03, 0x05])
+        #expect(result == [0x01, 0x02, 0x00, 0x00, 0x04, 0x03, 0x07])
     }
 
     @Test
