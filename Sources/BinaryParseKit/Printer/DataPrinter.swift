@@ -7,13 +7,13 @@
 
 import Foundation
 
-public struct DataPrinter: ParsablePrinter {
-    public func print(_ intel: PrinterIntel) throws(ParsablePrinterError) -> Data {
+public struct DataPrinter: Printer {
+    public func print(_ intel: PrinterIntel) throws(PrinterError) -> Data {
         try Data(ByteArrayPrinter().print(intel))
     }
 }
 
-public extension ParsablePrinter where Self == DataPrinter {
+public extension Printer where Self == DataPrinter {
     static var data: Self {
         DataPrinter()
     }

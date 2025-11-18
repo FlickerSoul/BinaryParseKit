@@ -10,6 +10,6 @@ public func __getPrinterIntel<T>(_ value: T) throws -> PrinterIntel {
     if let intel = (value as? Printable) {
         return try intel.printerIntel()
     } else {
-        throw ParsablePrinterError.notPrintable(type: T.self)
+        throw PrinterError.notPrintable(type: T.self)
     }
 }

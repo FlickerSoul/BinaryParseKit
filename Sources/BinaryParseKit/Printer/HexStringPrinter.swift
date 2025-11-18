@@ -50,7 +50,7 @@ public struct DefaultHexStringPrinterFormatter: HexStringPrinterFormatter {
     }
 }
 
-public struct HexStringPrinter<F: HexStringPrinterFormatter>: ParsablePrinter {
+public struct HexStringPrinter<F: HexStringPrinterFormatter>: Printer {
     public let formatter: F
 
     public init(separator: String = "", prefix: String = "") where F == DefaultHexStringPrinterFormatter {
@@ -64,13 +64,13 @@ public struct HexStringPrinter<F: HexStringPrinterFormatter>: ParsablePrinter {
         self.formatter = formatter
     }
 
-    public func print(_ intel: PrinterIntel) throws(ParsablePrinterError) -> String {
+    public func print(_ intel: PrinterIntel) throws(PrinterError) -> String {
         let byteSource = try ByteArrayPrinter().print(intel)
         return formatter.format(bytes: byteSource)
     }
 }
 
-public extension ParsablePrinter where Self == HexStringPrinter<DefaultHexStringPrinterFormatter> {
+public extension Printer where Self == HexStringPrinter<DefaultHexStringPrinterFormatter> {
     static func hexString(separator: String = "", prefix: String = "") -> Self {
         HexStringPrinter(
             separator: separator,
@@ -79,7 +79,7 @@ public extension ParsablePrinter where Self == HexStringPrinter<DefaultHexString
     }
 }
 
-public extension ParsablePrinter {
+public extension Printer {
     static func hexString<T: HexStringPrinterFormatter>(formatter: T) -> HexStringPrinter<T> {
         HexStringPrinter(formatter: formatter)
     }

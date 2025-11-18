@@ -35,7 +35,6 @@ extension Constants {
         static let expressibleByParsingProtocol = PackageMember(name: "ExpressibleByParsing")
         static let matchableProtocol = PackageMember(name: "Matchable")
         static let printableProtocol = PackageMember(name: "Printable")
-        static let parsablePrinter = PackageMember(name: "ParsablePrinter")
     }
 }
 

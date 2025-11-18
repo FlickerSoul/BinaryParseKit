@@ -6,10 +6,10 @@
 //
 import BinaryParsing
 
-public struct ByteArrayPrinter: ParsablePrinter {
+public struct ByteArrayPrinter: Printer {
     public init() {}
 
-    public func print(_ intel: PrinterIntel) throws(ParsablePrinterError) -> [UInt8] {
+    public func print(_ intel: PrinterIntel) throws(PrinterError) -> [UInt8] {
         printInternal(intel, byteCount: nil, endianness: nil)
     }
 
@@ -56,7 +56,7 @@ public struct ByteArrayPrinter: ParsablePrinter {
     }
 }
 
-public extension ParsablePrinter where Self == ByteArrayPrinter {
+public extension Printer where Self == ByteArrayPrinter {
     static var byteArray: Self {
         ByteArrayPrinter()
     }
