@@ -243,7 +243,7 @@ struct ByteArrayPrinterTest {
     @Test
     func `byteCount trims little endian built-in printer intel`() throws {
         // Big endian bytes [0x01, 0x02, 0x03, 0x04, 0x05, 0x06]
-        // which is small endian [0x06, 0x05, 0x04, 0x03, 0x02, 0x01]
+        // which is little endian [0x06, 0x05, 0x04, 0x03, 0x02, 0x01]
         // with byteCount 2 should give [0x02, 0x01]
         let intel = PrinterIntel.builtIn(
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),

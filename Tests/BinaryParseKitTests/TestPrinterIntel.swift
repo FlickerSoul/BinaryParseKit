@@ -342,7 +342,9 @@ struct PrinterIntelTest {
         let simpleData: [UInt8] = [0x01]
         let simpleParsed = try ComplexEnum(parsing: simpleData)
         let simplePrinted = try simpleParsed.printParsed(printer: .byteArray)
-        let expectedSimpleData: [UInt8] = [] // Empty because `match` does not consume any bytes
+        // Empty because `match` does not consume any bytes
+        // and are not included in print output
+        let expectedSimpleData: [UInt8] = []
         #expect(simplePrinted == expectedSimpleData)
 
         // Test withSkip case
