@@ -304,12 +304,14 @@ If you encounter any issues, have feature requests, or want to suggest improveme
 
 ### Future Directions
 
-Some areas we're considering for future development:
+Roadmap:
 
-- **More convenient APIs** - Shorter syntax and better autocomplete support, such as merging `ParseStruct` and `ParseEnum`
-- **Advanced validation** - Runtime validation of parsing constraints, such as require minimal byte size checking in front instead of at each parsing
-- **Performance optimizations** - Further optimization of generated parsing code, such as linear time enum matching for constant bytes provided (`O( max(n, m) )` instead of `O(n * m)`, where `n` is the number of cases and `m` is the max number of bytes provided for each case)
-- **Porting to prio iOS/macOS 26** - because `Span` is introduced only in iOS/macOS 26, port of using `withUnsafePointer` can be provided to prior versions of OSes for better compatibility
+- [x] Parsers as printer
+- [ ] Porting to prior iOS 18/macOS 15: Because `Span` is introduced only in iOS 18/macOS 15, port of using `withUnsafePointer` can be provided to prior versions of OSes for better compatibility
+- [ ] Bitmask support
+- [ ] Advanced validation: Runtime validation of parsing constraints, such as require minimal byte size checking in front instead of at each parsing
+- [ ] Performance optimizations: Further optimization of generated parsing code, such as linear time enum matching for constant bytes provided (`O( max(n, m) )` instead of `O(n * m)`, where `n` is the number of cases and `m` is the max number of bytes provided for each case)
+- [ ] API improvements: Shorter syntax and better autocomplete support, such as merging `ParseStruct` and `ParseEnum`
 
 Your feedback on these directions and other ideas is highly appreciated!
 
