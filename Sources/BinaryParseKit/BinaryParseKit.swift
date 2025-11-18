@@ -37,7 +37,7 @@ public macro skip(byteCount: ByteCount, because: String) = #externalMacro(
 
 // MARK: - Field Parsing
 
-/// Parses a field that conforms to``Parsable``.
+/// Parses a field that conforms to ``Parsable``.
 ///
 /// This macro marks a field for parsing using the type's built-in parsing behavior.
 /// The field type must conform to ``Parsable`` protocol.
@@ -78,7 +78,7 @@ public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "Emp
 @attached(peer)
 public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParseKitMacros", type: "EmptyPeerMacro")
 
-/// Parses a field with a specific byte count.
+/// Parses a field that conforms to ``SizedParsable`` with a specific byte count.
 ///
 /// Use this macro when you need to parse a field using a specific number of bytes.
 /// The field type must conform to ``SizedParsable``.
@@ -104,7 +104,7 @@ public macro parse(byteCount: ByteCount) = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
-/// Parses a field with a byte count determined by another field's value.
+/// Parses a field that conforms to ``SizedParsable`` with a byte count determined by another field's value
 ///
 /// Use this macro to create variable-length fields where the length is specified
 /// by a previously parsed field. The field type must conform to ``SizedParsable``.
@@ -132,7 +132,7 @@ public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>) = #externalM
     type: "EmptyPeerMacro",
 )
 
-/// Parses a field with both specific byte count and endianness.
+/// Parses a field that conforms to ``EndianSizedParsable`` with both specific byte count and endianness.
 ///
 /// Use this macro when you need precise control over both the number of bytes
 /// and the byte order for parsing. The field type must conform to ``EndianSizedParsable``.
@@ -157,7 +157,7 @@ public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacr
     type: "EmptyPeerMacro",
 )
 
-/// Parses a field with byte count from another field and specific endianness.
+/// Parses a field that conforms to ``EndianSizedParsable`` with byte count from another field and specific endianness.
 ///
 /// Combines variable-length parsing with endianness control. The field type
 /// must conform to ``EndianSizedParsable``.
@@ -244,7 +244,7 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 
 // MARK: - Struct Parsing
 
-/// Generates a `Parsable` implementation for a struct with annotated fields.
+/// Generates a ``Parsable`` implementation for a struct with annotated fields.
 ///
 /// This macro analyzes the struct's fields marked with `@parse`, `@skip`, and `@parseRest`
 /// macros and generates the necessary parsing code to read binary data into the struct.

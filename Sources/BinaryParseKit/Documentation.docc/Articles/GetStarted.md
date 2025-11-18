@@ -1,4 +1,4 @@
-# Getting Started With `BinaryParseKit`
+# Getting Started
 
 `BinaryParseKit` is a Swift package that simplifies the process of parsing binary data by leveraging Swift's powerful macros and protocols. This guide will walk you through the basics of getting started with `BinaryParseKit`.
 
