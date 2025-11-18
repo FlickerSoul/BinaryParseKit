@@ -12,6 +12,8 @@ public enum PrinterError: Swift.Error {
 }
 
 public protocol Printer {
+    /// The output type produced by the printer. For example, this could be `String`, `Data`, or any other type that
+    /// represents the printed output.
     associatedtype PrinterOutput
 
     func print(_ intel: PrinterIntel) throws(PrinterError) -> PrinterOutput
