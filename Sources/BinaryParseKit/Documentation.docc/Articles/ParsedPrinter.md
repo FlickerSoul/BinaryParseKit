@@ -10,7 +10,7 @@ Printer takes in a ``Printable`` object and produces a formatted representation.
 
 The ``ByteArrayPrinter`` prints the parsed data as an array of bytes (`[UInt8]`). It has the following behavior:
 
-- Bytes skipped by ``skip(byteCount:because:)`` are replaced by `0x00`. That is `@skip(byteCount: 2, because: "reserved")` will print as `[0x00, 0x00]`.
+- Bytes skipped by ``skip(byteCount:because:)`` are replaced by `0x00`. That is `@skip(byteCount: 2, because: "reserved")` will print as `[0x00, 0x00]`. If you care about source accuracy, please use `@parse` to capture those bytes as struct fields instead.
 
     For instance,
 
@@ -27,7 +27,7 @@ The ``ByteArrayPrinter`` prints the parsed data as an array of bytes (`[UInt8]`)
     try print(Example(value: 2).printParsed(printer: .byteArray))
     ```
 
-- Bytes matched using non `matchAndTake` variants (that is, ``match()``, ``match(byte:)``, ``match(bytes:)``, and ``matchDefault()``) are not included in the output byte array.
+- Bytes matched using non `matchAndTake` variants (that is, ``match()``, ``match(byte:)``, ``match(bytes:)``, and ``matchDefault()``) are not included in the output byte array. If you care about source accuracy, please consider using enum with associated values and capture remaining bytes after `@match` variants using any of the `@parse`, or using `@matchAndTake` variants.
 
     For instance,
     ```swift

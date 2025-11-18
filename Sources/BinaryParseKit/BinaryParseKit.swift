@@ -15,7 +15,7 @@ public import BinaryParsing
 ///   - byteCount: The number of bytes to skip
 ///   - because: A descriptive reason for skipping these bytes (used for documentation)
 ///
-/// - Note: This macro has no effect on its own unless is used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -42,7 +42,7 @@ public macro skip(byteCount: ByteCount, because: String) = #externalMacro(
 /// This macro marks a field for parsing using the type's built-in parsing behavior.
 /// The field type must conform to ``Parsable`` protocol.
 ///
-/// - Note: This macro has no effect on its own unless is used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -62,7 +62,7 @@ public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "Emp
 ///
 /// - Parameter endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
 ///
-/// - Note: This macro has no effect on its own unless is used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -85,7 +85,7 @@ public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParse
 ///
 /// - Parameter byteCount: The number of bytes to read for this field
 ///
-/// - Note: This macro has no effect on its own unless is used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -111,7 +111,7 @@ public macro parse(byteCount: ByteCount) = #externalMacro(
 ///
 /// - Parameter byteCountOf: A KeyPath to another field whose value determines the byte count
 ///
-/// - Note: This macro has no effect on its own unless is used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// - Important: The referenced field in `byCountOf` must be parsed before this field.
 ///
@@ -166,7 +166,7 @@ public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacr
 ///   - byteCountOf: A KeyPath to another field whose value determines the byte count
 ///   - endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
 ///
-/// - Note: This macro has no effect on its own unless is used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// - Important: The referenced field in `byCountOf` must be parsed before this field.
 ///
