@@ -53,6 +53,21 @@ BinaryParseKit provides a convenient and type-safe way to parse binary data in S
 - ``Matchable``
 - ``MatchableRawRepresentable``
 
+### Printable
+
+- ``Printable``
+- ``Printer``
+- ``PrinterIntel``
+- ``PrinterError``
+
+### Printers
+
+- ``ByteArrayPrinter``
+- ``HexStringPrinter``
+- ``HexStringPrinterFormatter``
+- ``DefaultHexStringPrinterFormatter``
+- ``DataPrinter``
+
 ### Error
 
 - ``BinaryParserKitError``
