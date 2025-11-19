@@ -16,13 +16,21 @@ public protocol Printable {
 
 public extension Printable {
     func printParsed<P: Printer>(printer: P) throws(PrinterError) -> P.PrinterOutput {
+        let intel: PrinterIntel
         do {
-            let intel = try printerIntel()
-            return try printer.print(intel)
+            intel = try printerIntel()
         } catch let error as PrinterError {
             throw error
         } catch {
             throw .intelConstructionFailed(underlying: error)
+        }
+
+        do {
+            return try printer.print(intel)
+        } catch let error as PrinterError {
+            throw error
+        } catch {
+            throw .printingError(underlying: error)
         }
     }
 }

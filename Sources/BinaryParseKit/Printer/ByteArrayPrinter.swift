@@ -9,7 +9,7 @@ import BinaryParsing
 public struct ByteArrayPrinter: Printer {
     public init() {}
 
-    public func print(_ intel: PrinterIntel) throws(PrinterError) -> [UInt8] {
+    public func print(_ intel: PrinterIntel) throws -> [UInt8] {
         printInternal(intel, byteCount: nil, endianness: nil)
     }
 

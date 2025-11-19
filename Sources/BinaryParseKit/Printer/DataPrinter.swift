@@ -8,7 +8,7 @@
 import Foundation
 
 public struct DataPrinter: Printer {
-    public func print(_ intel: PrinterIntel) throws(PrinterError) -> Data {
+    public func print(_ intel: PrinterIntel) throws -> Data {
         try Data(ByteArrayPrinter().print(intel))
     }
 }

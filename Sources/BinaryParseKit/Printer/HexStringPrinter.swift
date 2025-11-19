@@ -64,7 +64,7 @@ public struct HexStringPrinter<F: HexStringPrinterFormatter>: Printer {
         self.formatter = formatter
     }
 
-    public func print(_ intel: PrinterIntel) throws(PrinterError) -> String {
+    public func print(_ intel: PrinterIntel) throws -> String {
         let byteSource = try ByteArrayPrinter().print(intel)
         return formatter.format(bytes: byteSource)
     }
