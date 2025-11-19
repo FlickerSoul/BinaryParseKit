@@ -52,6 +52,8 @@ public extension PrinterIntel {
     struct FieldPrinterIntel: Equatable {
         public typealias ByteCount = Int
 
+        // TODO: add field name and type metadata?
+
         /// The number of bytes occupied by this field, if known
         ///
         /// - Note: In the case of ``ByteArrayPrinter``,  it will be used to trim the byte array represented in
@@ -99,6 +101,8 @@ public extension PrinterIntel {
             case matchAndTake
             case matchDefault
         }
+
+        // TODO: add enum case metadata?
 
         /// The bytes used in match macro whose type is specified in ``PrinterIntel/EnumCasePrinterIntel/CaseParseType``
         public let bytes: [UInt8]
