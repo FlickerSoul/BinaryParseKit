@@ -145,3 +145,18 @@ struct ParseMacroInfo {
         self.init(byteCount: .variable, endianness: endiannessArgument?.expression, source: Syntax(attribute))
     }
 }
+
+extension ParseMacroInfo.Count {
+    func toExprSyntax() -> ExprSyntax? {
+        switch self {
+        case let .fixed(byteCount):
+            "\(raw: byteCount)"
+        case .variable:
+            nil
+        case .unspecified:
+            nil
+        case let .ofVariable(exprSyntax):
+            exprSyntax
+        }
+    }
+}

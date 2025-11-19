@@ -9,6 +9,17 @@ extension [UInt8]: SizedParsable {
     }
 }
 
+extension [UInt8]: Printable {
+    public func printerIntel() -> PrinterIntel {
+        .builtIn(
+            .init(
+                bytes: self,
+                fixedEndianness: true,
+            ),
+        )
+    }
+}
+
 @ParseStruct
 struct FileHeader {
     @parse(byteCount: 4, endianness: .big)
@@ -44,6 +55,9 @@ print("Version: \(header.version)") // 1
 print("File Size: \(header.fileSize)") // 5
 print("Content: \(String(bytes: header.content, encoding: .utf8)!)") // "Hello"
 print("Footer: \(header.footer)")
+
+let headerHex = try? header.printParsed(printer: .hexString(separator: ", ", prefix: "0x"))
+print("Hex: \(headerHex ?? "Error")")
 
 @ParseEnum
 enum Channel {

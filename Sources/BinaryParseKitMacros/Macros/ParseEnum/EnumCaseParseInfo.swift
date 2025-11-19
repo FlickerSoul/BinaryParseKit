@@ -123,9 +123,24 @@ struct EnumCaseParseInfo {
         self.parseActions = parseActions
         self.caseElementName = caseElementName.trimmed
     }
+
+    func bytesToMatch(of type: some TypeSyntaxProtocol) -> ExprSyntax {
+        if let matchBytes = matchAction.matchBytes {
+            matchBytes
+        } else {
+            ExprSyntax(
+                "(\(type).\(caseElementName) as any \(raw: Constants.Protocols.matchableProtocol)).bytesToMatch()",
+            )
+        }
+    }
 }
 
 struct EnumParseInfo {
     let type: TokenSyntax
     let caseParseInfo: [EnumCaseParseInfo]
+
+    init(type: TokenSyntax, caseParseInfo: [EnumCaseParseInfo]) {
+        self.type = type.trimmed
+        self.caseParseInfo = caseParseInfo
+    }
 }

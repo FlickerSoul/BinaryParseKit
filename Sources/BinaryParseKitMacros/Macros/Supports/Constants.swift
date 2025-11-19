@@ -33,6 +33,8 @@ extension Constants {
         static let endianParsableProtocol = PackageMember(name: "EndianParsable")
         static let endianSizedParsableProtocol = PackageMember(name: "EndianSizedParsable")
         static let expressibleByParsingProtocol = PackageMember(name: "ExpressibleByParsing")
+        static let matchableProtocol = PackageMember(name: "Matchable")
+        static let printableProtocol = PackageMember(name: "Printable")
     }
 }
 
@@ -43,6 +45,7 @@ extension Constants {
         static let assertSizedParsable = PackageMember(name: "__assertSizedParsable")
         static let assertEndianParsable = PackageMember(name: "__assertEndianParsable")
         static let assertEndianSizedParsable = PackageMember(name: "__assertEndianSizedParsable")
+        static let getPrintIntel = PackageMember(name: "__getPrinterIntel")
     }
 }
 
@@ -57,5 +60,19 @@ extension Constants {
         private static let packageName = "BinaryParsing"
         static let parserSpan = PackageMember(package: packageName, name: "ParserSpan")
         static let thrownParsingError = PackageMember(package: packageName, name: "ThrownParsingError")
+    }
+}
+
+extension Constants {
+    enum PrinterIntel {
+        static let structPrintIntel = PackageMember(name: "StructPrintIntel")
+        static let enumCasePrinterIntel = PackageMember(name: "EnumCasePrinterIntel")
+    }
+}
+
+extension Constants {
+    enum Swift {
+        private static let packageName = "Swift"
+        static let byteCountType = PackageMember(package: packageName, name: "Int")
     }
 }

@@ -15,7 +15,7 @@ public import BinaryParsing
 ///   - byteCount: The number of bytes to skip
 ///   - because: A descriptive reason for skipping these bytes (used for documentation)
 ///
-/// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -37,12 +37,12 @@ public macro skip(byteCount: ByteCount, because: String) = #externalMacro(
 
 // MARK: - Field Parsing
 
-/// Parses a field using the type's default `Parsable` implementation.
+/// Parses a field that conforms to ``Parsable``.
 ///
 /// This macro marks a field for parsing using the type's built-in parsing behavior.
-/// The field type must conform to `Parsable` protocol.
+/// The field type must conform to ``Parsable`` protocol.
 ///
-/// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -58,11 +58,11 @@ public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "Emp
 /// Parses a field with a specific endianness.
 ///
 /// Use this macro when you need to parse a field with a specific byte order
-/// (big-endian or little-endian). The field type must conform to `EndianParsable`.
+/// (big-endian or little-endian). The field type must conform to ``EndianParsable``.
 ///
-/// - Parameter endianness: The byte order to use for parsing (`.big` or `.little`)
+/// - Parameter endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
 ///
-/// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -78,14 +78,14 @@ public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "Emp
 @attached(peer)
 public macro parse(endianness: Endianness) = #externalMacro(module: "BinaryParseKitMacros", type: "EmptyPeerMacro")
 
-/// Parses a field with a specific byte count.
+/// Parses a field that conforms to ``SizedParsable`` with a specific byte count.
 ///
 /// Use this macro when you need to parse a field using a specific number of bytes.
-/// The field type must conform to `SizedParsable`.
+/// The field type must conform to ``SizedParsable``.
 ///
 /// - Parameter byteCount: The number of bytes to read for this field
 ///
-/// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
 /// Example:
 /// ```swift
@@ -104,15 +104,16 @@ public macro parse(byteCount: ByteCount) = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
-/// Parses a field with a byte count determined by another field's value.
+/// Parses a field that conforms to ``SizedParsable`` with a byte count determined by another field's value
 ///
 /// Use this macro to create variable-length fields where the length is specified
-/// by a previously parsed field. The field type must conform to `SizedParsable`.
+/// by a previously parsed field. The field type must conform to ``SizedParsable``.
 ///
 /// - Parameter byteCountOf: A KeyPath to another field whose value determines the byte count
 ///
-/// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
-///        The referenced field must be parsed before this field.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
+///
+/// - Important: The referenced field in `byteCountOf` must be parsed before this field.
 ///
 /// Example:
 /// ```swift
@@ -131,10 +132,10 @@ public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>) = #externalM
     type: "EmptyPeerMacro",
 )
 
-/// Parses a field with both specific byte count and endianness.
+/// Parses a field that conforms to ``EndianSizedParsable`` with both specific byte count and endianness.
 ///
 /// Use this macro when you need precise control over both the number of bytes
-/// and the byte order for parsing. The field type must conform to `EndianSizedParsable`.
+/// and the byte order for parsing. The field type must conform to ``EndianSizedParsable``.
 ///
 /// - Parameters:
 ///   - byteCount: The number of bytes to read for this field
@@ -156,17 +157,18 @@ public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacr
     type: "EmptyPeerMacro",
 )
 
-/// Parses a field with byte count from another field and specific endianness.
+/// Parses a field that conforms to ``EndianSizedParsable`` with byte count from another field and specific endianness.
 ///
 /// Combines variable-length parsing with endianness control. The field type
-/// must conform to `EndianSizedParsable`.
+/// must conform to ``EndianSizedParsable``.
 ///
 /// - Parameters:
 ///   - byteCountOf: A KeyPath to another field whose value determines the byte count
-///   - endianness: The byte order to use for parsing (`.big` or `.little`)
+///   - endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
 ///
-/// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
-///        The referenced field must be parsed before this field.
+/// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
+///
+/// - Important: The referenced field in `byteCountOf` must be parsed before this field.
 ///
 /// Example:
 /// ```swift
@@ -189,10 +191,11 @@ public macro parse<R, V: BinaryInteger>(byteCountOf: KeyPath<R, V>, endianness: 
 ///
 /// Use this macro to parse all remaining bytes from the current position to the end
 /// of the data. This is typically used for the last field in a structure.
-/// The field type must conform to `SizedParsable`.
+/// The field type must conform to ``SizedParsable``.
 ///
 /// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
-///        Only one `@parseRest` field is allowed per struct, and it must be the last field.
+///
+/// - Note: Only one `@parseRest` field is allowed per struct, and it must be the last field.
 ///
 /// Example:
 /// ```swift
@@ -214,12 +217,13 @@ public macro parseRest() = #externalMacro(
 /// Parses all remaining bytes with a specific endianness.
 ///
 /// Like `parseRest()`, but applies endianness conversion to the remaining data.
-/// The field type must conform to `EndianSizedParsable`.
+/// The field type must conform to ``EndianSizedParsable``.
 ///
-/// - Parameter endianness: The byte order to use for parsing (`.big` or `.little`)
+/// - Parameter endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
 ///
 /// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
-///        Only one `@parseRest` field is allowed per struct, and it must be the last field.
+///
+/// - Note: Only one `@parseRest` field is allowed per struct, and it must be the last field.
 ///
 /// Example:
 /// ```swift
@@ -240,16 +244,16 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 
 // MARK: - Struct Parsing
 
-/// Generates a `Parsable` implementation for a struct with annotated fields.
+/// Generates a ``Parsable`` implementation for a struct with annotated fields.
 ///
 /// This macro analyzes the struct's fields marked with `@parse`, `@skip`, and `@parseRest`
 /// macros and generates the necessary parsing code to read binary data into the struct.
 ///
 /// The generated code includes:
-/// - A `Parsable` conformance
-/// - An initializer that reads from a `ParserSpan`
+/// - A ``Parsable`` conformance
 /// - Type validation functions to ensure fields conform to required protocols
 /// - Proper error handling for parsing failures
+/// - A ``Printable`` conformance
 ///
 /// - Note: All fields except those with accessors (`get` and `set`) must be parsed must be marked with `@parse`
 /// variants.
@@ -273,7 +277,7 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// let data = Data([0x89, 0x50, 0x4E, 0x47, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00])
 /// let header = try FileHeader(parsing: data)
 /// ```
-@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
+@attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
 public macro ParseStruct() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructStructParseMacro",
@@ -281,20 +285,21 @@ public macro ParseStruct() = #externalMacro(
 
 // MARK: - Parse Enum
 
-/// Generates a `Parsable` implementation for an enum with annotated cases.
+/// Generates a ``Parsable`` implementation for an enum with annotated cases.
 ///
 /// This macro analyzes the enum's cases marked with `@match`, `@matchAndTake`, and `@matchDefault` with optional
 /// associated values,
 /// whose parsing can be specified using ``parse(byteCount:)``  and ``skip(byteCount:because:)`` macros.
 ///
 /// The generated code includes:
-/// - A `Parsable` conformance
+/// - A ``Parsable`` conformance
+/// - A ``Printable`` conformance
 ///
 /// - Note: All enum cases must be marked with `@match` variants, which is intentional by design, which I don't think is
 /// necessary and is possible to be lifted int the future.
 /// - Note: Only one `@matchDefault` case is allowed per enum, and has to be declared at the end of all other cases.
 /// - Note: any `match` macro has to proceed `parse` and `skip` macros.
-@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
+@attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
 public macro ParseEnum() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructEnumParseMacro",

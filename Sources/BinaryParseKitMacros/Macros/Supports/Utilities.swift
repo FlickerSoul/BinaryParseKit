@@ -91,3 +91,44 @@ func generateSkipBlock(variableName: TokenSyntax, skipInfo: SkipMacroInfo) -> Co
     try span.seek(toRelativeOffset: \#(raw: byteCount))
     """#
 }
+
+struct PrintableFieldInfo {
+    let binding: TokenSyntax?
+    let byteCount: ExprSyntax?
+    let endianness: ExprSyntax?
+}
+
+@ArrayElementListBuilder
+func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListSyntax {
+    for info in infos {
+        ArrayElementSyntax(
+            expression:
+            FunctionCallExprSyntax(callee: MemberAccessExprSyntax(name: "init")) {
+                LabeledExprSyntax(
+                    label: "byteCount",
+                    expression: info.byteCount ?? ExprSyntax("nil"),
+                )
+                LabeledExprSyntax(
+                    label: "endianness",
+                    expression: info.endianness ?? ExprSyntax("nil"),
+                )
+
+                if let binding = info.binding {
+                    LabeledExprSyntax(
+                        label: "intel",
+                        expression: ExprSyntax(
+                            "try \(raw: Constants.UtilityFunctions.getPrintIntel)(\(binding))",
+                        ),
+                    )
+                } else {
+                    LabeledExprSyntax(
+                        label: "intel",
+                        expression: ExprSyntax(
+                            ".skip(.init(byteCount: \(info.byteCount)))",
+                        ),
+                    )
+                }
+            },
+        )
+    }
+}
