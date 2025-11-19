@@ -14,6 +14,7 @@ public struct ByteArrayPrinter: Printer {
         printInternal(intel, byteCount: nil, endianness: nil)
     }
 
+    // FIXME: too many allocations
     func printInternal(_ intel: PrinterIntel, byteCount: Int?, endianness: Endianness?) -> [UInt8] {
         switch intel {
         case let .struct(structPrintIntel):
