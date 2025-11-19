@@ -111,7 +111,6 @@ struct ByteArrayPrinterTest {
     @Test
     func `print enum with matchAndTake includes discriminator bytes`() throws {
         let enumIntel = EnumCasePrinterIntel(
-            enumCaseName: "testCase",
             bytes: [0xFF, 0xFE],
             parseType: .matchAndTake,
             fields: [
@@ -131,7 +130,6 @@ struct ByteArrayPrinterTest {
     @Test
     func `print enum with match does not include discriminator bytes`() throws {
         let enumIntel = EnumCasePrinterIntel(
-            enumCaseName: "testCase",
             bytes: [0xFF, 0xFE],
             parseType: .match,
             fields: [
@@ -151,7 +149,6 @@ struct ByteArrayPrinterTest {
     @Test
     func `print enum with matchDefault does not include discriminator bytes`() throws {
         let enumIntel = EnumCasePrinterIntel(
-            enumCaseName: "defaultCase",
             bytes: [],
             parseType: .matchDefault,
             fields: [
@@ -301,7 +298,6 @@ struct ByteArrayPrinterTest {
     @Test
     func `enum with multiple fields and mixed endianness`() throws {
         let enumIntel = EnumCasePrinterIntel(
-            enumCaseName: "complexCase",
             bytes: [0xAA, 0xBB],
             parseType: .matchAndTake,
             fields: [
@@ -333,7 +329,6 @@ struct ByteArrayPrinterTest {
     @Test
     func `enum with no fields and matchAndTake only outputs discriminator`() throws {
         let enumIntel = EnumCasePrinterIntel(
-            enumCaseName: "emptyCase",
             bytes: [0xFF],
             parseType: .matchAndTake,
             fields: [],

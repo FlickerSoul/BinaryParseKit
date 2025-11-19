@@ -31,7 +31,6 @@ struct PrinterIntelTest {
         let firstIntel = try BasicEnum.first.printerIntel()
         let enumIntel = try #require(firstIntel.enumIntel)
 
-        #expect(enumIntel.enumCaseName == "first")
         #expect(enumIntel.bytes == [0x01])
         #expect(enumIntel.parseType == .match)
         #expect(enumIntel.fields.isEmpty)
@@ -39,7 +38,6 @@ struct PrinterIntelTest {
         let secondIntel = try BasicEnum.second.printerIntel()
         let enumIntel2 = try #require(secondIntel.enumIntel)
 
-        #expect(enumIntel2.enumCaseName == "second")
         #expect(enumIntel2.bytes == [0x02, 0x03])
         #expect(enumIntel2.parseType == .match)
         #expect(enumIntel2.fields.isEmpty)
@@ -63,7 +61,6 @@ struct PrinterIntelTest {
         let intel = try value.printerIntel()
         let enumIntel = try #require(intel.enumIntel)
 
-        #expect(enumIntel.enumCaseName == "withInt16")
         #expect(enumIntel.bytes == [0x01])
         #expect(enumIntel.parseType == .match)
         #expect(enumIntel.fields.count == 1)
@@ -94,7 +91,6 @@ struct PrinterIntelTest {
         let intel = try value.printerIntel()
         let enumIntel = try #require(intel.enumIntel)
 
-        #expect(enumIntel.enumCaseName == "withValue")
         #expect(enumIntel.bytes == [0x01])
         #expect(enumIntel.parseType == .matchAndTake)
         #expect(enumIntel.fields.count == 1)
@@ -103,7 +99,6 @@ struct PrinterIntelTest {
         let intel2 = try twoValues.printerIntel()
         let enumIntel2 = try #require(intel2.enumIntel)
 
-        #expect(enumIntel2.enumCaseName == "withTwoValues")
         #expect(enumIntel2.bytes == [0x02, 0x03])
         #expect(enumIntel2.parseType == .matchAndTake)
         #expect(enumIntel2.fields.count == 2)

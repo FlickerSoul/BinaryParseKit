@@ -184,7 +184,6 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                 #"""
                                 return .enum(
                                     .init(
-                                        enumCaseName: "\#(caseParseInfo.caseElementName)",
                                         bytes: \#(toBeMatched),
                                         parseType: .\#(raw: matchPolicy),
                                         fields: \#(fields),
