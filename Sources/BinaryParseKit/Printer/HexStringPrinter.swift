@@ -57,13 +57,6 @@ public struct DefaultHexStringPrinterFormatter: HexStringPrinterFormatter {
 public struct HexStringPrinter<F: HexStringPrinterFormatter>: Printer {
     public let formatter: F
 
-    public init(separator: String = "", prefix: String = "") where F == DefaultHexStringPrinterFormatter {
-        formatter = DefaultHexStringPrinterFormatter(
-            separator: separator,
-            prefix: prefix,
-        )
-    }
-
     public init(formatter: F) {
         self.formatter = formatter
     }
@@ -75,10 +68,17 @@ public struct HexStringPrinter<F: HexStringPrinterFormatter>: Printer {
 }
 
 public extension Printer where Self == HexStringPrinter<DefaultHexStringPrinterFormatter> {
-    static func hexString(separator: String = "", prefix: String = "") -> Self {
+    static func hexString(
+        separator: String = "",
+        prefix: String = "",
+        characterCase: DefaultHexStringPrinterFormatter.CharacterCase = .upper,
+    ) -> Self {
         HexStringPrinter(
-            separator: separator,
-            prefix: prefix,
+            formatter: DefaultHexStringPrinterFormatter(
+                separator: separator,
+                prefix: prefix,
+                characterCase: characterCase,
+            ),
         )
     }
 }
