@@ -12,8 +12,11 @@ public protocol HexStringPrinterFormatter {
 }
 
 public struct DefaultHexStringPrinterFormatter: HexStringPrinterFormatter {
+    /// Character case for hex digits.
     public enum CharacterCase {
+        /// Formats hex digits in uppercase (e.g., "0A", "FF").
         case upper
+        /// Formats hex digits in lowercase (e.g., "0a", "ff").
         case lower
 
         var formatString: StaticString {
@@ -30,9 +33,9 @@ public struct DefaultHexStringPrinterFormatter: HexStringPrinterFormatter {
 
     /// Create a default hex string formatter
     /// - Parameters:
-    ///  - separator: The separator between each byte. Default is empty string.
-    ///  - prefix: The prefix for each byte which will be prefixed before `%02X` or `%02x`. Default is empty string.
-    ///  - characterCase: The character case for hex digits. Default is ``CharacterCase/upper``
+    ///   - separator: The separator between each byte. Default is empty string.
+    ///   - prefix: The prefix for each byte which will be placed before `%02X` or `%02x`. Default is empty string.
+    ///   - characterCase: The character case for hex digits. Default is ``CharacterCase/upper``
     public init(
         separator: String = "",
         prefix: String = "",
@@ -50,6 +53,7 @@ public struct DefaultHexStringPrinterFormatter: HexStringPrinterFormatter {
     }
 }
 
+/// A printer that converts byte arrays into hexadecimal string representations using a ``HexStringPrinterFormatter``.
 public struct HexStringPrinter<F: HexStringPrinterFormatter>: Printer {
     public let formatter: F
 

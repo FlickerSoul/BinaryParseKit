@@ -23,7 +23,7 @@ The ``ByteArrayPrinter`` prints the parsed data as an array of bytes (`[UInt8]`)
     }
 
     // [0x00, 0x00, 0x02, 0x00]
-    // where the first two 0x00 are from skip, and the last two bytes are from parsing the Int value 2 in big-endian
+    // where the first two 0x00 are from skip, and the last two bytes are from parsing the Int value 2 in little-endian
     try print(Example(value: 2).printParsed(printer: .byteArray))
     ```
 
@@ -47,7 +47,7 @@ The ``ByteArrayPrinter`` prints the parsed data as an array of bytes (`[UInt8]`)
 
 ### `HexStringPrinter`
 
-The ``ByteArrayPrinter`` uses the ``ByteArrayPrinter`` to get the byte array and then converts it to a hexadecimal string representation. The ``ByteArrayPrinter`` takes a ``HexStringPrinterFormatter`` that formats a given byte array into a string. The default implementation ``DefaultHexStringPrinterFormatter`` converts each byte into a two letter string (with a prefix option) and joins them with a separator (default to empty string).
+The ``HexStringPrinter`` uses the ``ByteArrayPrinter`` to get the byte array and then converts it to a hexadecimal string representation. The ``HexStringPrinter`` takes a ``HexStringPrinterFormatter`` that formats a given byte array into a string. The default implementation ``DefaultHexStringPrinterFormatter`` converts each byte into a two letter string (with a prefix option) and joins them with a separator (default to empty string).
 
 ### `DataPrinter`
 

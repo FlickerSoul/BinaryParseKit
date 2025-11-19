@@ -113,7 +113,7 @@ public macro parse(byteCount: ByteCount) = #externalMacro(
 ///
 /// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
-/// - Important: The referenced field in `byCountOf` must be parsed before this field.
+/// - Important: The referenced field in `byteCountOf` must be parsed before this field.
 ///
 /// Example:
 /// ```swift
@@ -168,7 +168,7 @@ public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacr
 ///
 /// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
-/// - Important: The referenced field in `byCountOf` must be parsed before this field.
+/// - Important: The referenced field in `byteCountOf` must be parsed before this field.
 ///
 /// Example:
 /// ```swift

@@ -6,6 +6,7 @@
 //
 import BinaryParsing
 
+/// A printer that converts ``PrinterIntel`` into a byte array.
 public struct ByteArrayPrinter: Printer {
     public init() {}
 

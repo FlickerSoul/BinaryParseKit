@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// A printer that outputs data as `Data`.
 public struct DataPrinter: Printer {
     public func print(_ intel: PrinterIntel) throws -> Data {
         try Data(ByteArrayPrinter().print(intel))
