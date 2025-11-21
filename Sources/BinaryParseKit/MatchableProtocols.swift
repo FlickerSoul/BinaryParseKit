@@ -10,12 +10,9 @@ public protocol Matchable {
     func bytesToMatch() -> [UInt8]
 }
 
-/// A protocol for types that conform to `RawRepresentable` and `Matchable`.
-/// It provides a default implementation for `RawRepresentable` whose `RawValue` conforms to `Matchable`.
-public protocol MatchableRawRepresentable: RawRepresentable, Matchable {}
-
-/// Default implementation of `bytesToMatch()` for `MatchableRawRepresentable` where `RawValue` conforms to `Matchable`.
-public extension MatchableRawRepresentable where Self.RawValue: Matchable {
+/// Default implementation of `bytesToMatch()` for ``Matchable`` where it's also a `RawRepresentable` and its `RawValue`
+/// conforms to `Matchable`.
+public extension Matchable where Self: RawRepresentable, Self.RawValue: Matchable {
     /// Returns `rawValue`'s `bytesToMatch()`.
     func bytesToMatch() -> [UInt8] {
         rawValue.bytesToMatch()

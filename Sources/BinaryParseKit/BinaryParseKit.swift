@@ -309,16 +309,15 @@ public macro ParseEnum() = #externalMacro(
 
 /// Defines a match case using the enum's raw value without consuming bytes from the buffer.
 ///
-/// Use this macro for `MatchableRawRepresentable` enums where each case's raw value
+/// Use this macro for ``Matchable`` enums where each case's raw value
 /// serves as the match pattern. The matched bytes are NOT consumed from the buffer.
 ///
-/// - Note: This declaration can only be used when the enum conforms to ``Matchable`` (or ``MatchableRawRepresentable``)
-/// protocol.
+/// - Note: This declaration can only be used when the enum conforms to ``Matchable`` protocol.
 ///
 /// Example:
 /// ```swift
 /// @ParseEnum
-/// enum StatusCode: UInt8, MatchableRawRepresentable {
+/// enum StatusCode: UInt8, Matchable {
 ///     @match
 ///     case success = 0x00  // Matches byte 0x00 without advancing the pointer
 ///
@@ -391,17 +390,16 @@ public macro match(bytes: [UInt8]) = #externalMacro(
 
 /// Matches and consumes bytes from the buffer using the enum's raw value.
 ///
-/// Use this macro for `MatchableRawRepresentable` enums where each case's raw value
+/// Use this macro for ``Matchable`` enums where each case's raw value
 /// serves as the match pattern. The matched bytes ARE consumed from the buffer,
 /// making this suitable for cases with associated values that need to parse subsequent data.
 ///
-/// - Note: This declaration can only be used when the enum conforms to ``Matchable`` (or ``MatchableRawRepresentable``)
-/// protocol.
+/// - Note: This declaration can only be used when the enum conforms to ``Matchable`` protocol.
 ///
 /// Example:
 /// ```swift
 /// @ParseEnum
-/// enum Command: UInt8, MatchableRawRepresentable {
+/// enum Command: UInt8, Matchable {
 ///     @matchAndTake
 ///     @parse(endianness: .big)
 ///     case setValue(UInt16) = 0x01  // Matches and consumes 0x01, then parses UInt16

@@ -51,7 +51,6 @@ BinaryParseKit provides a convenient and type-safe way to parse binary data in S
 ### Matchable Protocols
 
 - ``Matchable``
-- ``MatchableRawRepresentable``
 
 ### Printable
 

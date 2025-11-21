@@ -54,7 +54,7 @@ struct EnumParsingTest {
     // MARK: - Raw Representable Enum Tests
 
     @ParseEnum
-    enum RawRepresentableUInt8: UInt8, MatchableRawRepresentable {
+    enum RawRepresentableUInt8: UInt8, Matchable {
         @match
         case first = 0x10
 
@@ -85,7 +85,7 @@ struct EnumParsingTest {
     }
 
     @ParseEnum
-    enum RawRepresentableUInt16: UInt16, MatchableRawRepresentable {
+    enum RawRepresentableUInt16: UInt16, Matchable {
         @match
         case value1 = 0x0102
         @match
@@ -93,7 +93,7 @@ struct EnumParsingTest {
     }
 
     @Test
-    func `raw representable MatchableRawRepresentable enum`() throws {
+    func `raw representable Matchable enum`() throws {
         let value1 = try RawRepresentableUInt16(parsing: Data([0x01, 0x02]))
         #expect(value1 == .value1)
 
@@ -448,7 +448,7 @@ struct EnumParsingTest {
     }
 }
 
-extension MatchableRawRepresentable where Self.RawValue == UInt16 {
+extension Matchable where Self: RawRepresentable, Self.RawValue == UInt16 {
     func bytesToMatch() -> [UInt8] {
         [
             UInt8((rawValue & 0xFF00) >> 8),
