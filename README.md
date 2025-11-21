@@ -231,11 +231,11 @@ let cmd = try Command(parsing: Data([0x01, 0x12, 0x34]))
 
 **Raw Representable Enums**
 
-For enums with raw values, conform to `MatchableRawRepresentable` (or `Matchable`):
+For enums with raw values, conform to `Matchable`:
 
 ```swift
 @ParseEnum
-enum StatusCode: UInt8, MatchableRawRepresentable {
+enum StatusCode: UInt8, Matchable {
     @match
     case success = 0x00
 
@@ -284,7 +284,7 @@ BinaryParseKit defines four parsing protocols:
 Most built-in types already conform to these protocols. For custom types, implement the appropriate protocol(s).
 
 In addition, as mentioned in the previous enum parsing section,
-`Matchable` and `MatchableRawRepresentable` is introduced to allow each case to provide bytes for matching in the process.
+`Matchable` is introduced to allow each case to provide bytes for matching in the process.
 
 ## Contributing
 

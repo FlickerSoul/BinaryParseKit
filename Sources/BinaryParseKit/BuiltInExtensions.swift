@@ -22,7 +22,7 @@ extension Int64: EndianSizedParsable, EndianParsable {}
 
 extension Data: SizedParsable {}
 
-public extension MatchableRawRepresentable where Self.RawValue == UInt8 {
+public extension Matchable where Self: RawRepresentable, Self.RawValue == UInt8 {
     func bytesToMatch() -> [UInt8] {
         [rawValue]
     }

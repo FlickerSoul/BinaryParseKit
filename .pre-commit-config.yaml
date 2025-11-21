@@ -6,7 +6,7 @@ repos:
       - id: trailing-whitespace
         exclude: ".*\\.(html|plist)$"
       - id: end-of-file-fixer
-        exclude: ".*\\.(xcstrings|html|plist)$"
+        exclude: ".*\\.(xcstrings|html|plist|json)$"
   - repo: local
     hooks:
       - id: swiftformat
