@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:BinaryParseKit}",
+            "name": "Debug BinaryParseKitClient",
+            "target": "BinaryParseKitClient",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug BinaryParseKitClient"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:BinaryParseKit}",
+            "name": "Release BinaryParseKitClient",
+            "target": "BinaryParseKitClient",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release BinaryParseKitClient"
+        }
+    ]
+}
