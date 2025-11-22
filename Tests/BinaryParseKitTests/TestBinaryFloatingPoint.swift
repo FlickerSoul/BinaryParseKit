@@ -16,37 +16,37 @@ extension Endianness: @unchecked @retroactive Sendable {}
 struct TestBinaryFloatingPoint {
     @Test
     func parsingFromByteArray() throws {
-        try testingImpl(
+        try testingParsingImpl(
             [0xDE, 0xAD, 0xBE, 0xEF],
             to: Float16.self,
             endianness: .big,
             expected: .init(bitPattern: 0xDEAD),
         )
-        try testingImpl(
+        try testingParsingImpl(
             [0xDE, 0xAD, 0xBE, 0xEF],
             to: Float16.self,
             endianness: .little,
             expected: .init(bitPattern: 0xADDE),
         )
-        try testingImpl(
+        try testingParsingImpl(
             [0xDE, 0xAD, 0xBE, 0xEF],
             to: Float.self,
             endianness: .big,
             expected: .init(bitPattern: 0xDEAD_BEEF),
         )
-        try testingImpl(
+        try testingParsingImpl(
             [0xDE, 0xAD, 0xBE, 0xEF],
             to: Float.self,
             endianness: .little,
             expected: .init(bitPattern: 0xEFBE_ADDE),
         )
-        try testingImpl(
+        try testingParsingImpl(
             [0xAB, 0xAD, 0xCA, 0xFE, 0xAA, 0xC0, 0xFF, 0xEE],
             to: Double.self,
             endianness: .big,
             expected: .init(bitPattern: 0xABAD_CAFE_AAC0_FFEE),
         )
-        try testingImpl(
+        try testingParsingImpl(
             [0xAB, 0xAD, 0xCA, 0xFE, 0xAA, 0xC0, 0xFF, 0xEE],
             to: Double.self,
             endianness: .little,
@@ -54,7 +54,7 @@ struct TestBinaryFloatingPoint {
         )
     }
 
-    func testingImpl<T: EndianParsable & BinaryFloatingPoint>(
+    func testingParsingImpl<T: EndianParsable & BinaryFloatingPoint>(
         _ data: [UInt8],
         to _: T.Type,
         endianness: Endianness,

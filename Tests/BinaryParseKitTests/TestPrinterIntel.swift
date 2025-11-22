@@ -5,13 +5,91 @@
 //  Created by Larry Zeng on 11/17/25.
 //
 
-import BinaryParseKit
+@testable import BinaryParseKit
 import BinaryParsing
 import Foundation
 import Testing
 
 @Suite
 struct PrinterIntelTest {
+    // MARK: - Builtin PrinterIntel Generation
+
+    @Test
+    func `floating point printer intel`() {
+        // Float16
+        #expect(Float16(bitPattern: 0xDEAD).toBytes(useBigEndian: true) == [0xDE, 0xAD])
+        #expect(Float16(bitPattern: 0xDEAD).toBytes(useBigEndian: false) == [0xAD, 0xDE])
+
+        // Float
+        #expect(Float(bitPattern: 0xDEAD_BEEF).toBytes(useBigEndian: true) == [0xDE, 0xAD, 0xBE, 0xEF])
+        #expect(Float(bitPattern: 0xDEAD_BEEF).toBytes(useBigEndian: false) == [0xEF, 0xBE, 0xAD, 0xDE])
+
+        // Double
+        #expect(
+            Double(bitPattern: 0xABAD_CAFE_AAC0_FFEE).toBytes(useBigEndian: true)
+                == [0xAB, 0xAD, 0xCA, 0xFE, 0xAA, 0xC0, 0xFF, 0xEE],
+        )
+        #expect(
+            Double(bitPattern: 0xABAD_CAFE_AAC0_FFEE).toBytes(useBigEndian: false)
+                == [0xEE, 0xFF, 0xC0, 0xAA, 0xFE, 0xCA, 0xAD, 0xAB],
+        )
+    }
+
+    @Test
+    func `integer printer intel`() {
+        // Int8/UInt8
+        #expect(Int8(bitPattern: 0xAB).toBytes(useBigEndian: true) == [0xAB])
+        #expect(UInt8(0xAB).toBytes(useBigEndian: false) == [0xAB])
+
+        // Int16/UInt16
+        #expect(Int16(bitPattern: 0xDEAD).toBytes(useBigEndian: true) == [0xDE, 0xAD])
+        #expect(Int16(bitPattern: 0xDEAD).toBytes(useBigEndian: false) == [0xAD, 0xDE])
+        #expect(UInt16(0xBEEF).toBytes(useBigEndian: true) == [0xBE, 0xEF])
+        #expect(UInt16(0xBEEF).toBytes(useBigEndian: false) == [0xEF, 0xBE])
+
+        // Int32/UInt32
+        #expect(Int32(bitPattern: 0xDEAD_BEEF).toBytes(useBigEndian: true) == [0xDE, 0xAD, 0xBE, 0xEF])
+        #expect(Int32(bitPattern: 0xDEAD_BEEF).toBytes(useBigEndian: false) == [0xEF, 0xBE, 0xAD, 0xDE])
+        #expect(UInt32(0xCAFE_BABE).toBytes(useBigEndian: true) == [0xCA, 0xFE, 0xBA, 0xBE])
+        #expect(UInt32(0xCAFE_BABE).toBytes(useBigEndian: false) == [0xBE, 0xBA, 0xFE, 0xCA])
+
+        // Int64/UInt64
+        #expect(
+            Int64(bitPattern: 0xDEAD_BEEF_CAFE_BABE).toBytes(useBigEndian: true)
+                == [0xDE, 0xAD, 0xBE, 0xEF, 0xCA, 0xFE, 0xBA, 0xBE],
+        )
+        #expect(
+            Int64(bitPattern: 0xDEAD_BEEF_CAFE_BABE).toBytes(useBigEndian: false)
+                == [0xBE, 0xBA, 0xFE, 0xCA, 0xEF, 0xBE, 0xAD, 0xDE],
+        )
+        #expect(
+            UInt64(0xABAD_CAFE_AAC0_FFEE).toBytes(useBigEndian: true)
+                == [0xAB, 0xAD, 0xCA, 0xFE, 0xAA, 0xC0, 0xFF, 0xEE],
+        )
+        #expect(
+            UInt64(0xABAD_CAFE_AAC0_FFEE).toBytes(useBigEndian: false)
+                == [0xEE, 0xFF, 0xC0, 0xAA, 0xFE, 0xCA, 0xAD, 0xAB],
+        )
+
+        // Int128/UInt128
+        #expect(
+            Int128(bitPattern: 0xDEAD_BEEF_CAFE_BABE_1234_5678_9ABC_DEF0).toBytes(useBigEndian: true)
+                == [0xDE, 0xAD, 0xBE, 0xEF, 0xCA, 0xFE, 0xBA, 0xBE, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0],
+        )
+        #expect(
+            Int128(bitPattern: 0xDEAD_BEEF_CAFE_BABE_1234_5678_9ABC_DEF0).toBytes(useBigEndian: false)
+                == [0xF0, 0xDE, 0xBC, 0x9A, 0x78, 0x56, 0x34, 0x12, 0xBE, 0xBA, 0xFE, 0xCA, 0xEF, 0xBE, 0xAD, 0xDE],
+        )
+        #expect(
+            UInt128(0xABAD_CAFE_AAC0_FFEE_1122_3344_5566_7788).toBytes(useBigEndian: true)
+                == [0xAB, 0xAD, 0xCA, 0xFE, 0xAA, 0xC0, 0xFF, 0xEE, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88],
+        )
+        #expect(
+            UInt128(0xABAD_CAFE_AAC0_FFEE_1122_3344_5566_7788).toBytes(useBigEndian: false)
+                == [0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0xEE, 0xFF, 0xC0, 0xAA, 0xFE, 0xCA, 0xAD, 0xAB],
+        )
+    }
+
     // MARK: - ParseEnum PrinterIntel Tests
 
     @ParseEnum

@@ -21,6 +21,8 @@ public protocol ExpressibleByBitPattern {
     ///
     /// - Parameter bitPattern: The bit pattern to interpret as this type
     init(bitPattern: BitPattern)
+
+    var bitPattern: BitPattern { get }
 }
 
 extension Float16: ExpressibleByBitPattern {}
