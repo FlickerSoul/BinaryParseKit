@@ -37,9 +37,19 @@ Or add it to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/FlickerSoul/BinaryParseKit", branch: "main")
+    .package(url: "https://github.com/FlickerSoul/BinaryParseKit", .upToNextMinor(from: "0.0.1"))
 ]
 ```
+
+## Version Stability
+
+Because the `BinaryParseKit` library is under active development, source-stability is only guaranteed within minor versions (e.g. between 0.0.3 and 0.0.4). If you don't want potentially source-breaking package updates, you can specify your package dependency using `.upToNextMinor(from: "0.0.1")` instead.
+
+Future minor versions of the package may introduce changes to these rules as needed.
+
+We want this package to quickly embrace Swift language and toolchain improvements that are relevant to its mandate. Accordingly, from time to time, we expect that new versions of this package will require clients to upgrade to a more recent Swift toolchain release. Requiring a new Swift release will only require a minor version bump.
+
+When the package reaches a 1.0.0 release, the public API will consist of non-underscored declarations that are marked public in the `BinaryParseKit` module. Interfaces that aren't part of the public API may continue to change in any release, including the package’s examples, tests, utilities, and documentation.
 
 ## Quick Example
 
