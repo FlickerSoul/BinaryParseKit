@@ -1,5 +1,7 @@
 # BinaryParseKit
 
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FFlickerSoul%2FBinaryParseKit%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/FlickerSoul/BinaryParseKit) [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FFlickerSoul%2FBinaryParseKit%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/FlickerSoul/BinaryParseKit)
+
 A declarative Swift package for parsing binary data using macros, built on top of Apple's [`swift-binary-parsing`](https://github.com/apple/swift-binary-parsing) framework.
 
 > [!IMPORTANT]
