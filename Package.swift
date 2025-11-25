@@ -40,24 +40,29 @@ let package = Package(
         ),
         .target(
             name: "BinaryParseKitCommons",
-            dependencies: [.product(name: "BinaryParsing", package: "swift-binary-parsing")],
             swiftSettings: [
                 .enableExperimentalFeature("LifetimeDependence"),
                 .enableExperimentalFeature("Lifetimes"),
                 .strictMemorySafety(),
             ],
         ),
-        .target(name: "BinaryParseKit", dependencies: ["BinaryParseKitMacros"], swiftSettings: [
-            .enableExperimentalFeature("LifetimeDependence"),
-            .enableExperimentalFeature("Lifetimes"),
-            .strictMemorySafety(),
-        ]),
+        .target(
+            name: "BinaryParseKit",
+            dependencies: [
+                "BinaryParseKitMacros",
+                "BinaryParseKitCommons",
+                .product(name: "BinaryParsing", package: "swift-binary-parsing"),
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("LifetimeDependence"),
+                .enableExperimentalFeature("Lifetimes"),
+                .strictMemorySafety(),
+            ],
+        ),
         .executableTarget(
             name: "BinaryParseKitClient",
             dependencies: [
                 "BinaryParseKit",
-                "BinaryParseKitCommons",
-                .product(name: "BinaryParsing", package: "swift-binary-parsing"),
             ],
             swiftSettings: [
                 .enableExperimentalFeature("LifetimeDependence"),
