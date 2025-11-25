@@ -1,8 +1,8 @@
 // The Swift Programming Language
 // https://docs.swift.org/swift-book
 
-@_exported public import BinaryParseKitCommons
-public import BinaryParsing
+import BinaryParseKitCommons
+import BinaryParsing
 
 // MARK: - Skip Parsing
 
