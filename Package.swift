@@ -6,7 +6,7 @@ import PackageDescription
 
 let package = Package(
     name: "BinaryParseKit",
-    platforms: [.macOS(.v15), .iOS(.v18), .watchOS(.v11), .tvOS(.v18), .visionOS(.v2)],
+    platforms: [.macOS(.v13), .iOS(.v16), .watchOS(.v9), .tvOS(.v16), .visionOS(.v1)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -20,7 +20,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
-        .package(url: "https://github.com/apple/swift-binary-parsing", branch: "main"),
+        .package(url: "https://github.com/FlickerSoul/swift-binary-parsing", branch: "main"),
         .package(
             url: "https://github.com/apple/swift-collections.git",
             .upToNextMinor(from: "1.1.0"),
