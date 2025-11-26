@@ -10,7 +10,7 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
+private class ParseMacroArgVisitor: SyntaxVisitor {
     var source: Syntax?
     var byteCountOfArgument: LabeledExprSyntax?
     var byteCountArgument: LabeledExprSyntax?
@@ -18,8 +18,8 @@ private class ParseMacroArgVisitor<C: MacroExpansionContext>: SyntaxVisitor {
 
     private var errors: [Diagnostic] = []
 
-    private let context: C
-    init(context: C) {
+    private let context: any MacroExpansionContext
+    init(context: any MacroExpansionContext) {
         self.context = context
         super.init(viewMode: .sourceAccurate)
     }

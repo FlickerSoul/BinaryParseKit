@@ -8,11 +8,11 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
-    private let context: C
+class ParseEnumCase: SyntaxVisitor {
+    private let context: any MacroExpansionContext
 
     private var workEnum: EnumDeclSyntax?
-    private var currentParseMacroVisitor: MacroAttributeCollector<C>?
+    private var currentParseMacroVisitor: MacroAttributeCollector?
     private var currentCaseElements: EnumCaseElementListSyntax?
     private var caseParseInfo: [EnumCaseParseInfo] = []
     private(set) var parsedInfo: EnumParseInfo?
@@ -21,7 +21,7 @@ class ParseEnumCase<C: MacroExpansionContext>: SyntaxVisitor {
 
     private var errors: [Diagnostic] = []
 
-    init(context: C) {
+    init(context: any MacroExpansionContext) {
         self.context = context
         super.init(viewMode: .sourceAccurate)
     }
