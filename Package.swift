@@ -83,7 +83,6 @@ let package = Package(
             name: "BinaryParseKitTests",
             dependencies: [
                 "BinaryParseKit",
-                "BinaryParseKitCommons",
             ],
         ),
     ],
