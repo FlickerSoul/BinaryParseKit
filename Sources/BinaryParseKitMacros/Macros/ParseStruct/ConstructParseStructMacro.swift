@@ -11,27 +11,32 @@ import SwiftSyntaxMacros
 
 public struct ConstructStructParseMacro: ExtensionMacro {
     public static func expansion(
-        of _: SwiftSyntax.AttributeSyntax,
+        of attributeNode: SwiftSyntax.AttributeSyntax,
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
         providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
         conformingTo _: [SwiftSyntax.TypeSyntax],
         in context: some SwiftSyntaxMacros.MacroExpansionContext,
     ) throws -> [SwiftSyntax.ExtensionDeclSyntax] {
         guard let structDeclaration = declaration.as(StructDeclSyntax.self) else {
-            let error = ParseStructMacroError.onlyStructsAreSupported
-            throw error
+            throw ParseStructMacroError.onlyStructsAreSupported
         }
+
+        let accessorInfo = try extractAccessor(
+            from: attributeNode,
+            attachedTo: structDeclaration,
+            in: context,
+        )
+
         let structFieldInfo = ParseStructField(context: context)
         structFieldInfo.walk(structDeclaration)
         try structFieldInfo.validate(for: structDeclaration)
 
         let type = TypeSyntax(type)
-        let modifiers = declaration.modifiers
 
         let extensionSyntax =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.parsableProtocol)") {
                 try InitializerDeclSyntax(
-                    "\(modifiers)init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
+                    "\(accessorInfo.parsingAccessor) init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
                     for (variableName, variableInfo) in structFieldInfo.variables {
                         for action in variableInfo.parseActions {
@@ -53,7 +58,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
 
         let printerExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
-                try FunctionDeclSyntax("\(modifiers)func printerIntel() throws -> PrinterIntel") {
+                try FunctionDeclSyntax("\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel") {
                     var parseSkipMacroInfo: [PrintableFieldInfo] = []
 
                     for (variableName, variableInfo) in structFieldInfo.variables {

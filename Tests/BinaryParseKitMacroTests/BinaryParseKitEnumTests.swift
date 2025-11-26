@@ -94,7 +94,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x02, 0x03], in: &span) {
                             self = .a
                             return
@@ -108,7 +108,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -155,7 +155,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                             self = .a
                             return
@@ -169,7 +169,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -225,7 +225,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x08], in: &span) {
                             // Parse `__macro_local_12TestEnum_a_0fMu_` of type SomeType with byte count
                             BinaryParseKit.__assertSizedParsable((SomeType).self)
@@ -263,7 +263,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case let .a(__macro_local_9a_index_0fMu_):
                             return .enum(
@@ -316,7 +316,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x01], in: &span) {
                             try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
@@ -331,7 +331,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -379,7 +379,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x01], in: &span) {
                             try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
@@ -398,7 +398,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -741,7 +741,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                             // Parse `value` of type Int
                             BinaryParseKit.__assertParsable((Int).self)
@@ -774,7 +774,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case let .a(__macro_local_7a_valuefMu_):
                             return .enum(

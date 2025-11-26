@@ -642,7 +642,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension Header: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         // Parse `a` of type Int
                         BinaryParseKit.__assertParsable((Int).self)
                         self.a = try Int(parsing: &span)
@@ -656,7 +656,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension Header: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         return .struct(
                             .init(
                                 fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(a)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(b)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(c))]

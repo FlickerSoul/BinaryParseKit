@@ -13,7 +13,7 @@ import SwiftSyntaxMacros
 
 public struct ConstructEnumParseMacro: ExtensionMacro {
     public static func expansion(
-        of _: SwiftSyntax.AttributeSyntax,
+        of attributeNode: SwiftSyntax.AttributeSyntax,
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
         providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
         conformingTo _: [SwiftSyntax.TypeSyntax],
@@ -23,6 +23,12 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
             throw ParseEnumMacroError.onlyEnumsAreSupported
         }
 
+        let accessorInfo = try extractAccessor(
+            from: attributeNode,
+            attachedTo: enumDeclaration,
+            in: context,
+        )
+
         let visitor = ParseEnumCase(context: context)
         visitor.walk(enumDeclaration)
         try visitor.validate()
@@ -31,12 +37,10 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
             throw ParseEnumMacroError.unexpectedError(description: "Macro analysis finished without info")
         }
 
-        let modifiers = declaration.modifiers
-
         let parsingExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.parsableProtocol)") {
                 try InitializerDeclSyntax(
-                    "\(modifiers)init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
+                    "\(accessorInfo.parsingAccessor) init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
                     for caseParseInfo in parseInfo.caseParseInfo {
                         let toBeMatched = caseParseInfo.bytesToMatch(of: type)
@@ -102,7 +106,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
 
         let printerExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
-                try FunctionDeclSyntax("\(modifiers)func printerIntel() throws -> PrinterIntel") {
+                try FunctionDeclSyntax("\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel") {
                     try SwitchExprSyntax("switch self") {
                         for caseParseInfo in parseInfo.caseParseInfo {
                             var parseSkipMacroInfo: [PrintableFieldInfo] = []
