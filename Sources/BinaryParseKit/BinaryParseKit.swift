@@ -279,8 +279,8 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// ```
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
 public macro ParseStruct(
-    parsingAccessor: ExtensionAccess = .follow,
-    printingAccessor: ExtensionAccess = .follow,
+    parsingAccessor: ExtensionAccessor = .follow,
+    printingAccessor: ExtensionAccessor = .follow,
 ) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructStructParseMacro",
@@ -304,8 +304,8 @@ public macro ParseStruct(
 /// - Note: any `match` macro has to proceed `parse` and `skip` macros.
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
 public macro ParseEnum(
-    parsingAccessor: ExtensionAccess = .follow,
-    printingAccessor: ExtensionAccess = .follow,
+    parsingAccessor: ExtensionAccessor = .follow,
+    printingAccessor: ExtensionAccessor = .follow,
 ) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructEnumParseMacro",

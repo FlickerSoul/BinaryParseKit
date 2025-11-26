@@ -671,8 +671,8 @@ extension BinaryParseKitMacroTests {
 
         struct StructAccessorTestCase: Codable {
             let arguments: String
-            let parsingAccessor: ExtensionAccess
-            let printingAccessor: ExtensionAccess
+            let parsingAccessor: ExtensionAccessor
+            let printingAccessor: ExtensionAccessor
         }
 
         @Test(

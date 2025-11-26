@@ -1,11 +1,11 @@
 //
-//  ExtensionAccess.swift
+//  ExtensionAccessor.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 11/26/25.
 //
 
-public enum ExtensionAccess: ExpressibleByUnicodeScalarLiteral, Sendable, Codable {
+public enum ExtensionAccessor: ExpressibleByUnicodeScalarLiteral, Sendable, Codable {
     public typealias UnicodeScalarLiteralType = String
 
     case `public`
@@ -16,7 +16,7 @@ public enum ExtensionAccess: ExpressibleByUnicodeScalarLiteral, Sendable, Codabl
     case follow
     case unknown(String)
 
-    public static var allowedCases: [ExtensionAccess] {
+    public static var allowedCases: [ExtensionAccessor] {
         [.public, .package, .internal, .fileprivate, .private, .follow]
     }
 
@@ -33,7 +33,7 @@ public enum ExtensionAccess: ExpressibleByUnicodeScalarLiteral, Sendable, Codabl
     }
 
     public init(unicodeScalarLiteral value: String) {
-        self = ExtensionAccess
+        self = ExtensionAccessor
             .allowedCases
             .first { access in
                 access.description == value

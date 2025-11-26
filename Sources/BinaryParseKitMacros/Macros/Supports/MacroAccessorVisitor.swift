@@ -18,7 +18,7 @@ enum MacroAccessorError: DiagnosticMessage, Error {
     var message: String {
         switch self {
         case let .invalidAccessor(accessor):
-            #"Invalid ACL value: \#(accessor); Please use one of \#(ExtensionAccess.allowedCases.map(\.description).joined(separator: ", ")); use it in string literal "public" or enum member access .public."#
+            #"Invalid ACL value: \#(accessor); Please use one of \#(ExtensionAccessor.allowedCases.map(\.description).joined(separator: ", ")); use it in string literal "public" or enum member access .public."#
         case let .moreThanOneModifier(modifiers: modifiers):
             "More than one modifier found: \(modifiers). Only one modifier is allowed."
         case .unknownAccessor:
@@ -41,10 +41,10 @@ enum MacroAccessorError: DiagnosticMessage, Error {
 }
 
 class MacroAccessorVisitor: SyntaxVisitor {
-    private static let defaultAccessor = ExtensionAccess.follow
+    private static let defaultAccessor = ExtensionAccessor.follow
 
-    private(set) var printingAccessor: ExtensionAccess = MacroAccessorVisitor.defaultAccessor
-    private(set) var parsingAccessor: ExtensionAccess = MacroAccessorVisitor.defaultAccessor
+    private(set) var printingAccessor: ExtensionAccessor = MacroAccessorVisitor.defaultAccessor
+    private(set) var parsingAccessor: ExtensionAccessor = MacroAccessorVisitor.defaultAccessor
 
     private let context: any MacroExpansionContext
 
@@ -67,7 +67,7 @@ class MacroAccessorVisitor: SyntaxVisitor {
     }
 
     private func setACL(
-        to keypath: ReferenceWritableKeyPath<MacroAccessorVisitor, ExtensionAccess>,
+        to keypath: ReferenceWritableKeyPath<MacroAccessorVisitor, ExtensionAccessor>,
         with node: LabeledExprSyntax,
     ) {
         let acl = parseACL(from: node)
@@ -82,7 +82,7 @@ class MacroAccessorVisitor: SyntaxVisitor {
         }
     }
 
-    private func parseACL(from node: LabeledExprSyntax) -> ExtensionAccess {
+    private func parseACL(from node: LabeledExprSyntax) -> ExtensionAccessor {
         let expression = node.expression
 
         // FIXME: use macro toolkit
