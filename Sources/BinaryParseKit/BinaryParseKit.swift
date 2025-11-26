@@ -60,7 +60,7 @@ public macro parse() = #externalMacro(module: "BinaryParseKitMacros", type: "Emp
 /// Use this macro when you need to parse a field with a specific byte order
 /// (big-endian or little-endian). The field type must conform to ``EndianParsable``.
 ///
-/// - Parameter endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
+/// - Parameter endianness: The byte order to use for parsing (`.big` or `.little`)
 ///
 /// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
@@ -164,7 +164,7 @@ public macro parse(byteCount: ByteCount, endianness: Endianness) = #externalMacr
 ///
 /// - Parameters:
 ///   - byteCountOf: A KeyPath to another field whose value determines the byte count
-///   - endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
+///   - endianness: The byte order to use for parsing (`.big` or `.little`)
 ///
 /// - Note: This macro has no effect on its own unless used alongside `@ParseStruct` on struct fields.
 ///
@@ -219,7 +219,7 @@ public macro parseRest() = #externalMacro(
 /// Like `parseRest()`, but applies endianness conversion to the remaining data.
 /// The field type must conform to ``EndianSizedParsable``.
 ///
-/// - Parameter endianness: The byte order to use for parsing (``Endianness/big`` or ``Endianness/little``)
+/// - Parameter endianness: The byte order to use for parsing (`.big` or `.little`)
 ///
 /// - Note: This macro must be used alongside `@ParseStruct` on struct fields.
 ///
@@ -254,6 +254,10 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// - Type validation functions to ensure fields conform to required protocols
 /// - Proper error handling for parsing failures
 /// - A ``Printable`` conformance
+///
+/// - Parameters:
+///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
+///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
 ///
 /// - Note: All fields except those with accessors (`get` and `set`) must be parsed must be marked with `@parse`
 /// variants.
@@ -297,6 +301,10 @@ public macro ParseStruct(
 /// The generated code includes:
 /// - A ``Parsable`` conformance
 /// - A ``Printable`` conformance
+///
+/// - Parameters:
+///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
+///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
 ///
 /// - Note: All enum cases must be marked with `@match` variants, which is intentional by design, which I don't think is
 /// necessary and is possible to be lifted int the future.

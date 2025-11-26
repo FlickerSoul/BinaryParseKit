@@ -761,7 +761,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func `enum bad accessor`() {
+        func `struct bad accessor`() {
             assertMacro {
                 """
                 @ParseStruct(parsingAccessor: "invalid", printingAccessor: .invalid)
