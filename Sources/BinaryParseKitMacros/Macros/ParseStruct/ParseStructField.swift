@@ -11,7 +11,7 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
+class ParseStructField: SyntaxVisitor {
     struct VariableInfo {
         let type: TypeSyntax
         let parseActions: [StructParseAction]
@@ -24,17 +24,17 @@ class ParseStructField<C: MacroExpansionContext>: SyntaxVisitor {
 
     typealias ParseVariableMapping = OrderedDictionary<TokenSyntax, VariableInfo>
 
-    private let context: C
+    private let context: any MacroExpansionContext
 
     private var hasParse: Bool = false
-    private var structFieldVisitor: MacroAttributeCollector<C>?
+    private var structFieldVisitor: MacroAttributeCollector?
     private var existParseRestContent: Bool = false
 
     private(set) var variables: ParseVariableMapping = [:]
 
     private(set) var errors: [Diagnostic] = []
 
-    init(context: C) {
+    init(context: any MacroExpansionContext) {
         self.context = context
         super.init(viewMode: .sourceAccurate)
     }

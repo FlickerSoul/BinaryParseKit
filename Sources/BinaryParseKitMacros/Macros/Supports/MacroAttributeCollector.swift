@@ -9,7 +9,7 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-class MacroAttributeCollector<C: MacroExpansionContext>: SyntaxVisitor {
+class MacroAttributeCollector: SyntaxVisitor {
     private enum MacroError: Error {
         case invalidParseAttribute
         case invalidParseRestAttribute
@@ -20,7 +20,7 @@ class MacroAttributeCollector<C: MacroExpansionContext>: SyntaxVisitor {
     typealias ParseAction = StructParseAction
     typealias CaseMatchAction = EnumCaseMatchAction
 
-    private let context: C
+    private let context: any MacroExpansionContext
     private(set) var parseActions: [ParseAction] = []
     private(set) var hasParseRest: Bool = false
     private(set) var hasParse: Bool = false
@@ -29,7 +29,7 @@ class MacroAttributeCollector<C: MacroExpansionContext>: SyntaxVisitor {
 
     private var errors: [Diagnostic] = []
 
-    init(context: C) {
+    init(context: any MacroExpansionContext) {
         self.context = context
         super.init(viewMode: .sourceAccurate)
     }

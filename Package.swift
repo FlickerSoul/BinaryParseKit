@@ -26,6 +26,7 @@ let package = Package(
             .upToNextMinor(from: "1.1.0"),
         ),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.5"),
+        .package(url: "https://github.com/pointfreeco/swift-macro-testing.git", from: "0.6.4"),
     ],
     targets: [
         .macro(
@@ -75,6 +76,7 @@ let package = Package(
             dependencies: [
                 "BinaryParseKitMacros",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+                .product(name: "MacroTesting", package: "swift-macro-testing"),
             ],
         ),
         .testTarget(

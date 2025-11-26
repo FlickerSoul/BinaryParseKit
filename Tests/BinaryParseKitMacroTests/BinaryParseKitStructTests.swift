@@ -1,4 +1,5 @@
 @testable import BinaryParseKitMacros
+import MacroTesting
 import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacroExpansion
@@ -9,11 +10,11 @@ import Testing
 // swiftlint:disable line_length
 
 extension BinaryParseKitMacroTests {
-    @Suite
+    @Suite(.macros(testMacros))
     struct `Test Parsing Struct` { // swiftlint:disable:this type_name type_body_length
         @Test
         func successfulParseStructMacroExpansion() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -51,8 +52,9 @@ extension BinaryParseKitMacroTests {
                         set { g = newValue }
                     }
                 }
-                """#,
-                expandedSource: """
+                """#
+            } expansion: {
+                """
                 public struct Header {
                     let a: Int
                     let b: Int32
@@ -115,113 +117,105 @@ extension BinaryParseKitMacroTests {
                         )
                     }
                 }
-                """,
-            )
+                """
+            }
         }
 
         @Test
         func parseStructOnClass() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public class Header {
                     @parse
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 @ParseStruct only supports structs. Please use a struct declaration or other macros.
                 public class Header {
+                    @parse
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.onlyStructsAreSupported,
-                        line: 1,
-                        column: 1,
-                    ),
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func parseStructOnEnum() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public enum Header {
                     case a
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 @ParseStruct only supports structs. Please use a struct declaration or other macros.
                 public enum Header {
                     case a
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.onlyStructsAreSupported,
-                        line: 1,
-                        column: 1,
-                    ),
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func variableWithoutTypeAnnotation() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     @parse
                     let a = 1
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse
                     let a = 1
+                        ┬────
+                        ╰─ 🛑 Variable declarations must have a type annotation to be parsed.
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.variableDeclNoTypeAnnotation,
-                        line: 4,
-                        column: 9,
-                    ),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func variableWithoutParseAttribute() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
                     let a: Int
+                        ┬─────
+                        ╰─ 🛑 The variable declaration must have a `@parse` attribute.
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.noParseAttributeOnVariableDecl,
-                        line: 3,
-                        column: 9,
-                    ),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func multipleParseRestAttributes() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -230,27 +224,27 @@ extension BinaryParseKitMacroTests {
                     @parseRest
                     let b: Data
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parseRest
                     let a: Data
+                    @parseRest
                     let b: Data
+                        ┬──────
+                        ╰─ 🛑 Multiple or non-trailing `@parseRest` attributes are not allowed. Only one trailing `@parseRest` is permitted.
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.multipleOrNonTrailingParseRest,
-                        line: 6,
-                        column: 9,
-                    ),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func nonTrailingParseRest() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -259,34 +253,43 @@ extension BinaryParseKitMacroTests {
                     @parse
                     let b: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parseRest
                     let a: Data
+                    @parse
                     let b: Int
+                        ┬─────
+                        ╰─ 🛑 Multiple or non-trailing `@parseRest` attributes are not allowed. Only one trailing `@parseRest` is permitted.
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.multipleOrNonTrailingParseRest,
-                        line: 6,
-                        column: 9,
-                    ),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func emptyStructWithNoParseableFields() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     static let constant = 42
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ╰─ ⚠️ No variables with `@parse` attribute found in the struct. Ensure at least one variable is marked for parsing.
+                public struct Header {
+                    static let constant = 42
+                }
+                """
+            } expansion: {
+                """
                 public struct Header {
                     static let constant = 42
                 }
@@ -305,159 +308,144 @@ extension BinaryParseKitMacroTests {
                         )
                     }
                 }
-                """,
-                diagnostics: [
-                    noParseVarExist,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func invalidVariablePattern() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     @parse
                     let (a, b): (Int, Int)
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse
                     let (a, b): (Int, Int)
+                        ┬─────────────────
+                        ╰─ 🛑 Variable declaration must be an identifier definition.
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.notIdentifierDef,
-                        line: 4,
-                        column: 9,
-                    ),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func invalidParseAttributeArgument() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     @parse(unknownArgument: 42)
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse(unknownArgument: 42)
+                           ┬──────────────────
+                    │      ╰─ 🛑 Unknown argument in `@parse`: 'unknownArgument'. Please check the attribute syntax.
+                    ┬──────────────────────────
+                    ├─ 🛑 Fatal error: @parse argument validation failed.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.unknownParseArgument("unknownArgument"),
-                        line: 3,
-                        column: 12,
-                    ),
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.fatalError(message: "@parse argument validation failed."),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func conflictingByteCountArguments() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     @parse(byteCount: 4, byteCountOf: \Self.someField)
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                #"""
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse(byteCount: 4, byteCountOf: \Self.someField)
+                    ┬─────────────────────────────────────────────────
+                    ├─ 🛑 Fatal error: Both `byteCountOf` and `byteCount` cannot be specified at the same time.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.fatalError(
-                            message: "Both `byteCountOf` and `byteCount` cannot be specified at the same time.",
-                        ),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """#
+            }
         }
 
         @Test
         func invalidByteCountLiteral() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     @parse(byteCount: "invalid")
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse(byteCount: "invalid")
+                    ┬───────────────────────────
+                    ├─ 🛑 Failed expectation: byteCount should be an integer literal.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError
-                            .failedExpectation(message: "byteCount should be an integer literal."),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func invalidByteCountOfKeyPath() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     @parse(byteCountOf: "notAKeyPath")
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse(byteCountOf: "notAKeyPath")
+                    ┬─────────────────────────────────
+                    ├─ 🛑 Failed expectation: byteCountOf should be a KeyPath literal expression.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError
-                            .failedExpectation(message: "byteCountOf should be a KeyPath literal expression."),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func skipWithMissingArguments() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -465,29 +453,27 @@ extension BinaryParseKitMacroTests {
                     @parse
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @skip
+                    ┬────
+                    ├─ 🛑 Failed expectation: Expected a labeled expression list for `@parseSkip` attribute, but found none.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
+                    @parse
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.failedExpectation(
-                            message: "Expected a labeled expression list for `@parseSkip` attribute, but found none.",
-                        ),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func skipWithWrongNumberOfArguments() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -495,29 +481,27 @@ extension BinaryParseKitMacroTests {
                     @parse
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @skip(byteCount: 4)
+                    ┬──────────────────
+                    ├─ 🛑 Fatal error: Expected exactly two arguments for `@parseSkip` attribute, but found 1.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
+                    @parse
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.fatalError(
-                            message: "Expected exactly two arguments for `@parseSkip` attribute, but found 1.",
-                        ),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func skipWithInvalidByteCount() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -525,29 +509,27 @@ extension BinaryParseKitMacroTests {
                     @parse
                     let a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @skip(byteCount: "invalid", reason: "test")
+                    ┬──────────────────────────────────────────
+                    ├─ 🛑 Failed expectation: Expected the first argument of `@parseSkip` to be an integer literal representing byte count.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
+                    @parse
                     let a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.failedExpectation(
-                            message: "Expected the first argument of `@parseSkip` to be an integer literal representing byte count.",
-                        ),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func computedPropertyWithParse() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -557,57 +539,53 @@ extension BinaryParseKitMacroTests {
                         set { }
                     }
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse
                     var a: Int {
+                        ╰─ 🛑 The variable declaration with accessor(s) (`get` and `set`) cannot be parsed.
                         get { 42 }
                         set { }
                     }
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError.parseAccessorVariableDecl,
-                        line: 4,
-                        column: 9,
-                    ),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func byteCountParseConvertInParse() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
                     @parse(byteCount: 0xFF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF)
                     var a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @parse(byteCount: 0xFF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF)
+                    ┬────────────────────────────────────────────────────────────────
+                    ├─ 🛑 Failed expectation: byteCount should be convertible to Int.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
                     var a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError
-                            .failedExpectation(message: "byteCount should be convertible to Int."),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func byteCountParseConvertInSkip() {
-            assertMacroExpansion(
+            assertMacro {
                 #"""
                 @ParseStruct
                 public struct Header {
@@ -615,100 +593,81 @@ extension BinaryParseKitMacroTests {
                     @parse
                     var a: Int
                 }
-                """#,
-                expandedSource: """
+                """#
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
+                    @skip(byteCount: 0xFF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF_FF, because: "test bad byte count")
+                    ┬───────────────────────────────────────────────────────────────────────────────────────────────
+                    ├─ 🛑 Failed expectation: byteCount should be convertible to Int.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
+                    @parse
                     var a: Int
                 }
-                """,
-                diagnostics: [
-                    DiagnosticSpec(
-                        diagnostic: ParseStructMacroError
-                            .failedExpectation(message: "byteCount should be convertible to Int."),
-                        line: 3,
-                        column: 5,
-                    ),
-                    specificFieldParsingError(line: 3, column: 5),
-                    parseStructTopError,
-                ],
-            )
+                """
+            }
         }
 
         @Test
         func `no comments and spaces in code generation`() {
-            assertMacroExpansion("""
-            @ParseStruct
-            struct Header {
-                @parse
-                var a: Int  // some comments
+            assertMacro {
+                """
+                @ParseStruct
+                struct Header {
+                    @parse
+                    var a: Int  // some comments
 
-                @parse
-                var b: // some comments
-                        Int // some comments
+                    @parse
+                    var b: // some comments
+                            Int // some comments
 
-                @parse
-                var  // some comments
-                    c: // some comments
-                        Int // some comments
-            }
-            """, expandedSource: """
-            struct Header {
-                var a: Int  // some comments
-                var b: // some comments
-                        Int // some comments
-                var  // some comments
-                    c: // some comments
-                        Int // some comments
-            }
-
-            extension Header: BinaryParseKit.Parsable {
-                init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                    // Parse `a` of type Int
-                    BinaryParseKit.__assertParsable((Int).self)
-                    self.a = try Int(parsing: &span)
-                    // Parse `b` of type Int
-                    BinaryParseKit.__assertParsable((Int).self)
-                    self.b = try Int(parsing: &span)
-                    // Parse `c` of type Int
-                    BinaryParseKit.__assertParsable((Int).self)
-                    self.c = try Int(parsing: &span)
+                    @parse
+                    var  // some comments
+                        c: // some comments
+                            Int // some comments
                 }
-            }
+                """
+            } expansion: {
+                """
+                struct Header {
+                    var a: Int  // some comments
+                    var b: // some comments
+                            Int // some comments
+                    var  // some comments
+                        c: // some comments
+                            Int // some comments
+                }
 
-            extension Header: BinaryParseKit.Printable {
-                func printerIntel() throws -> PrinterIntel {
-                    return .struct(
-                        .init(
-                            fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(a)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(b)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(c))]
+                extension Header: BinaryParseKit.Parsable {
+                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        // Parse `a` of type Int
+                        BinaryParseKit.__assertParsable((Int).self)
+                        self.a = try Int(parsing: &span)
+                        // Parse `b` of type Int
+                        BinaryParseKit.__assertParsable((Int).self)
+                        self.b = try Int(parsing: &span)
+                        // Parse `c` of type Int
+                        BinaryParseKit.__assertParsable((Int).self)
+                        self.c = try Int(parsing: &span)
+                    }
+                }
+
+                extension Header: BinaryParseKit.Printable {
+                    func printerIntel() throws -> PrinterIntel {
+                        return .struct(
+                            .init(
+                                fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(a)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(b)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(c))]
+                            )
                         )
-                    )
+                    }
                 }
+                """
             }
-            """)
         }
     }
 }
-
-// MARK: - Diagnostic
-
-private nonisolated(unsafe) let parseStructTopError = DiagnosticSpec(
-    diagnostic: ParseStructMacroError.fatalError(message: "Parsing struct's fields has encountered an error."),
-    line: 1,
-    column: 1,
-)
-
-private func specificFieldParsingError(line: Int, column: Int) -> DiagnosticSpec {
-    .init(
-        diagnostic: ParseStructMacroError.fatalError(message: "Encountered errors during parsing field."),
-        line: line,
-        column: column,
-    )
-}
-
-private nonisolated(unsafe) let noParseVarExist = DiagnosticSpec(
-    diagnostic: ParseStructMacroError.emptyParse,
-    line: 1,
-    column: 1,
-)
 
 // swiftlint:enable line_length
