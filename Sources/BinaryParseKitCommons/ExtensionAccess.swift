@@ -5,7 +5,7 @@
 //  Created by Larry Zeng on 11/26/25.
 //
 
-public enum ExtensionAccess: ExpressibleByUnicodeScalarLiteral, Sendable {
+public enum ExtensionAccess: ExpressibleByUnicodeScalarLiteral, Sendable, Codable {
     public typealias UnicodeScalarLiteralType = String
 
     case `public`
@@ -33,10 +33,10 @@ public enum ExtensionAccess: ExpressibleByUnicodeScalarLiteral, Sendable {
     }
 
     public init(unicodeScalarLiteral value: String) {
-        for access in ExtensionAccess.allowedCases where access.description == value {
-            self = access
-        }
-
-        self = .unknown(value)
+        self = ExtensionAccess
+            .allowedCases
+            .first { access in
+                access.description == value
+            } ?? .unknown(value)
     }
 }

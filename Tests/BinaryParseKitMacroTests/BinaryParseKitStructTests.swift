@@ -1,3 +1,4 @@
+import BinaryParseKitCommons
 @testable import BinaryParseKitMacros
 import MacroTesting
 import SwiftSyntax
@@ -663,6 +664,124 @@ extension BinaryParseKitMacroTests {
                             )
                         )
                     }
+                }
+                """
+            }
+        }
+
+        struct StructAccessorTestCase: Codable {
+            let arguments: String
+            let parsingAccessor: ExtensionAccess
+            let printingAccessor: ExtensionAccess
+        }
+
+        @Test(
+            arguments: [
+                // String literal
+                .init(
+                    arguments: #"parsingAccessor: "public", printingAccessor: "public""#,
+                    parsingAccessor: .public,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: "public""#,
+                    parsingAccessor: .public,
+                    printingAccessor: .internal,
+                ),
+                .init(
+                    arguments: #"printingAccessor: "public""#,
+                    parsingAccessor: .internal,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: "private", printingAccessor: "package""#,
+                    parsingAccessor: .private,
+                    printingAccessor: .package,
+                ),
+                // member access
+                .init(
+                    arguments: #"parsingAccessor: .public, printingAccessor: .public"#,
+                    parsingAccessor: .public,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: .public"#,
+                    parsingAccessor: .public,
+                    printingAccessor: .internal,
+                ),
+                .init(
+                    arguments: #"printingAccessor: .public"#,
+                    parsingAccessor: .internal,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: .private, printingAccessor: .package"#,
+                    parsingAccessor: .private,
+                    printingAccessor: .package,
+                ),
+            ] as [StructAccessorTestCase],
+        )
+        func `struct accessor`(testCase: StructAccessorTestCase) {
+            assertMacro {
+                """
+                // \(testCase.arguments)
+                @ParseStruct(\(testCase.arguments))
+                struct TestStruct {
+                    @parse
+                    let value: Value
+                }
+                """
+            } expansion: {
+                """
+                // \(testCase.arguments)
+                struct TestStruct {
+                    let value: Value
+                }
+
+                extension TestStruct: BinaryParseKit.Parsable {
+                    \(testCase.parsingAccessor
+                    .description) init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        // Parse `value` of type Value
+                        BinaryParseKit.__assertParsable((Value).self)
+                        self.value = try Value(parsing: &span)
+                    }
+                }
+
+                extension TestStruct: BinaryParseKit.Printable {
+                    \(testCase.printingAccessor.description) func printerIntel() throws -> PrinterIntel {
+                        return .struct(
+                            .init(
+                                fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(value))]
+                            )
+                        )
+                    }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `enum bad accessor`() {
+            assertMacro {
+                """
+                @ParseStruct(parsingAccessor: "invalid", printingAccessor: .invalid)
+                struct TestStruct {
+                    @parse
+                    let value: Value
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseStruct(parsingAccessor: "invalid", printingAccessor: .invalid)
+                                                         ┬─────────────────────────
+                │            │                           ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                             ┬──────────────────────────
+                │            ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                ┬───────────────────────────────────────────────────────────────────
+                ╰─ 🛑 You have used unknown accessor in `@ParseStruct` or `@ParseEnum`.
+                struct TestStruct {
+                    @parse
+                    let value: Value
                 }
                 """
             }

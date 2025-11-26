@@ -18,7 +18,7 @@ enum MacroAccessorError: DiagnosticMessage, Error {
     var message: String {
         switch self {
         case let .invalidAccessor(accessor):
-            "Invalid ACL value: \(accessor); Please use one of \(ExtensionAccess.allowedCases.map(\.description).joined(separator: ", "))."
+            #"Invalid ACL value: \#(accessor); Please use one of \#(ExtensionAccess.allowedCases.map(\.description).joined(separator: ", ")); use it in string literal "public" or enum member access .public."#
         case let .moreThanOneModifier(modifiers: modifiers):
             "More than one modifier found: \(modifiers). Only one modifier is allowed."
         case .unknownAccessor:
@@ -53,7 +53,7 @@ class MacroAccessorVisitor: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
-    func visit(node: LabeledExprSyntax) -> SyntaxVisitorContinueKind {
+    override func visit(_ node: LabeledExprSyntax) -> SyntaxVisitorContinueKind {
         let labelText = node.label?.text
         switch labelText {
         case "printingAccessor":
