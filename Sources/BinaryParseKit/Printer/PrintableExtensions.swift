@@ -29,6 +29,7 @@ extension UInt16: Printable {}
 extension UInt32: Printable {}
 extension UInt: Printable {}
 extension UInt64: Printable {}
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
 extension UInt128: Printable {}
 
 extension Int8: Printable {}
@@ -36,6 +37,7 @@ extension Int16: Printable {}
 extension Int32: Printable {}
 extension Int: Printable {}
 extension Int64: Printable {}
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
 extension Int128: Printable {}
 
 // MARK: - Floating Point
