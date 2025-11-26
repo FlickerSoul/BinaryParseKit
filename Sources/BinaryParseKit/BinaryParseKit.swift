@@ -278,7 +278,7 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// let header = try FileHeader(parsing: data)
 /// ```
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
-public macro ParseStruct() = #externalMacro(
+public macro ParseStruct(parsingACL: ExtensionAccess, printingACL: ExtensionAccess) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructStructParseMacro",
 )
@@ -300,7 +300,7 @@ public macro ParseStruct() = #externalMacro(
 /// - Note: Only one `@matchDefault` case is allowed per enum, and has to be declared at the end of all other cases.
 /// - Note: any `match` macro has to proceed `parse` and `skip` macros.
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
-public macro ParseEnum() = #externalMacro(
+public macro ParseEnum(parsingACL: ExtensionAccess, printingACL: ExtensionAccess) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructEnumParseMacro",
 )
