@@ -6,7 +6,6 @@
 //
 
 @testable import BinaryParseKit
-@testable import BinaryParseKitCommons
 import BinaryParsing
 import Testing
 

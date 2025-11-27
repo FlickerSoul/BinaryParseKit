@@ -4,12 +4,13 @@
 //
 //  Created by Larry Zeng on 7/26/25.
 //
+import BinaryParseKitCommons
 @testable import BinaryParseKitMacros
 import MacroTesting
 import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 
-// swiftlint:disable line_length
+// swiftlint:disable file_length line_length
 extension BinaryParseKitMacroTests {
     @Suite(.macros(testMacros))
     struct `Test Parsing Enum` { // swiftlint:disable:this type_name type_body_length
@@ -94,7 +95,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x02, 0x03], in: &span) {
                             self = .a
                             return
@@ -108,7 +109,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -155,7 +156,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                             self = .a
                             return
@@ -169,7 +170,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -225,7 +226,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x08], in: &span) {
                             // Parse `__macro_local_12TestEnum_a_0fMu_` of type SomeType with byte count
                             BinaryParseKit.__assertSizedParsable((SomeType).self)
@@ -263,7 +264,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case let .a(__macro_local_9a_index_0fMu_):
                             return .enum(
@@ -316,7 +317,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x01], in: &span) {
                             try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
@@ -331,7 +332,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -379,7 +380,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match([0x01], in: &span) {
                             try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
@@ -398,7 +399,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
                             return .enum(
@@ -741,7 +742,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Parsable {
-                    init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
                         if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
                             // Parse `value` of type Int
                             BinaryParseKit.__assertParsable((Int).self)
@@ -774,7 +775,7 @@ extension BinaryParseKitMacroTests {
                 }
 
                 extension TestEnum: BinaryParseKit.Printable {
-                    func printerIntel() throws -> PrinterIntel {
+                    internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case let .a(__macro_local_7a_valuefMu_):
                             return .enum(
@@ -806,7 +807,154 @@ extension BinaryParseKitMacroTests {
                 """#
             }
         }
+
+        struct EnumAccessorTestCase: Codable {
+            let arguments: String
+            let parsingAccessor: ExtensionAccessor
+            let printingAccessor: ExtensionAccessor
+        }
+
+        @Test(
+            arguments: [
+                // String literal
+                .init(
+                    arguments: #"parsingAccessor: "public", printingAccessor: "public""#,
+                    parsingAccessor: .public,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: "public""#,
+                    parsingAccessor: .public,
+                    printingAccessor: .internal,
+                ),
+                .init(
+                    arguments: #"printingAccessor: "public""#,
+                    parsingAccessor: .internal,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: "private", printingAccessor: "package""#,
+                    parsingAccessor: .private,
+                    printingAccessor: .package,
+                ),
+                // member access
+                .init(
+                    arguments: #"parsingAccessor: .public, printingAccessor: .public"#,
+                    parsingAccessor: .public,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: .public"#,
+                    parsingAccessor: .public,
+                    printingAccessor: .internal,
+                ),
+                .init(
+                    arguments: #"printingAccessor: .public"#,
+                    parsingAccessor: .internal,
+                    printingAccessor: .public,
+                ),
+                .init(
+                    arguments: #"parsingAccessor: .private, printingAccessor: .package"#,
+                    parsingAccessor: .private,
+                    printingAccessor: .package,
+                ),
+            ] as [EnumAccessorTestCase],
+        )
+        func `enum accessor`(testCase: EnumAccessorTestCase) {
+            assertMacro {
+                """
+                // \(testCase.arguments)
+                @ParseEnum(\(testCase.arguments))
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    case a
+
+                    @match(byte: 0x02)
+                    case b
+                }
+                """
+            } expansion: {
+                #"""
+                // \#(testCase.arguments)
+                enum TestEnum {
+                    case a
+                    case b
+                }
+
+                extension TestEnum: BinaryParseKit.Parsable {
+                    \#(testCase.parsingAccessor
+                    .description) init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        if BinaryParseKit.__match([0x01], in: &span) {
+                            self = .a
+                            return
+                        }
+                        if BinaryParseKit.__match([0x02], in: &span) {
+                            self = .b
+                            return
+                        }
+                        throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    \#(testCase.printingAccessor.description) func printerIntel() throws -> PrinterIntel {
+                        switch self {
+                        case .a:
+                            return .enum(
+                                .init(
+                                    bytes: [0x01],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        case .b:
+                            return .enum(
+                                .init(
+                                    bytes: [0x02],
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        }
+                    }
+                }
+                """#
+            }
+        }
+
+        @Test
+        func `enum bad accessor`() {
+            assertMacro {
+                """
+                @ParseEnum(parsingAccessor: "invalid", printingAccessor: .invalid)
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    case a
+
+                    @match(byte: 0x02)
+                    case b
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseEnum(parsingAccessor: "invalid", printingAccessor: .invalid)
+                                                       ┬─────────────────────────
+                │          │                           ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                           ┬──────────────────────────
+                │          ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                ┬─────────────────────────────────────────────────────────────────
+                ╰─ 🛑 You have used unknown accessor in `@ParseStruct` or `@ParseEnum`.
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    case a
+
+                    @match(byte: 0x02)
+                    case b
+                }
+                """
+            }
+        }
     }
 }
 
-// swiftlint:enable line_length
+// swiftlint:enable file_length line_length

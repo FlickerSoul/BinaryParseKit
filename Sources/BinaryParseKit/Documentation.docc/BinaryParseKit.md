@@ -19,7 +19,7 @@ BinaryParseKit provides a convenient and type-safe way to parse binary data in S
 
 ### Struct Parsing Macros
 
-- ``ParseStruct()``
+- ``ParseStruct(parsingAccessor:printingAccessor:)``
 - ``parse()``
 - ``parse(byteCount:)``
 - ``parse(endianness:)``
@@ -32,7 +32,7 @@ BinaryParseKit provides a convenient and type-safe way to parse binary data in S
 
 ### Enum Parsing Macros
 
-- ``ParseEnum()``
+- ``ParseEnum(parsingAccessor:printingAccessor:)``
 - ``match()``
 - ``match(byte:)``
 - ``match(bytes:)``

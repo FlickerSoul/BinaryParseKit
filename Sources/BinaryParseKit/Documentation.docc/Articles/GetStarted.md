@@ -28,7 +28,7 @@ dependencies: [
 
 ## Parsing
 
-We have two parsing macros: ``ParseStruct()`` and ``ParseEnum()``. They work together with decorative macros such as ``parse()``, ``match()``, ``skip(byteCount:because:)``, etc.
+We have two parsing macros: ``ParseStruct(parsingAccessor:printingAccessor:)`` and ``ParseEnum(parsingAccessor:printingAccessor:)``. They work together with decorative macros such as ``parse()``, ``match()``, ``skip(byteCount:because:)``, etc.
 
 ### Parse Struct
 

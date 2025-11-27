@@ -26,7 +26,10 @@ jobs:
           xcrun swift build
           xcrun swift package --allow-writing-to-directory ./docs \
             generate-documentation \
+            --enable-experimental-combined-documentation \
             --target BinaryParseKit \
+            --target BinaryParseKitCommons \
+            --target BinaryParsing \
             --output-path ./docs \
             --transform-for-static-hosting
       - name: Upload artifact
