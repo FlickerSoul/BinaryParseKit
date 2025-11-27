@@ -103,16 +103,31 @@ struct AccessorInfo {
     let printingAccessor: DeclModifierSyntax
 }
 
+private let allAccessModifiers: Set<TokenKind> = [
+    .keyword(.private),
+    .keyword(.fileprivate),
+    .keyword(.internal),
+    .keyword(.package),
+    .keyword(.public),
+]
+private let defaultAccessModifier: TokenKind = .keyword(.internal)
+
 func extractAccessor(
     from attributeNode: AttributeSyntax,
     attachedTo declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext,
 ) throws(MacroAccessorError) -> AccessorInfo {
-    let modifiers = declaration.modifiers
-    guard modifiers.count < 2 else {
-        throw MacroAccessorError.moreThanOneModifier(modifiers: modifiers.map(\.name.text).joined(separator: ", "))
+    let accessModifiers = declaration.modifiers
+        .filter { modifier in
+            allAccessModifiers.contains(modifier.name.tokenKind)
+        }
+
+    guard accessModifiers.count < 2 else {
+        throw MacroAccessorError
+            .moreThanOneModifier(modifiers: accessModifiers.map(\.name.text).joined(separator: ", "))
     }
-    let modifierToken = modifiers.first?.name.tokenKind ?? .keyword(.internal)
+
+    let modifierToken = accessModifiers.first?.name.tokenKind ?? defaultAccessModifier
 
     let accessorVisitor = MacroAccessorVisitor(context: context)
     accessorVisitor.walk(attributeNode)
