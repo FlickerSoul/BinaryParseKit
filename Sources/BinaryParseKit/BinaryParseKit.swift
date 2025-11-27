@@ -259,8 +259,7 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 ///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
 ///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
 ///
-/// - Note: All fields except those with accessors (`get` and `set`) must be parsed must be marked with `@parse`
-/// variants.
+/// - Note: All fields except those with accessors (`get` and `set`) must be marked with `@parse` variants.
 ///
 /// Example:
 /// ```swift
@@ -307,7 +306,7 @@ public macro ParseStruct(
 ///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
 ///
 /// - Note: All enum cases must be marked with `@match` variants, which is intentional by design, which I don't think is
-/// necessary and is possible to be lifted int the future.
+/// necessary and is possible to be lifted in the future.
 /// - Note: Only one `@matchDefault` case is allowed per enum, and has to be declared at the end of all other cases.
 /// - Note: any `match` macro has to proceed `parse` and `skip` macros.
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
