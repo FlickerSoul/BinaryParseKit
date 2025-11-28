@@ -576,3 +576,23 @@ public macro matchDefault() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
+
+// MARK: - Bitmask
+
+@attached(peer)
+public macro mask(bitCount: Int) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(peer)
+public macro mask() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
+public macro ParseBitmask() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ConstructParseBitmaskMacro",
+)
