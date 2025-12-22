@@ -2,13 +2,13 @@
 
 ## Purpose
 
-The `@ParseStruct` macro automatically generates binary parsing and printing code for Swift structs. It analyzes struct fields annotated with parsing directives and generates conformances to `Parsable` and `Printable` protocols.
+The `@ParseStruct` macro automatically generates binary parsing and printing code for Swift structs. It analyzes struct fields annotated with parsing directives and generates conformance to `Parsable` and `Printable` protocols.
 
 ## Requirements
 
 ### Requirement: Struct Declaration Macro
 
-The `@ParseStruct` macro SHALL be an attached extension macro that generates `Parsable` and `Printable` protocol conformances for structs.
+The `@ParseStruct` macro SHALL be an attached extension macro that generates `Parsable` and `Printable` protocol conformance for structs.
 
 #### Scenario: Basic struct parsing
 - **WHEN** a struct is annotated with `@ParseStruct`
@@ -125,6 +125,10 @@ Fields annotated with `@parse(byteCountOf:)` SHALL use another field's value to 
 - **WHEN** `@parse(byteCountOf:)` references a field
 - **THEN** the referenced field MUST be declared before the current field in the struct
 
+#### Scenario: Type assertion for sized parsable
+- **WHEN** a field uses `@parse(byteCount:)`
+- **THEN** the generated code includes `__assertSizedParsable(FieldType.self)` for compile-time validation
+
 ### Requirement: Variable-Length with Endianness via @parse(byteCountOf:endianness:)
 
 Fields annotated with `@parse(byteCountOf:endianness:)` SHALL be parsed using another field's value for byte count with explicit byte order control.
@@ -141,6 +145,10 @@ Fields annotated with `@parse(byteCountOf:endianness:)` SHALL be parsed using an
   ```
 - **WHEN** `size` is `2` and subsequent bytes are `[0x00, 0x01]`
 - **THEN** `value` SHALL be `1` (parsed as 2 bytes, big-endian)
+
+#### Scenario: Type assertion for endian sized parsable
+- **WHEN** a field uses `@parse(byteCount:endianness:)`
+- **THEN** the generated code includes `__assertEndianSizedParsable(FieldType.self)` for compile-time validation
 
 ### Requirement: Remaining Bytes Parsing with @parseRest()
 
@@ -179,6 +187,10 @@ Fields annotated with `@parseRest(endianness:)` SHALL consume remaining bytes wi
 - **WHEN** a field is annotated with `@parseRest(endianness: .little)`
 - **THEN** all remaining bytes are parsed with little-endian byte order
 
+#### Scenario: Type assertion for endian parsable
+- **WHEN** a field uses `@parse(endianness:)`
+- **THEN** the generated code includes `__assertEndianParsable(FieldType.self)` for compile-time validation
+
 ### Requirement: Skip Bytes with @skip(byteCount:because:)
 
 The `@skip(byteCount:because:)` attribute SHALL cause the parser to skip a specified number of bytes before parsing the field.
@@ -194,11 +206,12 @@ The `@skip(byteCount:because:)` attribute SHALL cause the parser to skip a speci
   @parse()
   let value: UInt32
   ```
-- **WHEN** parsing begins
-- **THEN** 2 bytes are skipped before parsing `value`
+- **WHEN** parsing bytes `[0x00, 0x01, ...]` for `value`
+- **THEN** 2 bytes are skipped before parsing `value` (i.e., bytes `[0x00, 0x01]` are ignored)
+- **AND** `value` is parsed from the subsequent bytes
 
 #### Scenario: Multiple attributes on single field
-- **WHEN** a field has both `@skip` and `@parse` attributes
+- **WHEN** a field has both `@skip` and `@parse` attributes in any order
 - **THEN** the skip operation executes first, then the parse operation
 
 ### Requirement: Computed Properties Exclusion
@@ -213,6 +226,10 @@ Computed properties (fields with accessors) SHALL be ignored by the macro and no
   ```
 - **WHEN** the macro generates parsing code
 - **THEN** only `raw` is parsed; `computed` is not mentioned in generated code
+
+#### Scenario: Computed property with @parse
+- **WHEN** a computed property is annotated with `@parse()`
+- **THEN** the macro emits a diagnostic error
 
 ### Requirement: Type Annotation Requirement
 
@@ -236,15 +253,13 @@ Fields MUST use simple identifier patterns, not destructuring patterns.
 
 #### Scenario: Destructuring pattern error
 - **WHEN** a field uses destructuring like `let (a, b): (Int, Int)`
+```swift
+struct Example {
+  @parse
+  let (a, b): (Int, Int)
+}
+```
 - **THEN** the macro emits a diagnostic error
-
-### Requirement: Conflicting Byte Count Error
-
-Fields MUST NOT specify both `byteCount` and `byteCountOf` parameters.
-
-#### Scenario: Conflicting parameters error
-- **WHEN** a field is annotated with `@parse(byteCount: 4, byteCountOf: \.size)`
-- **THEN** the macro emits a diagnostic error about conflicting byte count specifications
 
 ### Requirement: Printable Conformance Generation
 

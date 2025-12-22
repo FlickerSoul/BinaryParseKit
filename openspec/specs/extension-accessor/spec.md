@@ -40,7 +40,10 @@ The `.follow` case SHALL cause the generated extension member to inherit the acc
 
 ### Requirement: Explicit Access Level Override
 
-Explicit `ExtensionAccessor` values (non-`.follow`) SHALL override the type's access level for the generated member.
+Explicit `ExtensionAccessor` values (non-`.follow`) SHALL override the type's access level for the generated member. Note that, even though some overrides are not valid in Swift (e.g., making a member internal in a public type's protocol extension), the macro SHALL still generate the code as specified.
+
+**Rationale:**
+This design delegates visibility validation to the Swift compiler. By generating the requested access modifier regardless of validity, the macro avoids reimplementing complex visibility rules and ensures that compiler errors clearly indicate the source of the conflict to the developer.
 
 #### Scenario: Public type with internal override
 - **WHEN** a `public struct` uses a macro with `parsingAccessor: .internal`
@@ -70,5 +73,5 @@ Macros that generate multiple extension members SHALL support independent access
 
 #### Scenario: Mixed follow and explicit
 - **WHEN** `@ParseEnum(parsingAccessor: .follow, printingAccessor: .private)` is applied to a `public enum`
-- **THEN** the generated `init(parsing:)` SHALL have `public` access (following the enum)
+- **THEN** the generated `init(parsing:)` SHALL have `public` access (following the enum's access level)
 - **AND** the generated `printerIntel()` SHALL have `private` access (explicit override)

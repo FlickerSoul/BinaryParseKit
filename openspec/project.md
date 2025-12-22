@@ -20,7 +20,7 @@ The code style follows the standard Swift guidelines and the .swift-format.conf 
 
 ### Architecture Patterns
 
-The package functionality mainly consists from 3 parts: a macro target `BinaryParseKitMacros`, a public API target `BinaryParseKit`, a shared target `BinaryParseKitCommons` used internally in `BinaryParseKitMacros` and `BinaryParseKit`. In addition, the package has two test targets: `BinaryParseKitMacroTests` that tests macro generation, and `BinaryParseKitTests` serving as end-to-end tests for public API and parsing. The package also provides a executable target `BinaryParseKitClient` as an example client using the library.
+The package functionality mainly consists of 3 parts: a macro target `BinaryParseKitMacros`, a public API target `BinaryParseKit`, a shared target `BinaryParseKitCommons` used internally in `BinaryParseKitMacros` and `BinaryParseKit`. In addition, the package has two test targets: `BinaryParseKitMacroTests` that tests macro generation, and `BinaryParseKitTests` serving as end-to-end tests for public API and parsing. The package also provides an executable target `BinaryParseKitClient` as an example client using the library.
 
 The generated code from macros in `BinaryParseKitMacros` should be minimal, and delegate heavy lifting to utility functions (e.g. `__match`, `__assertParsable`, etc.) defined in `BinaryParseKit` target. Please define necessary utility code when needed to keep generated code simple, clean, and maintainable.
 

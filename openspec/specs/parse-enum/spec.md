@@ -30,11 +30,11 @@ The `@ParseEnum` macro SHALL accept two optional parameters to control access le
 
 #### Scenario: Default accessor behavior
 - **WHEN** a public enum uses `@ParseEnum` without accessor parameters
-- **THEN** the generated `init(parsing:)` and `printerIntel()` SHALL have public access (following the enum)
+- **THEN** the generated `init(parsing:)` and `printerIntel()` SHALL have public access (following the enum's access level)
 
 #### Scenario: Custom accessor override
 - **WHEN** `@ParseEnum(parsingAccessor: .internal)` is applied to a public enum
-- **THEN** the generated `init(parsing:)` SHALL have internal access
+- **THEN** the generated `init(parsing:)` SHALL have internal access (even though it's not valid in Swift)
 
 ### Requirement: Match Case Attribute Requirement
 
@@ -53,8 +53,12 @@ Every enum case MUST have exactly one match macro as its first attribute.
 - **WHEN** an enum case lacks any match macro
 - **THEN** the macro emits a diagnostic error
 
-#### Scenario: Match attribute ordering
+#### Scenario: Parse attribute preceding match
 - **WHEN** a case has `@parse()` before `@match()`
+- **THEN** the macro emits a diagnostic error requiring match macro first
+
+#### Scenario: Skip attribute preceding match
+- **WHEN** a case has `@skip()` before `@match()`
 - **THEN** the macro emits a diagnostic error requiring match macro first
 
 ### Requirement: Raw Value Matching with @match()
@@ -76,7 +80,7 @@ Cases annotated with `@match()` (no arguments) SHALL match bytes using the enum'
   ```
 - **WHEN** parsing bytes `[0x00, ...]`
 - **THEN** the result SHALL be `.success`
-- **AND** the buffer position SHALL NOT advance past the matched byte
+- **AND** the buffer position SHALL still start at position 0 (`0x00` not consumed)
 
 ### Requirement: Single Byte Matching with @match(byte:)
 
@@ -95,7 +99,7 @@ Cases annotated with `@match(byte:)` SHALL match a specific single byte value.
   ```
 - **WHEN** parsing bytes `[0x01, 0x02, 0x03]`
 - **THEN** the result SHALL be `.first`
-- **AND** the buffer SHALL still start at position 0
+- **AND** the buffer SHALL still start at position 0 (`0x01` not consumed)
 
 ### Requirement: Byte Sequence Matching with @match(bytes:)
 
@@ -114,7 +118,7 @@ Cases annotated with `@match(bytes:)` SHALL match a sequence of bytes.
   ```
 - **WHEN** parsing bytes `[0xFF, 0xD8, 0xFF, 0xE0]`
 - **THEN** the result SHALL be `.jpegHeader`
-- **AND** the buffer SHALL still start at position 0
+- **AND** the buffer SHALL still start at position 0 (`[0xFF, 0xD8]` not consumed)
 
 ### Requirement: Consuming Raw Value Match with @matchAndTake()
 
@@ -127,10 +131,15 @@ Cases annotated with `@matchAndTake()` (no arguments) SHALL match bytes using th
 #### Scenario: Raw value match with consumption
 - **GIVEN** an enum with:
   ```swift
-  @matchAndTake() case command
+  @ParseEnum
+  enum Command: UInt8, Matchable {
+    @matchAndTake() case command = 0x10
+    @matchAndTake() case anotherCommand = 0x20
+  }
   ```
-- **WHEN** parsing and the raw value is 2 bytes
-- **THEN** the buffer position SHALL advance by 2 bytes after matching
+- **WHEN** parsing bytes `[0x10, ...]`
+- **THEN** the result SHALL be `.command`
+- **AND** the buffer position SHALL advance by 1 byte after matching (`0x10` consumed)
 
 ### Requirement: Consuming Single Byte Match with @matchAndTake(byte:)
 
@@ -142,9 +151,15 @@ Cases annotated with `@matchAndTake(byte:)` SHALL match a single byte AND consum
 #### Scenario: Single byte match with consumption
 - **GIVEN** an enum with:
   ```swift
-  @matchAndTake(byte: 0x01)
-  @parse(endianness: .big)
-  case setValue(UInt16)
+  @ParseEnum
+  enum Action {
+    @matchAndTake(byte: 0x01)
+    @parse(endianness: .big)
+    case setValue(UInt16)
+
+    @matchAndTake(byte: 0x02)
+    case getValue
+  }
   ```
 - **WHEN** parsing bytes `[0x01, 0x12, 0x34]`
 - **THEN** the result SHALL be `.setValue(0x1234)`
@@ -160,12 +175,15 @@ Cases annotated with `@matchAndTake(bytes:)` SHALL match a byte sequence AND con
 #### Scenario: Multi-byte match with consumption
 - **GIVEN** an enum with:
   ```swift
-  @matchAndTake(bytes: [0x89, 0x50, 0x4E, 0x47])
-  case pngImage
+  @ParseEnum
+  enum ImageFormat {
+    @matchAndTake(bytes: [0x89, 0x50])
+    case pngImage
+  }
   ```
-- **WHEN** parsing PNG file data starting with `[0x89, 0x50, 0x4E, 0x47, ...]`
+- **WHEN** parsing PNG file data starting with `[0x89, 0x50, ...]`
 - **THEN** the result SHALL be `.pngImage`
-- **AND** the 4-byte magic number SHALL be consumed
+- **AND** the 2-byte magic number (`[0x89, 0x50]`) SHALL be consumed from the buffer
 
 ### Requirement: Default Case with @matchDefault
 
@@ -179,12 +197,16 @@ Cases annotated with `@matchDefault` SHALL match when no other case matches.
 #### Scenario: Default case matching
 - **GIVEN** an enum with:
   ```swift
-  @match(byte: 0x01) case known
-  @matchDefault case unknown
+  @ParseEnum
+  enum Response {
+    @match(byte: 0x00) case success
+    @match(byte: 0x01) case failure
+    @matchDefault case unknown
+  }
   ```
 - **WHEN** parsing bytes `[0xFF, ...]`
 - **THEN** the result SHALL be `.unknown`
-- **AND** the buffer position SHALL NOT advance
+- **AND** the buffer position SHALL NOT advance (`0xFF` not consumed)
 
 #### Scenario: Multiple default cases error
 - **WHEN** an enum has more than one `@matchDefault` case
@@ -213,11 +235,11 @@ Enum cases with associated values SHALL use `@parse` macros to define how each v
   case data(UInt16, [UInt8])
   ```
 - **WHEN** parsing bytes `[0x01, 0x00, 0x0A, 0xDE, 0xAD, 0xBE, 0xEF]`
-- **THEN** the first associated value SHALL be `10` (UInt16, big-endian)
+- **THEN** the first associated value SHALL be `10` (UInt16, big-endian, `0x000A`)
 - **AND** the second SHALL be `[0xDE, 0xAD, 0xBE, 0xEF]` (4 bytes)
 
 #### Scenario: Mismatched parse attribute count error
-- **WHEN** a case has 2 associated values but only 1 `@parse` macro
+- **WHEN** a case has more associated values than `@parse` macro or vice versa
 - **THEN** the macro emits a diagnostic error about argument count mismatch
 
 ### Requirement: Skip Bytes in Associated Values with @skip()
@@ -281,7 +303,7 @@ The generated code SHALL use the `__match(_:in:)` utility function to check byte
 - **THEN** it SHALL return `true`
 - **AND** the span SHALL NOT be modified
 
-### Requirement: Type Assertions for Associated Values
+### Requirement: Parsable Type Assertions for Associated Values
 
 The generated code SHALL include compile-time type assertions for associated value types.
 
@@ -296,6 +318,10 @@ The generated code SHALL include compile-time type assertions for associated val
 #### Scenario: Sized parsable type assertion
 - **WHEN** an associated value uses `@parse(byteCount:)`
 - **THEN** the generated code includes `__assertSizedParsable(ValueType.self)`
+
+#### Scenario: Endian sized parsable type assertion
+- **WHEN** an associated value uses `@parse(byteCount:endianness:)`
+- **THEN** the generated code includes `__assertEndianSizedParsable(ValueType.self)`
 
 ### Requirement: Printable Conformance Generation
 

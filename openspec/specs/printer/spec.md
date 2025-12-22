@@ -18,10 +18,6 @@ public protocol Printer {
 }
 ```
 
-#### Scenario: Custom printer implementation
-- **WHEN** a type conforms to `Printer`
-- **THEN** it MUST implement `print(_:)` that converts `PrinterIntel` to its `PrinterOutput` type
-
 #### Scenario: Convenience overloads
 - **WHEN** using the `Printer` protocol
 - **THEN** extension methods SHALL provide overloads for printing `BuiltInPrinterIntel`, `StructPrintIntel`, `EnumCasePrinterIntel`, `SkipPrinterIntel`, and `Printable` types directly
@@ -40,8 +36,8 @@ The `Printable` protocol SHALL enable types to produce printing instructions.
 
 #### Scenario: Printing with custom printer
 - **WHEN** `printParsed(printer:)` is called
-- **THEN** it SHALL call `printerIntel()` and pass the result to the printer
-- **AND** wrap any errors in `PrinterError`
+- **THEN** it SHALL call `printerIntel()`
+- **AND** pass the result to the printer to produce output
 
 ### Requirement: PrinterIntel Intermediate Representation
 
@@ -99,9 +95,13 @@ public struct FieldPrinterIntel: Equatable {
 - **WHEN** a field was parsed with `@parse(endianness: .big)`
 - **THEN** `FieldPrinterIntel.endianness` SHALL be `.big`
 
-#### Scenario: Field without metadata
+#### Scenario: Field without byte count or endianness
 - **WHEN** a field was parsed with plain `@parse()`
 - **THEN** `byteCount` and `endianness` SHALL be `nil`
+
+#### Scenario: Field should contain metadata
+- **WHEN** a field is parsed
+- **THEN** `FieldPrinterIntel.intel` SHALL contain the appropriate metadata, including name of the field, type of the field, etc. (Currently not implemented)
 
 ### Requirement: EnumCasePrinterIntel Definition
 
@@ -137,9 +137,13 @@ public struct EnumCasePrinterIntel: Equatable {
 - **THEN** `bytes` SHALL be `[]`
 - **AND** `parseType` SHALL be `.matchDefault`
 
+#### Scenario: Enum case with metadata
+- **WHEN** an enum case is parsed
+- **THEN** `EnumCasePrinterIntel` SHALL contain the appropriate metadata, including name of the case, type of the case, etc. (Currently not implemented)
+
 ### Requirement: BuiltInPrinterIntel Definition
 
-`BuiltInPrinterIntel` SHALL contain printing information for primitive types.
+`BuiltInPrinterIntel` SHALL contain printing information for primitive types. Note that this design seems extremely flawed. It is subjected to change in the future.
 
 **Structure:**
 ```swift
@@ -330,17 +334,17 @@ The `__getPrinterIntel<T>(_:)` utility function SHALL extract `PrinterIntel` fro
 - **WHEN** calling `__getPrinterIntel(someValue)` where `someValue: Printable`
 - **THEN** it SHALL return the result of `someValue.printerIntel()`
 
-### Requirement: Nested Structure Printing
+### Requirement: Nested Printing
 
-Printing SHALL handle nested structs and complex type hierarchies.
+Printing SHALL handle nested structs and enums, and complex type hierarchies.
 
 #### Scenario: Nested struct printing
-- **GIVEN** a struct containing another `@ParseStruct` type as a field
+- **GIVEN** a struct containing another `@ParseStruct` or `@ParseEnum` type as a field
 - **WHEN** printing the outer struct
-- **THEN** the inner struct's bytes SHALL be included in the output
+- **THEN** the bytes of the inner struct (or enum) SHALL be included in the output
 - **AND** endianness context SHALL be properly propagated
 
-#### Scenario: Struct with enum field printing
-- **GIVEN** a struct containing a `@ParseEnum` field
-- **WHEN** printing the struct
-- **THEN** the enum's bytes (including discriminator if `@matchAndTake`) SHALL be included
+#### Scenario: Enum with struct associated value
+- **GIVEN** an enum case with an associated value of a `@ParseStruct` or `@ParseEnum` type
+- **WHEN** printing the enum case
+- **THEN** the associated type's bytes SHALL be included in the output
