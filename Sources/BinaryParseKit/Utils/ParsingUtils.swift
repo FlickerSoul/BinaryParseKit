@@ -7,7 +7,7 @@
 import BinaryParsing
 
 /// Matches the given bytes in the input parser span.
-/// - Warning: This function is used to `@parseEnum` macro and should not be used directly.
+/// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
 @inlinable
 public func __match(_ bytes: borrowing [UInt8], in input: inout BinaryParsing.ParserSpan) -> Bool {
     if bytes.isEmpty { return true }
@@ -20,6 +20,13 @@ public func __match(_ bytes: borrowing [UInt8], in input: inout BinaryParsing.Pa
 
     let toMatch = unsafe input.bytes.extracting(first: bytes.count).withUnsafeBytes(Array.init)
     return toMatch == bytes
+}
+
+/// Matches when the remaining bytes in the input parser span equals the specified length.
+/// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
+@inlinable
+public func __matchLength(length: Int, in input: borrowing BinaryParsing.ParserSpan) -> Bool {
+    input.count == length
 }
 
 /// Asserts that the given type conforms to `Parsable`.
