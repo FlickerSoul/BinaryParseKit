@@ -23,7 +23,7 @@ A declarative Swift package for parsing binary data using macros, built on top o
 
 - Swift 6.2+
 - Xcode 26.0+
-- macOS 15.0+ / iOS 18.0+ / tvOS 18.0+ / watchOS 11.0+ / visionOS 2.0+
+- macOS 13.0+ / iOS 16.0+ / tvOS 16.0+ / watchOS 9.0+ / visionOS 1.0+
 
 ## Installation
 
@@ -327,7 +327,8 @@ If you encounter any issues, have feature requests, or want to suggest improveme
 Roadmap:
 
 - [x] Parsers as printer
-- [ ] Porting to prior iOS 18/macOS 15: Because `Span` is introduced only in iOS 18/macOS 15, port of using `withUnsafePointer` can be provided to prior versions of OSes for better compatibility
+- [x] Porting to prior iOS 18/macOS 15. ~Because `Span` is introduced only in iOS 18/macOS 15, port of using `withUnsafePointer` can be provided to prior versions of OSes for better compatibility.~ Since `Span` is backported to prior OS versions and we lowered the platform versions in the forked `swift-binary-parsing`, this is done.
+- [ ] Length matching in enums: Allow matching based on length of data instead of exact byte patterns
 - [ ] Bitmask support
 - [ ] Advanced validation: Runtime validation of parsing constraints, such as require minimal byte size checking in front instead of at each parsing
 - [ ] Performance optimizations: Further optimization of generated parsing code, such as linear time enum matching for constant bytes provided (`O( max(n, m) )` instead of `O(n * m)`, where `n` is the number of cases and `m` is the max number of bytes provided for each case)
