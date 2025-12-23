@@ -11,7 +11,7 @@ import Testing
 // swiftlint:disable line_length
 
 extension BinaryParseKitMacroTests {
-    @Suite(.macros(testMacros))
+    @Suite
     struct `Test Parsing Struct` { // swiftlint:disable:this type_name type_body_length
         @Test
         func successfulParseStructMacroExpansion() {

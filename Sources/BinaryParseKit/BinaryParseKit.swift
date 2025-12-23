@@ -577,22 +577,115 @@ public macro matchDefault() = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
-// MARK: - Bitmask
+// MARK: - Bitmask Field Annotation
 
+/// Specifies that a field should be parsed as a bitmask field with an explicit bit count.
+///
+/// Use this macro to annotate fields in a `@ParseBitmask` struct to specify how many
+/// bits the field occupies in the bitmask.
+///
+/// - Parameter bitCount: The number of bits this field occupies in the bitmask.
+///
+/// - Note: This macro has no effect on its own unless used alongside `@ParseBitmask` on struct fields.
+///
+/// Example:
+/// ```swift
+/// @ParseBitmask(bitCount: 8)
+/// struct Flags {
+///     @mask(bitCount: 4) let high: UInt8
+///     @mask(bitCount: 4) let low: UInt8
+/// }
+/// ```
 @attached(peer)
 public macro mask(bitCount: Int) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Specifies that a field should be parsed as a bitmask field with bit count inferred from the type.
+///
+/// Use this macro when the field type's `bitWidth` should be used as the bit count.
+/// The field type must have a known bit width (e.g., `UInt8`, `UInt16`).
+///
+/// - Note: This macro has no effect on its own unless used alongside `@ParseBitmask` on struct fields.
+///
+/// Example:
+/// ```swift
+/// @ParseBitmask(bitCount: 16)
+/// struct Header {
+///     @mask() let version: UInt8   // Infers 8 bits
+///     @mask() let flags: UInt8     // Infers 8 bits
+/// }
+/// ```
 @attached(peer)
 public macro mask() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
-@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
-public macro ParseBitmask() = #externalMacro(
+// MARK: - Bitmask Parsing
+
+/// Generates bitmask parsing conformance for structs and enums.
+///
+/// When applied to a **struct**, this macro generates `BitmaskParsable` and `Printable`
+/// conformance. The struct's fields must be marked with `@mask` attributes to specify
+/// their bit counts.
+///
+/// When applied to an **enum**, this macro generates a hidden struct shim for parsing
+/// and a `Parsable` conformance that maps parsed values to enum cases.
+///
+/// **Struct Example:**
+/// ```swift
+/// @ParseBitmask(bitCount: 16, endianness: .big)
+/// struct Header {
+///     @mask(bitCount: 4) let version: UInt8
+///     @mask(bitCount: 12) let length: UInt16
+/// }
+///
+/// let data = Data([0x41, 0x23])  // big-endian: 0x4123
+/// let header = try Header(parsing: data)
+/// // header.version == 0x4, header.length == 0x123
+/// ```
+///
+/// **Enum Example:**
+/// ```swift
+/// @ParseBitmask(bitCount: 2)
+/// enum Direction: UInt8 {
+///     case north = 0b00
+///     case east  = 0b01
+///     case south = 0b10
+///     case west  = 0b11
+/// }
+///
+/// let data = Data([0b10])
+/// let direction = try Direction(parsing: data)
+/// // direction == .south
+/// ```
+///
+/// - Parameters:
+///   - bitCount: Total bits in bitmask; inferred from `@mask` fields (struct) or raw value type (enum) if omitted.
+///   - endianness: Byte order for multi-byte bitmasks. Required when bitCount > 8.
+///   - bitOrder: Bit ordering within bytes (default: `.msbFirst`).
+///   - parsingAccessor: Access level for parsing members (default: `.follow`). Only applicable to structs.
+///   - printingAccessor: Access level for printing members (default: `.follow`). Only applicable to structs.
+///
+/// - Note: For structs, all stored properties must be marked with `@mask` annotation.
+/// - Note: For enums, the enum must have a raw value type and must not have associated values.
+@attached(
+    extension,
+    conformances: BinaryParseKit.BitmaskParsable,
+    BinaryParseKit.Parsable,
+    BinaryParseKit.Printable,
+    names: arbitrary
+)
+@attached(peer, names: arbitrary)
+public macro ParseBitmask(
+    bitCount: Int? = nil,
+    endianness: Endianness? = nil,
+    bitOrder: BitOrder = .msbFirst,
+    parsingAccessor: ExtensionAccessor = .follow,
+    printingAccessor: ExtensionAccessor = .follow,
+) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructParseBitmaskMacro",
 )

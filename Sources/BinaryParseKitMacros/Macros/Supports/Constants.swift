@@ -78,3 +78,14 @@ extension Constants {
         static let byteCountType = PackageMember(package: packageName, name: "Int")
     }
 }
+
+extension Constants {
+    enum Bitmask {
+        static let bitOrderType = PackageMember(name: "BitOrder")
+        static let bitOrderMsbFirst = PackageMember(name: "BitOrder.msbFirst")
+        static let bitOrderLsbFirst = PackageMember(name: "BitOrder.lsbFirst")
+        static let extractBits = PackageMember(name: "__extractBits")
+        static let assertExpressibleByBitmask = PackageMember(name: "__assertExpressibleByBitmask")
+        static let expressibleByBitmaskProtocol = PackageMember(name: "ExpressibleByBitmask")
+    }
+}
