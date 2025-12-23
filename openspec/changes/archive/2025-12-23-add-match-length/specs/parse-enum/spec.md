@@ -128,6 +128,10 @@ Every enum case MUST have exactly one match macro as its first attribute.
 - **WHEN** an enum case lacks any match macro
 - **THEN** the macro emits a diagnostic error
 
-#### Scenario: Match attribute ordering
+#### Scenario: Parse attribute preceding match
 - **WHEN** a case has `@parse()` before `@match()`
+- **THEN** the macro emits a diagnostic error requiring match macro first
+
+#### Scenario: Skip attribute preceding match
+- **WHEN** a case has `@skip()` before `@match()`
 - **THEN** the macro emits a diagnostic error requiring match macro first
