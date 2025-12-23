@@ -41,6 +41,7 @@ extension Constants {
 extension Constants {
     enum UtilityFunctions {
         static let matchBytes = PackageMember(name: "__match")
+        static let matchLength = PackageMember(name: "__match")
         static let assertParsable = PackageMember(name: "__assertParsable")
         static let assertSizedParsable = PackageMember(name: "__assertSizedParsable")
         static let assertEndianParsable = PackageMember(name: "__assertEndianParsable")

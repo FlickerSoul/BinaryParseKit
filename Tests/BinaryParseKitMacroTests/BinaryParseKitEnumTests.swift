@@ -52,17 +52,19 @@ extension BinaryParseKitMacroTests {
                     public func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x08]
                             return .enum(
                                 .init(
-                                    bytes: [0x08],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
                                     fields: [],
                                 )
                             )
                         case .b:
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = [0x01, 0x02]
                             return .enum(
                                 .init(
-                                    bytes: [0x01, 0x02],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [],
                                 )
@@ -112,17 +114,19 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x02, 0x03]
                             return .enum(
                                 .init(
-                                    bytes: [0x02, 0x03],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
                                     fields: [],
                                 )
                             )
                         case .b:
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = [0x01]
                             return .enum(
                                 .init(
-                                    bytes: [0x01],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [],
                                 )
@@ -173,17 +177,19 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = (TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch()
                             return .enum(
                                 .init(
-                                    bytes: (TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(),
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
                                     fields: [],
                                 )
                             )
                         case .b:
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = (TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch()
                             return .enum(
                                 .init(
-                                    bytes: (TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(),
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [],
                                 )
@@ -267,25 +273,28 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case let .a(__macro_local_9a_index_0fMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x08]
                             return .enum(
                                 .init(
-                                    bytes: [0x08],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
                                     fields: [.init(byteCount: Swift.Int(1), endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_9a_index_0fMu_))],
                                 )
                             )
                         case let .b(__macro_local_9b_index_0fMu_, __macro_local_7b_valuefMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = [0x01, 0x02]
                             return .enum(
                                 .init(
-                                    bytes: [0x01, 0x02],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_9b_index_0fMu_)), .init(byteCount: nil, endianness: .big, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_7b_valuefMu_))],
                                 )
                             )
                         case let .c(__macro_local_6c_codefMu_, __macro_local_7c_valuefMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu1_: [UInt8] = [0x09]
                             return .enum(
                                 .init(
-                                    bytes: [0x09],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu1_,
                                     parseType: .match,
                                     fields: [.init(byteCount: nil, endianness: .little, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_6c_codefMu_)), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: nil, endianness: .little, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_7c_valuefMu_))],
                                 )
@@ -335,17 +344,19 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x01]
                             return .enum(
                                 .init(
-                                    bytes: [0x01],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .matchAndTake,
                                     fields: [],
                                 )
                             )
                         case .b:
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = [0x02, 0x03]
                             return .enum(
                                 .init(
-                                    bytes: [0x02, 0x03],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [],
                                 )
@@ -390,7 +401,7 @@ extension BinaryParseKitMacroTests {
                             self = .b
                             return
                         }
-                        if BinaryParseKit.__match([], in: &span) {
+                        if true {
                             self = .c
                             return
                         }
@@ -402,25 +413,28 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x01]
                             return .enum(
                                 .init(
-                                    bytes: [0x01],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .matchAndTake,
                                     fields: [],
                                 )
                             )
                         case .b:
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = [0x02, 0x03]
                             return .enum(
                                 .init(
-                                    bytes: [0x02, 0x03],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [],
                                 )
                             )
                         case .c:
+                            let __macro_local_20bytesTakenInMatchingfMu1_: [UInt8] = []
                             return .enum(
                                 .init(
-                                    bytes: [],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu1_,
                                     parseType: .matchDefault,
                                     fields: [],
                                 )
@@ -778,25 +792,28 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case let .a(__macro_local_7a_valuefMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = (TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch()
                             return .enum(
                                 .init(
-                                    bytes: (TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(),
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
                                     fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_7a_valuefMu_))],
                                 )
                             )
                         case let .b(__macro_local_7b_valuefMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = (TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch()
                             return .enum(
                                 .init(
-                                    bytes: (TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(),
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_7b_valuefMu_))],
                                 )
                             )
                         case let .c(__macro_local_9c_index_0fMu_, __macro_local_7c_valuefMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu1_: [UInt8] = (TestEnum.c as any BinaryParseKit.Matchable).bytesToMatch()
                             return .enum(
                                 .init(
-                                    bytes: (TestEnum.c as any BinaryParseKit.Matchable).bytesToMatch(),
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu1_,
                                     parseType: .match,
                                     fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_9c_index_0fMu_)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_7c_valuefMu_))],
                                 )
@@ -900,17 +917,19 @@ extension BinaryParseKitMacroTests {
                     \#(testCase.printingAccessor.description) func printerIntel() throws -> PrinterIntel {
                         switch self {
                         case .a:
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x01]
                             return .enum(
                                 .init(
-                                    bytes: [0x01],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
                                     fields: [],
                                 )
                             )
                         case .b:
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = [0x02]
                             return .enum(
                                 .init(
-                                    bytes: [0x02],
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
                                     fields: [],
                                 )
@@ -950,6 +969,155 @@ extension BinaryParseKitMacroTests {
 
                     @match(byte: 0x02)
                     case b
+                }
+                """
+            }
+        }
+
+        @Test
+        func `enum with match length`() {
+            assertMacro {
+                """
+                @ParseEnum
+                enum VariableSizeData {
+                    @match(length: 4)
+                    @parse(endianness: .big)
+                    case shortPayload(UInt32)
+
+                    @match(length: 8)
+                    @parse(endianness: .big)
+                    case longPayload(UInt64)
+
+                    @matchDefault
+                    case unknown
+                }
+                """
+            } expansion: {
+                #"""
+                enum VariableSizeData {
+                    case shortPayload(UInt32)
+                    case longPayload(UInt64)
+                    case unknown
+                }
+
+                extension VariableSizeData: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        if BinaryParseKit.__match(length: 4, in: span) {
+                            // Parse `__macro_local_31VariableSizeData_shortPayload_0fMu_` of type UInt32 with endianness
+                            BinaryParseKit.__assertEndianParsable((UInt32).self)
+                            let __macro_local_31VariableSizeData_shortPayload_0fMu_ = try UInt32(parsing: &span, endianness: .big)
+                            // construct `shortPayload` with above associated values
+                            self = .shortPayload(__macro_local_31VariableSizeData_shortPayload_0fMu_)
+                            return
+                        }
+                        if BinaryParseKit.__match(length: 8, in: span) {
+                            // Parse `__macro_local_30VariableSizeData_longPayload_0fMu_` of type UInt64 with endianness
+                            BinaryParseKit.__assertEndianParsable((UInt64).self)
+                            let __macro_local_30VariableSizeData_longPayload_0fMu_ = try UInt64(parsing: &span, endianness: .big)
+                            // construct `longPayload` with above associated values
+                            self = .longPayload(__macro_local_30VariableSizeData_longPayload_0fMu_)
+                            return
+                        }
+                        if true {
+                            self = .unknown
+                            return
+                        }
+                        throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for VariableSizeData, at \(span.startPosition)")
+                    }
+                }
+
+                extension VariableSizeData: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        switch self {
+                        case let .shortPayload(__macro_local_20shortPayload_index_0fMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = []
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, endianness: .big, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_20shortPayload_index_0fMu_))],
+                                )
+                            )
+                        case let .longPayload(__macro_local_19longPayload_index_0fMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = []
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, endianness: .big, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_19longPayload_index_0fMu_))],
+                                )
+                            )
+                        case .unknown:
+                            let __macro_local_20bytesTakenInMatchingfMu1_: [UInt8] = []
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu1_,
+                                    parseType: .matchDefault,
+                                    fields: [],
+                                )
+                            )
+                        }
+                    }
+                }
+                """#
+            }
+        }
+
+        @Test
+        func `enum with mixed matching strategies`() {
+            assertMacro {
+                """
+                @ParseEnum
+                enum Invalid {
+                    @match(byte: 0x01)
+                    case byteCase
+
+                    @match(length: 4)
+                    case lengthCase
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseEnum
+                ┬─────────
+                ╰─ 🛑 Unexpected error: Enum macro parsing encountered errors
+                enum Invalid {
+                    @match(byte: 0x01)
+                    case byteCase
+
+                    @match(length: 4)
+                    ╰─ 🛑 An enum cannot mix byte-based matching (@match, @match(byte:), @match(bytes:), @matchAndTake) with length-based matching (@match(length:)).
+                    case lengthCase
+                }
+                """
+            }
+        }
+
+        @Test
+        func `enum with mixed matching strategies reverse order`() {
+            assertMacro {
+                """
+                @ParseEnum
+                enum Invalid {
+                    @match(length: 4)
+                    case lengthCase
+
+                    @matchAndTake(byte: 0x01)
+                    case byteCase
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseEnum
+                ┬─────────
+                ╰─ 🛑 Unexpected error: Enum macro parsing encountered errors
+                enum Invalid {
+                    @match(length: 4)
+                    case lengthCase
+
+                    @matchAndTake(byte: 0x01)
+                    ╰─ 🛑 An enum cannot mix byte-based matching (@match, @match(byte:), @match(bytes:), @matchAndTake) with length-based matching (@match(length:)).
+                    case byteCase
                 }
                 """
             }

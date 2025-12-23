@@ -15,6 +15,7 @@ enum ParseEnumMacroError: Error, DiagnosticMessage {
     case defaultCaseMustBeLast
     case onlyOneMatchDefaultAllowed
     case matchDefaultShouldBeLast
+    case mixedMatchingStrategies
     case unexpectedError(description: String)
 
     var message: String {
@@ -29,6 +30,8 @@ enum ParseEnumMacroError: Error, DiagnosticMessage {
         case .defaultCaseMustBeLast: "The `matchDefault` case must be the last case in the enum."
         case .onlyOneMatchDefaultAllowed: "Only one `matchDefault` case is allowed in a enum."
         case .matchDefaultShouldBeLast: "The `matchDefault` case should be the last case in the enum."
+        case .mixedMatchingStrategies:
+            "An enum cannot mix byte-based matching (@match, @match(byte:), @match(bytes:), @matchAndTake) with length-based matching (@match(length:))."
         case let .unexpectedError(description: description):
             "Unexpected error: \(description)"
         }

@@ -18,6 +18,8 @@ class ParseEnumCase: SyntaxVisitor {
     private(set) var parsedInfo: EnumParseInfo?
 
     private var hasMatchDefault = false
+    private var hasByteMatch = false
+    private var hasLengthMatch = false
 
     private var errors: [Diagnostic] = []
 
@@ -107,6 +109,29 @@ class ParseEnumCase: SyntaxVisitor {
                     ),
                 )
             }
+
+            // Track matching strategy for mutual exclusivity validation
+            if matchAction.target.isLengthMatch {
+                if hasByteMatch {
+                    errors.append(
+                        .init(
+                            node: node,
+                            message: ParseEnumMacroError.mixedMatchingStrategies,
+                        ),
+                    )
+                }
+                hasLengthMatch = true
+            } else if matchAction.target.isByteMatch {
+                if hasLengthMatch {
+                    errors.append(
+                        .init(
+                            node: node,
+                            message: ParseEnumMacroError.mixedMatchingStrategies,
+                        ),
+                    )
+                }
+                hasByteMatch = true
+            }
         }
 
         for currentCaseElement in currentCaseElements {
@@ -120,6 +145,7 @@ class ParseEnumCase: SyntaxVisitor {
                     matchAction: matchAction,
                     parseActions: enumParseActions,
                     caseElementName: currentCaseElement.name,
+                    source: Syntax(node),
                 ),
             )
         }

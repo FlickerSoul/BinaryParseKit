@@ -1,5 +1,5 @@
 //
-//  ConsructParseEnumMacro.swift
+//  ConstructParseEnumMacro.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 7/26/25.
@@ -43,13 +43,36 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                     "\(accessorInfo.parsingAccessor) init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
                     for caseParseInfo in parseInfo.caseParseInfo {
-                        let toBeMatched = caseParseInfo.bytesToMatch(of: type)
+                        // Generate the match condition based on match type
+                        let matchCondition = try ConditionElementListSyntax {
+                            if let matchLength = caseParseInfo.lengthToMatch() {
+                                // Length-based matching: use __match(length:in:) with borrowing span
+                                ExprSyntax(
+                                    "\(raw: Constants.UtilityFunctions.matchLength)(length: \(matchLength), in: span)",
+                                )
+                            } else if let toBeMatched = caseParseInfo.bytesToMatch(of: type) {
+                                // Byte-array-based matching: use __matchBytes with inout span
+                                ExprSyntax("\(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)")
+                            } else if caseParseInfo.matchAction.target.isDefaultMatch {
+                                // Default matching: always true
+                                ExprSyntax("true")
+                            } else {
+                                // Otherwise, it's a failure on our side
+                                throw ParseEnumMacroError.unexpectedError(
+                                    description: "Failed to obtain matching bytes for \(caseParseInfo.caseElementName)",
+                                )
+                            }
+                        }
 
-                        try IfExprSyntax(
-                            "if \(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)",
-                        ) {
+                        try IfExprSyntax("if \(matchCondition)") {
                             if caseParseInfo.matchAction.matchPolicy == .matchAndTake {
-                                "try span.seek(toRelativeOffset: \(toBeMatched).count)"
+                                if let toBeMatched = caseParseInfo.bytesToMatch(of: type) {
+                                    "try span.seek(toRelativeOffset: \(toBeMatched).count)"
+                                } else {
+                                    throw ParseEnumMacroError.unexpectedError(
+                                        description: "Failed to obtain matching bytes for \(caseParseInfo.caseElementName) when taking",
+                                    )
+                                }
                             }
 
                             var arguments: OrderedDictionary<TokenSyntax, EnumCaseParameterParseInfo> = [:]
@@ -179,8 +202,21 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                     }
                                 })
 
-                            let caseCodeBlock = CodeBlockItemListSyntax {
-                                let toBeMatched = caseParseInfo.bytesToMatch(of: type)
+                            let caseCodeBlock = try CodeBlockItemListSyntax {
+                                let bytesTakenInMatching = context.makeUniqueName("bytesTakenInMatching")
+
+                                if caseParseInfo.matchAction.target.isLengthMatch
+                                    || caseParseInfo.matchAction.target.isDefaultMatch {
+                                    // For length-based matching, use empty bytes array (similar to matchDefault)
+                                    "let \(bytesTakenInMatching): [UInt8] = []"
+                                } else if let bytesToMatch = caseParseInfo.bytesToMatch(of: type) {
+                                    "let \(bytesTakenInMatching): [UInt8] = \(bytesToMatch)"
+                                } else {
+                                    throw ParseEnumMacroError.unexpectedError(
+                                        description: "Failed to obtain matching bytes for \(caseParseInfo.caseElementName)",
+                                    )
+                                }
+
                                 let matchPolicy = caseParseInfo.matchAction.matchPolicy
 
                                 let fields = ArrayExprSyntax(elements: generatePrintableFields(parseSkipMacroInfo))
@@ -188,7 +224,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                 #"""
                                 return .enum(
                                     .init(
-                                        bytes: \#(toBeMatched),
+                                        bytes: \#(bytesTakenInMatching),
                                         parseType: .\#(raw: matchPolicy),
                                         fields: \#(fields),
                                     )

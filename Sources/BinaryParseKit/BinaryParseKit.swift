@@ -401,6 +401,44 @@ public macro match(bytes: [UInt8]) = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
+/// Matches when the remaining buffer bytes equals the specified length exactly.
+///
+/// Use this macro to match cases based on remaining data size rather than specific byte patterns.
+/// The buffer is NOT consumed, allowing subsequent parsing operations to read the data.
+///
+/// - Parameter length: The exact number of remaining bytes to match
+///
+/// - Note: An enum using `@ParseEnum` can only use byte-based matching OR length-based matching,
+///   but not both. `@matchDefault` is allowed with either strategy. That is, it's not allowed to
+///   use a mix of `@match(byte:)`/`@match(bytes:)`/`@matchAndTake(byte:)` and `@match(length:)`
+///   in the same enum.
+///
+///
+/// Example:
+/// ```swift
+/// @ParseEnum
+/// enum VariableSizeData {
+///     @match(length: 4)
+///     @parse(endianness: .big)
+///     case shortPayload(UInt32)
+///
+///     @match(length: 8)
+///     @parse(endianness: .big)
+///     case longPayload(UInt64)
+///
+///     @matchDefault
+///     case unknown
+/// }
+///
+/// let data = try VariableSizeData(parsing: Data([0x12, 0x34, 0x56, 0x78]))
+/// // data == .shortPayload(0x12345678) because buffer has exactly 4 bytes
+/// ```
+@attached(peer)
+public macro match(length: Int) = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
 /// Matches and consumes bytes from the buffer using the enum's raw value.
 ///
 /// Use this macro for ``Matchable`` enums where each case's raw value

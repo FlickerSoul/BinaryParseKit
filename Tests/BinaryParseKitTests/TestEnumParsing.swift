@@ -456,3 +456,105 @@ extension Matchable where Self: RawRepresentable, Self.RawValue == UInt16 {
         ]
     }
 }
+
+// MARK: - Length-Based Matching Tests
+
+@Suite
+struct LengthMatchingTest {
+    @ParseEnum
+    enum VariableSizePayload: Equatable {
+        @match(length: 4)
+        @parse(endianness: .big)
+        case shortPayload(UInt32)
+
+        @match(length: 8)
+        @parse(endianness: .big)
+        case longPayload(UInt64)
+
+        @matchDefault
+        case unknown
+    }
+
+    @Test
+    func `length matching with exact sizes`() throws {
+        // 4 bytes matches shortPayload
+        try #expect(VariableSizePayload(parsing: Data([0x12, 0x34, 0x56, 0x78])) == .shortPayload(0x1234_5678))
+
+        // 8 bytes matches longPayload
+        try #expect(VariableSizePayload(parsing: Data([
+            0x12, 0x34, 0x56, 0x78,
+            0x9A, 0xBC, 0xDE, 0xF0,
+        ])) == .longPayload(0x1234_5678_9ABC_DEF0))
+    }
+
+    @Test
+    func `length matching falls back to default`() throws {
+        // 0 bytes - falls back to unknown
+        try #expect(VariableSizePayload(parsing: Data([])) == .unknown)
+
+        // 2 bytes - doesn't match 4 or 8, falls back to unknown
+        try #expect(VariableSizePayload(parsing: Data([0x12, 0x34])) == .unknown)
+
+        // 6 bytes - doesn't match 4 or 8, falls back to unknown
+        try #expect(VariableSizePayload(parsing: Data([0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC])) == .unknown)
+
+        // 10 bytes - doesn't match 4 or 8, falls back to unknown
+        try #expect(VariableSizePayload(parsing: Data([0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0, 0x11, 0x22])) ==
+            .unknown)
+    }
+
+    @ParseEnum
+    enum StrictLengthPayload: Equatable {
+        @match(length: 2)
+        @parse(endianness: .big)
+        case twoBytes(UInt16)
+
+        @match(length: 4)
+        @parse(endianness: .little)
+        case fourBytes(UInt32)
+    }
+
+    @Test
+    func `length matching without default throws on mismatch`() throws {
+        // Exact match works
+        try #expect(StrictLengthPayload(parsing: Data([0x12, 0x34])) == .twoBytes(0x1234))
+        try #expect(StrictLengthPayload(parsing: Data([0x78, 0x56, 0x34, 0x12])) == .fourBytes(0x1234_5678))
+    }
+
+    @Test
+    func `length matching without default throws on size mismatch`() {
+        // 3 bytes - no match, no default
+        #expect(throws: BinaryParserKitError.self) {
+            _ = try StrictLengthPayload(parsing: Data([0x12, 0x34, 0x56]))
+        }
+
+        // 0 bytes - no match, no default
+        #expect(throws: BinaryParserKitError.self) {
+            _ = try StrictLengthPayload(parsing: Data([]))
+        }
+    }
+
+    @ParseEnum
+    enum LengthWithMultipleFields: Equatable {
+        @match(length: 6)
+        @parse(endianness: .big)
+        @parse(endianness: .little)
+        case split(UInt32, UInt16)
+
+        @match(length: 3)
+        @parse(endianness: .big)
+        @parse(endianness: .big)
+        @parse(endianness: .big)
+        case triple(UInt8, UInt8, UInt8)
+    }
+
+    @Test
+    func `length matching with multiple associated values`() throws {
+        try #expect(LengthWithMultipleFields(parsing: Data([
+            0x12, 0x34, 0x56, 0x78, // UInt32 BE
+            0xBC, 0x9A, // UInt16 LE
+        ])) == .split(0x1234_5678, 0x9ABC))
+
+        try #expect(LengthWithMultipleFields(parsing: Data([0x11, 0x22, 0x33])) == .triple(0x11, 0x22, 0x33))
+    }
+}

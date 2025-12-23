@@ -45,26 +45,92 @@ enum EnumParseAction {
     case skip(SkipMacroInfo)
 }
 
+enum EnumMatchTarget {
+    // @match() -> .bytes(nil)
+    // @match(byte: byte) -> .byte([byte])
+    // @match(bytes: bytes) -> .bytes(bytes)
+    // @matchAndTake() -> .bytes(nil)
+    // @matchAndTake(byte: byte) -> .byte([byte])
+    // @matchAndTake(bytes: bytes) -> .bytes(bytes)
+    case bytes(ExprSyntax?)
+    // @match(length: length) -> .length(length)
+    case length(ExprSyntax)
+    // @matchDefault
+    case `default`
+
+    var matchBytes: ExprSyntax?? {
+        if case let .bytes(bytes) = self {
+            bytes
+        } else {
+            nil
+        }
+    }
+
+    var matchLength: ExprSyntax? {
+        if case let .length(length) = self {
+            length
+        } else {
+            nil
+        }
+    }
+
+    var isLengthMatch: Bool {
+        if case .length = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    var isByteMatch: Bool {
+        if case .bytes = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    var isDefaultMatch: Bool {
+        if case .default = self {
+            true
+        } else {
+            false
+        }
+    }
+}
+
 struct EnumCaseMatchAction {
-    let matchBytes: ExprSyntax?
+    let target: EnumMatchTarget
     let matchPolicy: EnumCaseMatchPolicy
 
     static func match(bytes: ExprSyntax?) -> EnumCaseMatchAction {
-        EnumCaseMatchAction(matchBytes: bytes, matchPolicy: .match)
+        EnumCaseMatchAction(target: .bytes(bytes), matchPolicy: .match)
+    }
+
+    static func matchLength(_ length: ExprSyntax) -> EnumCaseMatchAction {
+        EnumCaseMatchAction(target: .length(length), matchPolicy: .match)
     }
 
     static func matchDefault() -> EnumCaseMatchAction {
-        EnumCaseMatchAction(matchBytes: "[]", matchPolicy: .matchDefault)
+        EnumCaseMatchAction(target: .default, matchPolicy: .matchDefault)
     }
 
     static func matchAndTake(bytes: ExprSyntax?) -> EnumCaseMatchAction {
-        EnumCaseMatchAction(matchBytes: bytes, matchPolicy: .matchAndTake)
+        EnumCaseMatchAction(target: .bytes(bytes), matchPolicy: .matchAndTake)
     }
 
     static func parseMatch(from attribute: AttributeSyntax) throws(ParseEnumMacroError) -> EnumCaseMatchAction {
         let arguments = attribute.arguments?.as(LabeledExprListSyntax.self)
-        let bytes = try parseBytesArgument(in: arguments, at: 0)
 
+        // Check if this is @match(length:)
+        if let args = arguments,
+           let firstArg = args.first,
+           firstArg.label?.text == "length" {
+            return .matchLength(firstArg.expression)
+        }
+
+        // Otherwise, parse as byte-based match
+        let bytes = try parseBytesArgument(in: arguments, at: 0)
         return .match(bytes: bytes)
     }
 
@@ -117,21 +183,34 @@ struct EnumCaseParseInfo {
     let matchAction: EnumCaseMatchAction
     let parseActions: [EnumParseAction]
     let caseElementName: TokenSyntax
+    let source: Syntax
 
-    init(matchAction: EnumCaseMatchAction, parseActions: [EnumParseAction], caseElementName: TokenSyntax) {
+    init(
+        matchAction: EnumCaseMatchAction,
+        parseActions: [EnumParseAction],
+        caseElementName: TokenSyntax,
+        source: Syntax,
+    ) {
         self.matchAction = matchAction
         self.parseActions = parseActions
         self.caseElementName = caseElementName.trimmed
+        self.source = source
     }
 
-    func bytesToMatch(of type: some TypeSyntaxProtocol) -> ExprSyntax {
-        if let matchBytes = matchAction.matchBytes {
-            matchBytes
-        } else {
-            ExprSyntax(
-                "(\(type).\(caseElementName) as any \(raw: Constants.Protocols.matchableProtocol)).bytesToMatch()",
-            )
+    func bytesToMatch(of type: some TypeSyntaxProtocol) -> ExprSyntax? {
+        matchAction.target.matchBytes.map { matchBytes in
+            if let matchBytes {
+                matchBytes
+            } else {
+                ExprSyntax(
+                    "(\(type).\(caseElementName) as any \(raw: Constants.Protocols.matchableProtocol)).bytesToMatch()",
+                )
+            }
         }
+    }
+
+    func lengthToMatch() -> ExprSyntax? {
+        matchAction.target.matchLength
     }
 }
 
