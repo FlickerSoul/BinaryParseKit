@@ -409,7 +409,10 @@ public macro match(bytes: [UInt8]) = #externalMacro(
 /// - Parameter length: The exact number of remaining bytes to match
 ///
 /// - Note: An enum using `@ParseEnum` can only use byte-based matching OR length-based matching,
-///   but not both. `@matchDefault` is allowed with either strategy.
+///   but not both. `@matchDefault` is allowed with either strategy. That is, it's not allowed to
+///   use a mix of `@match(byte:)`/`@match(bytes:)`/`@matchAndTake(byte:)` and `@match(length:)`
+///   in the same enum.
+///
 ///
 /// Example:
 /// ```swift
