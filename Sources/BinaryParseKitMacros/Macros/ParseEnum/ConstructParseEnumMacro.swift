@@ -53,6 +53,9 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             } else if let toBeMatched = caseParseInfo.bytesToMatch(of: type) {
                                 // Byte-array-based matching: use __matchBytes with inout span
                                 ExprSyntax("\(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)")
+                            } else if caseParseInfo.matchAction.target.isDefaultMatch {
+                                // Default matching: always true
+                                ExprSyntax("true")
                             } else {
                                 // Otherwise, it's a failure on our side
                                 throw ParseEnumMacroError.unexpectedError(
@@ -61,9 +64,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             }
                         }
 
-                        try IfExprSyntax(
-                            "if \(matchCondition)",
-                        ) {
+                        try IfExprSyntax("if \(matchCondition)") {
                             if caseParseInfo.matchAction.matchPolicy == .matchAndTake {
                                 if let toBeMatched = caseParseInfo.bytesToMatch(of: type) {
                                     "try span.seek(toRelativeOffset: \(toBeMatched).count)"
@@ -204,7 +205,8 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             let caseCodeBlock = try CodeBlockItemListSyntax {
                                 let bytesTakenInMatching = context.makeUniqueName("bytesTakenInMatching")
 
-                                if caseParseInfo.matchAction.isLengthMatch {
+                                if caseParseInfo.matchAction.target.isLengthMatch
+                                    || caseParseInfo.matchAction.target.isDefaultMatch {
                                     // For length-based matching, use empty bytes array (similar to matchDefault)
                                     "let \(bytesTakenInMatching): [UInt8] = []"
                                 } else if let bytesToMatch = caseParseInfo.bytesToMatch(of: type) {

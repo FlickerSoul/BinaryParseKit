@@ -52,18 +52,14 @@ enum EnumMatchTarget {
     // @matchAndTake() -> .bytes(nil)
     // @matchAndTake(byte: byte) -> .byte([byte])
     // @matchAndTake(bytes: bytes) -> .bytes(bytes)
-    // @matchDefault() -> .bytes([])
     case bytes(ExprSyntax?)
     // @match(length: length) -> .length(length)
     case length(ExprSyntax)
-}
-
-struct EnumCaseMatchAction {
-    let target: EnumMatchTarget
-    let matchPolicy: EnumCaseMatchPolicy
+    // @matchDefault
+    case `default`
 
     var matchBytes: ExprSyntax?? {
-        if case let .bytes(bytes) = target {
+        if case let .bytes(bytes) = self {
             bytes
         } else {
             nil
@@ -71,7 +67,7 @@ struct EnumCaseMatchAction {
     }
 
     var matchLength: ExprSyntax? {
-        if case let .length(length) = target {
+        if case let .length(length) = self {
             length
         } else {
             nil
@@ -79,7 +75,7 @@ struct EnumCaseMatchAction {
     }
 
     var isLengthMatch: Bool {
-        if case .length = target {
+        if case .length = self {
             true
         } else {
             false
@@ -87,12 +83,25 @@ struct EnumCaseMatchAction {
     }
 
     var isByteMatch: Bool {
-        if case .bytes = target {
+        if case .bytes = self {
             true
         } else {
             false
         }
     }
+
+    var isDefaultMatch: Bool {
+        if case .default = self {
+            true
+        } else {
+            false
+        }
+    }
+}
+
+struct EnumCaseMatchAction {
+    let target: EnumMatchTarget
+    let matchPolicy: EnumCaseMatchPolicy
 
     static func match(bytes: ExprSyntax?) -> EnumCaseMatchAction {
         EnumCaseMatchAction(target: .bytes(bytes), matchPolicy: .match)
@@ -103,7 +112,7 @@ struct EnumCaseMatchAction {
     }
 
     static func matchDefault() -> EnumCaseMatchAction {
-        EnumCaseMatchAction(target: .bytes("[]"), matchPolicy: .matchDefault)
+        EnumCaseMatchAction(target: .default, matchPolicy: .matchDefault)
     }
 
     static func matchAndTake(bytes: ExprSyntax?) -> EnumCaseMatchAction {
@@ -189,7 +198,7 @@ struct EnumCaseParseInfo {
     }
 
     func bytesToMatch(of type: some TypeSyntaxProtocol) -> ExprSyntax? {
-        matchAction.matchBytes.map { matchBytes in
+        matchAction.target.matchBytes.map { matchBytes in
             if let matchBytes {
                 matchBytes
             } else {
@@ -201,7 +210,7 @@ struct EnumCaseParseInfo {
     }
 
     func lengthToMatch() -> ExprSyntax? {
-        matchAction.matchLength
+        matchAction.target.matchLength
     }
 }
 

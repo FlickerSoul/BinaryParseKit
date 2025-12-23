@@ -401,7 +401,7 @@ extension BinaryParseKitMacroTests {
                             self = .b
                             return
                         }
-                        if BinaryParseKit.__match([], in: &span) {
+                        if true {
                             self = .c
                             return
                         }
@@ -1018,7 +1018,7 @@ extension BinaryParseKitMacroTests {
                             self = .longPayload(__macro_local_30VariableSizeData_longPayload_0fMu_)
                             return
                         }
-                        if BinaryParseKit.__match([], in: &span) {
+                        if true {
                             self = .unknown
                             return
                         }

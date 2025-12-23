@@ -111,7 +111,7 @@ class ParseEnumCase: SyntaxVisitor {
             }
 
             // Track matching strategy for mutual exclusivity validation
-            if matchAction.isLengthMatch {
+            if matchAction.target.isLengthMatch {
                 if hasByteMatch {
                     errors.append(
                         .init(
@@ -121,7 +121,7 @@ class ParseEnumCase: SyntaxVisitor {
                     )
                 }
                 hasLengthMatch = true
-            } else if matchAction.isByteMatch {
+            } else if matchAction.target.isByteMatch {
                 if hasLengthMatch {
                     errors.append(
                         .init(
