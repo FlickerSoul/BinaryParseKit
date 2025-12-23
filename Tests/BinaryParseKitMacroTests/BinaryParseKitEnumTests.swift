@@ -1002,7 +1002,7 @@ extension BinaryParseKitMacroTests {
 
                 extension VariableSizeData: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__matchLength(length: 4, in: span) {
+                        if BinaryParseKit.__match(length: 4, in: span) {
                             // Parse `__macro_local_31VariableSizeData_shortPayload_0fMu_` of type UInt32 with endianness
                             BinaryParseKit.__assertEndianParsable((UInt32).self)
                             let __macro_local_31VariableSizeData_shortPayload_0fMu_ = try UInt32(parsing: &span, endianness: .big)
@@ -1010,7 +1010,7 @@ extension BinaryParseKitMacroTests {
                             self = .shortPayload(__macro_local_31VariableSizeData_shortPayload_0fMu_)
                             return
                         }
-                        if BinaryParseKit.__matchLength(length: 8, in: span) {
+                        if BinaryParseKit.__match(length: 8, in: span) {
                             // Parse `__macro_local_30VariableSizeData_longPayload_0fMu_` of type UInt64 with endianness
                             BinaryParseKit.__assertEndianParsable((UInt64).self)
                             let __macro_local_30VariableSizeData_longPayload_0fMu_ = try UInt64(parsing: &span, endianness: .big)

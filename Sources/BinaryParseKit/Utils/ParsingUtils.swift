@@ -25,7 +25,7 @@ public func __match(_ bytes: borrowing [UInt8], in input: inout BinaryParsing.Pa
 /// Matches when the remaining bytes in the input parser span equals the specified length.
 /// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
 @inlinable
-public func __matchLength(length: Int, in input: borrowing BinaryParsing.ParserSpan) -> Bool {
+public func __match(length: Int, in input: borrowing BinaryParsing.ParserSpan) -> Bool {
     input.count == length
 }
 

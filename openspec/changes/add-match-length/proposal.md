@@ -19,4 +19,4 @@ Currently, enum cases can only match by byte patterns (`@match(byte:)`, `@match(
   - `Sources/BinaryParseKitMacros/Macros/Supports/Constants.swift` - constant
   - `Sources/BinaryParseKitMacros/Macros/ParseEnum/EnumCaseParseInfo.swift` - match action
   - `Sources/BinaryParseKitMacros/Macros/Supports/MacroAttributeCollector.swift` - attribute parsing
-  - `Sources/BinaryParseKitMacros/Macros/ParseEnum/ConsructParseEnumMacro.swift` - code generation
+  - `Sources/BinaryParseKitMacros/Macros/ParseEnum/ConstructParseEnumMacro.swift` - code generation

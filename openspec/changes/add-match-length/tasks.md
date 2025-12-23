@@ -1,8 +1,8 @@
 ## 1. Core Implementation
 
 - [ ] 1.1 Add `@match(length:)` macro declaration in `Sources/BinaryParseKit/BinaryParseKit.swift`
-- [ ] 1.2 Add `__matchLength(length:in:)` utility function in `Sources/BinaryParseKit/Utils/ParsingUtils.swift`
-- [ ] 1.3 Add `matchLength` constant in `Sources/BinaryParseKitMacros/Macros/Supports/Constants.swift`
+- [ ] 1.2 Add `__match(length:in:)` utility function in `Sources/BinaryParseKit/Utils/ParsingUtils.swift`
+- [ ] 1.3 Add `match` constant in `Sources/BinaryParseKitMacros/Macros/Supports/Constants.swift`
 
 ## 2. Macro Processing
 
@@ -13,7 +13,7 @@
 
 ## 3. Code Generation
 
-- [ ] 3.1 Update `ConsructParseEnumMacro.swift` to generate `__matchLength()` calls for length matching
+- [ ] 3.1 Update `ConstructParseEnumMacro.swift` to generate `__match(length:in:)` calls for length matching
 - [ ] 3.2 Update printer extension to handle length match in `bytes:` field
 
 ## 4. Testing
