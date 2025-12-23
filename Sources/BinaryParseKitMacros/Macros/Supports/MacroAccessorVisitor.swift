@@ -28,7 +28,7 @@ enum MacroAccessorError: DiagnosticMessage, Error {
 
     var diagnosticID: SwiftDiagnostics.MessageID {
         .init(
-            domain: "BinaryParseKit.MacroACLError",
+            domain: "observer.universe.BinaryParseKit.MacroACLError",
             id: "\(self)",
         )
     }
