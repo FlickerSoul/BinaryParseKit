@@ -579,19 +579,149 @@ public macro matchDefault() = #externalMacro(
 
 // MARK: - Bitmask
 
+/// Defines a field within a `@ParseBitmask` struct with an explicit bit count.
+///
+/// Use this macro to specify how many bits a field consumes within a bitmask struct.
+/// The field type must conform to ``ExpressibleByRawBits``.
+///
+/// - Parameter bitCount: The number of bits this field consumes
+///
+/// - Note: This macro must be used alongside `@ParseBitmask` on struct fields.
+///
+/// Example:
+/// ```swift
+/// @ParseBitmask
+/// struct Flags {
+///     @mask(bitCount: 2)
+///     let priority: UInt8    // Uses 2 bits
+///
+///     @mask(bitCount: 4)
+///     let channel: UInt8     // Uses 4 bits
+///
+///     @mask(bitCount: 2)
+///     let reserved: UInt8    // Uses 2 bits
+/// }
+/// // Total: 8 bits (1 byte)
+/// ```
 @attached(peer)
 public macro mask(bitCount: Int) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Defines a field within a `@ParseBitmask` struct with inferred bit count.
+///
+/// Use this macro when the field type conforms to ``BitmaskParsable`` and
+/// has a known bit count. The bit count is inferred from the type's `bitCount` property.
+///
+/// - Note: This macro must be used alongside `@ParseBitmask` on struct fields.
+/// - Note: The field type must conform to ``BitmaskParsable``.
+///
+/// Example:
+/// ```swift
+/// @ParseBitmask
+/// struct NestedFlags {
+///     @mask(bitCount: 4)
+///     let value: UInt8
+/// }
+///
+/// @ParseBitmask
+/// struct OuterFlags {
+///     @mask(bitCount: 2)
+///     let priority: UInt8
+///
+///     @mask
+///     let nested: NestedFlags  // Uses NestedFlags.bitCount (4 bits)
+///
+///     @mask(bitCount: 2)
+///     let reserved: UInt8
+/// }
+/// // Total: 8 bits (1 byte)
+/// ```
 @attached(peer)
 public macro mask() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
-@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
+/// Parses a field as a bitmask with byte-boundary padding.
+///
+/// Use this macro to parse a field that conforms to ``BitmaskParsable``.
+/// The parser reads enough bytes to satisfy the type's bit count requirement,
+/// padding to byte boundaries as needed.
+///
+/// Each `@parseBitmask` field is independently padded to the next byte boundary.
+///
+/// - Note: This macro must be used alongside `@ParseStruct` or `@ParseEnum`.
+/// - Note: The field type must conform to ``BitmaskParsable``.
+///
+/// Example:
+/// ```swift
+/// @ParseBitmask
+/// struct Flags {
+///     @mask(bitCount: 6)
+///     let value: UInt8
+/// }
+///
+/// @ParseStruct
+/// struct Header {
+///     @parseBitmask
+///     let flags: Flags    // 6 bits, padded to 1 byte
+///
+///     @parseBitmask
+///     let mode: Mode      // Another bitmask field, independently padded
+/// }
+/// ```
+@attached(peer)
+public macro parseBitmask() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "EmptyPeerMacro",
+)
+
+/// Generates a ``BitmaskParsable`` implementation for a struct with annotated fields.
+///
+/// This macro analyzes the struct's fields marked with `@mask` and generates
+/// the necessary code to parse bit-packed data into the struct.
+///
+/// Fields are packed consecutively without intermediate padding. The total
+/// `bitCount` is the sum of all field bit counts.
+///
+/// The generated code includes:
+/// - A ``BitmaskParsable`` conformance
+/// - A static `bitCount` property
+/// - An `init(from:)` initializer that parses from `RawBits`
+///
+/// - Note: All fields must be marked with `@mask` or `@mask(bitCount:)`.
+/// - Note: Bits are read MSB-first (most significant bit first) within each byte.
+///
+/// Example:
+/// ```swift
+/// @ParseBitmask
+/// struct TCPFlags {
+///     @mask(bitCount: 1)
+///     let fin: Bool
+///
+///     @mask(bitCount: 1)
+///     let syn: Bool
+///
+///     @mask(bitCount: 1)
+///     let rst: Bool
+///
+///     @mask(bitCount: 1)
+///     let psh: Bool
+///
+///     @mask(bitCount: 1)
+///     let ack: Bool
+///
+///     @mask(bitCount: 1)
+///     let urg: Bool
+///
+///     @mask(bitCount: 2)
+///     let reserved: UInt8
+/// }
+/// // Total: 8 bits (1 byte)
+/// ```
+@attached(extension, conformances: BinaryParseKit.BitmaskParsable, names: arbitrary)
 public macro ParseBitmask() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructParseBitmaskMacro",

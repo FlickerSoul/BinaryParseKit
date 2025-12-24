@@ -75,7 +75,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                 }
                             }
 
-                            var arguments: OrderedDictionary<TokenSyntax, EnumCaseParameterParseInfo> = [:]
+                            var arguments: OrderedDictionary<TokenSyntax, TokenSyntax?> = [:]
 
                             for parseAction in caseParseInfo.parseActions {
                                 switch parseAction {
@@ -101,7 +101,29 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
 
                                     // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
                                     let _ =
-                                        arguments[variableName] = caseArgParseInfo
+                                        arguments[variableName] = caseArgParseInfo.firstName
+                                case let .parseBitmask(bitmaskInfo):
+                                    let variableName = if let argName = bitmaskInfo.firstName {
+                                        argName
+                                    } else {
+                                        context.makeUniqueName(
+                                            "\(type)_\(caseParseInfo.caseElementName.text)_\(arguments.count)"
+                                                .replacingOccurrences(
+                                                    of: ".",
+                                                    with: "_",
+                                                ),
+                                        )
+                                    }
+
+                                    generateParseBitmaskBlock(
+                                        variableName: variableName,
+                                        variableType: bitmaskInfo.type,
+                                        useSelf: false,
+                                    )
+
+                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                    let _ =
+                                        arguments[variableName] = bitmaskInfo.firstName
                                 case let .skip(parseSkipInfo):
                                     generateSkipBlock(
                                         variableName: caseParseInfo.caseElementName,
@@ -150,6 +172,28 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                                     .toExprSyntax()
                                                     .map { "\(raw: Constants.Swift.byteCountType)(\($0))" },
                                                 endianness: enumCaseParameterParseInfo.parseInfo.endianness,
+                                            ),
+                                        )
+
+                                        LabeledExprSyntax(
+                                            label: nil,
+                                            expression: PatternExprSyntax(
+                                                pattern: IdentifierPatternSyntax(
+                                                    identifier: argumentBindingToken,
+                                                ),
+                                            ),
+                                        )
+                                    case let .parseBitmask(bitmaskInfo):
+                                        let argumentBindingToken = context.makeUniqueName(
+                                            "\(caseParseInfo.caseElementName)_\(bitmaskInfo.firstName ?? "index_\(raw: index)")",
+                                        )
+                                        // For bitmask fields, use the type's bitCount to calculate byte count
+                                        // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                        let _ = parseSkipMacroInfo.append(
+                                            .init(
+                                                binding: argumentBindingToken,
+                                                byteCount: "(\(bitmaskInfo.type).bitCount + 7) / 8",
+                                                endianness: nil,
                                             ),
                                         )
 
@@ -245,12 +289,12 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
     }
 }
 
-extension OrderedDictionary<TokenSyntax, EnumCaseParameterParseInfo> {
+extension OrderedDictionary<TokenSyntax, TokenSyntax?> {
     @LabeledExprListBuilder
     var argumentList: LabeledExprListSyntax {
-        for (varName, varInfo) in self {
+        for (varName, firstName) in self {
             LabeledExprSyntax(
-                label: varInfo.firstName?.text,
+                label: firstName?.text,
                 expression: DeclReferenceExprSyntax(baseName: varName),
             )
         }

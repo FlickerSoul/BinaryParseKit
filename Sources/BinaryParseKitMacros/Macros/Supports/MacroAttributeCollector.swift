@@ -25,6 +25,7 @@ class MacroAttributeCollector: SyntaxVisitor {
     private(set) var hasParseRest: Bool = false
     private(set) var hasParse: Bool = false
     private(set) var hasSkip: Bool = false
+    private(set) var hasParseBitmask: Bool = false
     private(set) var caseMatchAction: CaseMatchAction?
 
     private var errors: [Diagnostic] = []
@@ -79,6 +80,10 @@ class MacroAttributeCollector: SyntaxVisitor {
         } else if identifierToken == "matchDefault" {
             ensureMatchFirst(at: attribute)
             caseMatchAction = .parseMatchDefault(from: attribute)
+        } else if identifierToken == "parseBitmask" {
+            parseActions.append(.parseBitmask(ParseBitmaskInfo(source: Syntax(attribute))))
+            hasParse = true
+            hasParseBitmask = true
         }
 
         return .skipChildren

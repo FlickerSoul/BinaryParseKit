@@ -40,9 +40,21 @@ struct EnumCaseParameterParseInfo {
     }
 }
 
+/// Info for @parseBitmask on enum associated values
+struct EnumCaseBitmaskParseInfo {
+    let firstName: TokenSyntax?
+    let type: TypeSyntax
+
+    init(firstName: TokenSyntax?, type: TypeSyntax) {
+        self.firstName = firstName?.trimmed
+        self.type = type.trimmed
+    }
+}
+
 enum EnumParseAction {
     case parse(EnumCaseParameterParseInfo)
     case skip(SkipMacroInfo)
+    case parseBitmask(EnumCaseBitmaskParseInfo)
 }
 
 enum EnumMatchTarget {

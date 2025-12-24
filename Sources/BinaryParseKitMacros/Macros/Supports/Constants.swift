@@ -35,7 +35,14 @@ extension Constants {
         static let expressibleByParsingProtocol = PackageMember(name: "ExpressibleByParsing")
         static let matchableProtocol = PackageMember(name: "Matchable")
         static let printableProtocol = PackageMember(name: "Printable")
+        static let expressibleByRawBitsProtocol = PackageMember(name: "ExpressibleByRawBits")
         static let bitmaskParsableProtocol = PackageMember(name: "BitmaskParsable")
+    }
+}
+
+extension Constants {
+    enum Types {
+        static let rawBits = PackageMember(name: "RawBits")
     }
 }
 
@@ -47,6 +54,10 @@ extension Constants {
         static let assertSizedParsable = PackageMember(name: "__assertSizedParsable")
         static let assertEndianParsable = PackageMember(name: "__assertEndianParsable")
         static let assertEndianSizedParsable = PackageMember(name: "__assertEndianSizedParsable")
+        static let assertExpressibleByRawBits = PackageMember(name: "__assertExpressibleByRawBits")
+        static let assertBitmaskParsable = PackageMember(name: "__assertBitmaskParsable")
+        static let parseBitmask = PackageMember(name: "__parseBitmask")
+        static let parseFromBits = PackageMember(name: "__parseFromBits")
         static let getPrintIntel = PackageMember(name: "__getPrinterIntel")
     }
 }

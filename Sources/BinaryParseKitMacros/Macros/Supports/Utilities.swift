@@ -92,6 +92,26 @@ func generateSkipBlock(variableName: TokenSyntax, skipInfo: SkipMacroInfo) -> Co
     """#
 }
 
+@CodeBlockItemListBuilder
+func generateParseBitmaskBlock(
+    variableName: TokenSyntax,
+    variableType: TypeSyntax,
+    useSelf: Bool,
+) -> CodeBlockItemListSyntax {
+    #"""
+    // Parse `\#(variableName)` of type \#(variableType) as bitmask
+    \#(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\#(variableType)).self)
+    """#
+
+    let assigned: ExprSyntax = #"try \#(raw: Constants.UtilityFunctions.parseBitmask)((\#(variableType)).self, from: &span)"#
+
+    if useSelf {
+        "self.\(variableName) = \(assigned)"
+    } else {
+        "let \(variableName) = \(assigned)"
+    }
+}
+
 struct PrintableFieldInfo {
     let binding: TokenSyntax?
     let byteCount: ExprSyntax?

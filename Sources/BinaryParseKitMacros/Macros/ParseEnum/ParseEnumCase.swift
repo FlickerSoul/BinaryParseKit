@@ -219,19 +219,29 @@ private extension [StructParseAction] {
                 break
             }
 
-            guard case let .parse(parseInfo) = self[parseActionIndex] else {
-                fatalError("countered skip action")
-            }
-
-            addAction(
-                .parse(
-                    .init(
-                        parseInfo: parseInfo,
-                        firstName: argument.firstName,
-                        type: argument.type,
+            switch self[parseActionIndex] {
+            case let .parse(parseInfo):
+                addAction(
+                    .parse(
+                        .init(
+                            parseInfo: parseInfo,
+                            firstName: argument.firstName,
+                            type: argument.type,
+                        ),
                     ),
-                ),
-            )
+                )
+            case .parseBitmask:
+                addAction(
+                    .parseBitmask(
+                        .init(
+                            firstName: argument.firstName,
+                            type: argument.type,
+                        ),
+                    ),
+                )
+            case .skip:
+                fatalError("encountered skip action when expecting parse or parseBitmask")
+            }
         }
 
         if parseActionIndex != count {

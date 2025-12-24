@@ -50,6 +50,12 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                                 )
                             case let .skip(skipInfo):
                                 generateSkipBlock(variableName: variableName, skipInfo: skipInfo)
+                            case .parseBitmask:
+                                generateParseBitmaskBlock(
+                                    variableName: variableName,
+                                    variableType: variableInfo.type,
+                                    useSelf: true,
+                                )
                             }
                         }
                     }
@@ -80,6 +86,16 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                                     .init(
                                         binding: nil,
                                         byteCount: "\(raw: Constants.Swift.byteCountType)(\(raw: skipInfo.byteCount))",
+                                        endianness: nil,
+                                    ),
+                                )
+                            case .parseBitmask:
+                                // For bitmask fields, use the type's bitCount to calculate byte count
+                                // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                let _ = parseSkipMacroInfo.append(
+                                    .init(
+                                        binding: variableName,
+                                        byteCount: "(\(variableInfo.type).bitCount + 7) / 8",
                                         endianness: nil,
                                     ),
                                 )

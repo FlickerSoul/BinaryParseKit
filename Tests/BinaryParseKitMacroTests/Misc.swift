@@ -5,6 +5,7 @@
 //  Created by Larry Zeng on 7/18/25.
 //
 
+import MacroTesting
 import SwiftSyntaxMacros
 import Testing
 
@@ -13,21 +14,30 @@ import Testing
 #if canImport(BinaryParseKitMacros)
     import BinaryParseKitMacros
 
-    let testMacros: [String: Macro.Type] = [
+    private let testMacros: [String: Macro.Type] = [
         "ParseStruct": ConstructStructParseMacro.self,
         "parse": EmptyPeerMacro.self,
         "skip": EmptyPeerMacro.self,
         "parseRest": EmptyPeerMacro.self,
+        "parseBitmask": EmptyPeerMacro.self,
         "ParseEnum": ConstructEnumParseMacro.self,
         "match": EmptyPeerMacro.self,
         "matchDefault": EmptyPeerMacro.self,
         "matchAndTake": EmptyPeerMacro.self,
+        "ParseBitmask": ConstructParseBitmaskMacro.self,
+        "mask": EmptyPeerMacro.self,
     ]
     private let shouldRunMacroTest = true
 #else
-    let testMacros: [String: Macro.Type] = [:]
+    private let testMacros: [String: Macro.Type] = [:]
     private let shouldRunMacroTest = false
 #endif
 
-@Suite(.disabled(if: !shouldRunMacroTest, "macros are not supported and cannot be imported for testing"))
+@Suite(
+    .disabled(
+        if: !shouldRunMacroTest,
+        "macros are not supported and cannot be imported for testing",
+    ),
+    .macros(testMacros),
+)
 struct BinaryParseKitMacroTests {}
