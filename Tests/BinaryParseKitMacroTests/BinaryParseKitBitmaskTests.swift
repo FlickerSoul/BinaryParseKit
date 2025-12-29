@@ -35,7 +35,7 @@ extension BinaryParseKitMacroTests {
                     var flag2: Bool
                 }
 
-                extension Flags: BinaryParseKit.BitmaskParsable {
+                extension Flags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
                     internal static var bitCount: Int {
                         1 + 3 + (Bool).bitCount
                     }
@@ -146,7 +146,7 @@ extension BinaryParseKitMacroTests {
                     var flag: Bool
                 }
 
-                extension SingleFlag: BinaryParseKit.BitmaskParsable {
+                extension SingleFlag: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
                     internal static var bitCount: Int {
                         1
                     }
@@ -186,7 +186,7 @@ extension BinaryParseKitMacroTests {
                     }
                 }
 
-                extension Flags: BinaryParseKit.BitmaskParsable {
+                extension Flags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
                     internal static var bitCount: Int {
                         4
                     }
@@ -228,7 +228,7 @@ extension BinaryParseKitMacroTests {
                     }
                 }
 
-                extension Flags: BinaryParseKit.BitmaskParsable {
+                extension Flags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
                     internal static var bitCount: Int {
                         8
                     }
@@ -263,7 +263,7 @@ extension BinaryParseKitMacroTests {
                     var value: UInt8
                 }
 
-                extension Flags: BinaryParseKit.BitmaskParsable {
+                extension Flags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
                     internal static var bitCount: Int {
                         8
                     }
@@ -299,7 +299,7 @@ extension BinaryParseKitMacroTests {
                     var flag2: Bool
                 }
 
-                extension InferredFlags: BinaryParseKit.BitmaskParsable {
+                extension InferredFlags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
                     internal static var bitCount: Int {
                         (Bool).bitCount + (Bool).bitCount
                     }
@@ -335,7 +335,7 @@ extension BinaryParseKitMacroTests {
                     var flag: Bool
                 }
 
-                extension PublicFlags: BinaryParseKit.BitmaskParsable {
+                extension PublicFlags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
                     public static var bitCount: Int {
                         1
                     }

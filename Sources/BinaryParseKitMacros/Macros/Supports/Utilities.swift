@@ -185,8 +185,7 @@ func generateMaskGroupBlock(
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
         // Read bytes from span
-        "let \(dataVarName) = Data(try span.slicing(first: \(bytesVarName)))"
-        "try span.seek(toRelativeOffset: \(bytesVarName))"
+        "let \(dataVarName) = try span.sliceSpan(byteCount: \(bytesVarName)).withUnsafeBytes(Data.init(_:))"
 
         // Create RawBits
         "let \(bitsObjVarName) = BinaryParseKit.RawBits(data: \(dataVarName), size: \(bitsVarName))"
@@ -264,8 +263,7 @@ func generateEnumMaskGroupBlock(
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
         // Read bytes from span
-        "let \(dataVarName) = Data(try span.slicing(first: \(bytesVarName)))"
-        "try span.seek(toRelativeOffset: \(bytesVarName))"
+        "let \(dataVarName) = try span.sliceSpan(byteCount: \(bytesVarName)).withUnsafeBytes(Data.init(_:))"
 
         // Create RawBits
         "let \(bitsObjVarName) = BinaryParseKit.RawBits(data: \(dataVarName), size: \(bitsVarName))"

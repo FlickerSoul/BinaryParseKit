@@ -1154,8 +1154,7 @@ extension BinaryParseKitMacroTests {
                             // Parse bitmask fields for `flags`
                             let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
                             let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                            let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
-                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                            let __macro_local_14__bitmask_datafMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).withUnsafeBytes(Data.init(_:))
                             let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
                             var __macro_local_16__bitmask_offsetfMu_ = 0
                             // Parse `__macro_local_16TestEnum_flags_0fMu_` of type Bool from bits
@@ -1177,8 +1176,7 @@ extension BinaryParseKitMacroTests {
                             // Parse bitmask fields for `mixed`
                             let __macro_local_19__bitmask_totalBitsfMu0_ = 4 + (Bool).bitCount
                             let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
-                            let __macro_local_14__bitmask_datafMu0_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu0_))
-                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu0_)
+                            let __macro_local_14__bitmask_datafMu0_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_).withUnsafeBytes(Data.init(_:))
                             let __macro_local_14__bitmask_bitsfMu0_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu0_, size: __macro_local_19__bitmask_totalBitsfMu0_)
                             var __macro_local_16__bitmask_offsetfMu0_ = 0
                             // Parse `value` of type UInt8 from bits
@@ -1253,8 +1251,7 @@ extension BinaryParseKitMacroTests {
                             // Parse bitmask fields for `flags`
                             let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 2
                             let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                            let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
-                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                            let __macro_local_14__bitmask_datafMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).withUnsafeBytes(Data.init(_:))
                             let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
                             var __macro_local_16__bitmask_offsetfMu_ = 0
                             // Parse `__macro_local_16TestEnum_flags_0fMu_` of type Bool from bits
@@ -1271,8 +1268,7 @@ extension BinaryParseKitMacroTests {
                             // Parse bitmask fields for `flags`
                             let __macro_local_19__bitmask_totalBitsfMu0_ = 7
                             let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
-                            let __macro_local_14__bitmask_datafMu0_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu0_))
-                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu0_)
+                            let __macro_local_14__bitmask_datafMu0_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_).withUnsafeBytes(Data.init(_:))
                             let __macro_local_14__bitmask_bitsfMu0_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu0_, size: __macro_local_19__bitmask_totalBitsfMu0_)
                             var __macro_local_16__bitmask_offsetfMu0_ = 0
                             // Parse `__macro_local_16TestEnum_flags_3fMu_` of type UInt8 from bits
@@ -1284,8 +1280,7 @@ extension BinaryParseKitMacroTests {
                             // Parse bitmask fields for `flags`
                             let __macro_local_19__bitmask_totalBitsfMu1_ = 4
                             let __macro_local_19__bitmask_byteCountfMu1_ = (__macro_local_19__bitmask_totalBitsfMu1_ + 7) / 8
-                            let __macro_local_14__bitmask_datafMu1_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu1_))
-                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu1_)
+                            let __macro_local_14__bitmask_datafMu1_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu1_).withUnsafeBytes(Data.init(_:))
                             let __macro_local_14__bitmask_bitsfMu1_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu1_, size: __macro_local_19__bitmask_totalBitsfMu1_)
                             var __macro_local_16__bitmask_offsetfMu1_ = 0
                             // Parse `__macro_local_16TestEnum_flags_4fMu_` of type UInt8 from bits

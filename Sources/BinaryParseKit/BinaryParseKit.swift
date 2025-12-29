@@ -673,7 +673,12 @@ public macro mask() = #externalMacro(
 ///     var flags: Flags  // Uses Flags.bitCount (8)
 /// }
 /// ```
-@attached(extension, conformances: BinaryParseKit.BitmaskParsable, names: arbitrary)
+@attached(
+    extension,
+    conformances: BinaryParseKit.ExpressibleByRawBits,
+    BinaryParseKit.BitCountProviding,
+    names: arbitrary
+)
 public macro ParseBitmask(
     parsingAccessor: ExtensionAccessor = .follow,
     printingAccessor: ExtensionAccessor = .follow,

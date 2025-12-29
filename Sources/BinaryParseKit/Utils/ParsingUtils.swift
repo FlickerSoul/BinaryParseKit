@@ -54,7 +54,7 @@ public func __assertEndianSizedParsable(_: (some EndianSizedParsable).Type) {}
 /// Asserts that the given type conforms to `BitmaskParsable`.
 /// - Warning: This function is used by `@mask()` macro and should not be used directly.
 @inlinable
-public func __assertBitmaskParsable(_: (some BitmaskParsable).Type) {}
+public func __assertBitmaskParsable(_: (some ExpressibleByRawBits & BitCountProviding).Type) {}
 
 /// Asserts that the given type conforms to `ExpressibleByRawBits`.
 /// - Warning: This function is used by `@mask(bitCount:)` macro and should not be used directly.

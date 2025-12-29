@@ -816,8 +816,7 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 3 + (Bool).bitCount
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
-                        try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                        let __macro_local_14__bitmask_datafMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).withUnsafeBytes(Data.init(_:))
                         let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
                         var __macro_local_16__bitmask_offsetfMu_ = 0
                         // Parse `flag1` of type Bool from bits
@@ -884,8 +883,7 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
-                        try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                        let __macro_local_14__bitmask_datafMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).withUnsafeBytes(Data.init(_:))
                         let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
                         var __macro_local_16__bitmask_offsetfMu_ = 0
                         // Parse `flag` of type Bool from bits

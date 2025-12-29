@@ -215,7 +215,9 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
         }
 
         let bitmaskParsableExtension =
-            try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.bitmaskParsableProtocol)") {
+            try ExtensionDeclSyntax(
+                "extension \(type): \(raw: Constants.Protocols.expressibleByRawBitsProtocol), \(raw: Constants.Protocols.bitCountProvidingProtocol)",
+            ) {
                 // Static bitCount property
                 try VariableDeclSyntax("\(accessorInfo.printingAccessor) static var bitCount: Int") {
                     totalBitCountExpr
