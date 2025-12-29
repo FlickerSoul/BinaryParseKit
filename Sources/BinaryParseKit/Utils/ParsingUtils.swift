@@ -48,3 +48,34 @@ public func __assertEndianParsable(_: (some EndianParsable).Type) {}
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
 @inlinable
 public func __assertEndianSizedParsable(_: (some EndianSizedParsable).Type) {}
+
+// MARK: - Bitmask Parsing Utilities
+
+/// Asserts that the given type conforms to `BitmaskParsable`.
+/// - Warning: This function is used by `@mask()` macro and should not be used directly.
+@inlinable
+public func __assertBitmaskParsable(_: (some BitmaskParsable).Type) {}
+
+/// Asserts that the given type conforms to `ExpressibleByRawBits`.
+/// - Warning: This function is used by `@mask(bitCount:)` macro and should not be used directly.
+@inlinable
+public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
+
+/// Parses a value from a bit slice.
+/// - Warning: This function is used by bitmask macros and should not be used directly.
+/// - Parameters:
+///   - type: The type to parse
+///   - bits: The RawBits containing all bits
+///   - offset: The bit offset to start from
+///   - count: The number of bits to extract
+/// - Returns: The parsed value
+@inlinable
+public func __parseFromBits<T: ExpressibleByRawBits>(
+    _: T.Type,
+    from bits: RawBits,
+    offset: Int,
+    count: Int,
+) throws -> T {
+    let slice = bits.slice(from: offset, count: count)
+    return try T(bits: slice)
+}

@@ -24,7 +24,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.5"),
         .package(url: "https://github.com/pointfreeco/swift-macro-testing.git", from: "0.6.4"),
-        // .package(url: "https://github.com/stackotter/swift-macro-toolkit.git", from: "0.7.2"),
+        .package(url: "https://github.com/stackotter/swift-macro-toolkit.git", from: "0.8.0"),
     ],
     targets: [
         .macro(
@@ -35,7 +35,7 @@ let package = Package(
                 .product(name: "BinaryParsing", package: "swift-binary-parsing"),
                 .product(name: "Collections", package: "swift-collections"),
                 .target(name: "BinaryParseKitCommons"),
-                // .product(name: "MacroToolkit", package: "swift-macro-toolkit"),
+                .product(name: "MacroToolkit", package: "swift-macro-toolkit"),
             ],
         ),
         .target(

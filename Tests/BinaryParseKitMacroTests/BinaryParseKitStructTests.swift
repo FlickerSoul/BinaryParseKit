@@ -8,11 +8,11 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 
-// swiftlint:disable line_length
+// swiftlint:disable line_length file_length
 
 extension BinaryParseKitMacroTests {
-    @Suite(.macros(testMacros))
-    struct `Test Parsing Struct` { // swiftlint:disable:this type_name type_body_length
+    @Suite
+    struct `Test Parsing Struct` { // swiftlint:disable:this type_body_length
         @Test
         func successfulParseStructMacroExpansion() {
             assertMacro {
@@ -786,7 +786,135 @@ extension BinaryParseKitMacroTests {
                 """
             }
         }
+
+        @Test
+        func `mask fields in struct`() {
+            assertMacro {
+                """
+                @ParseStruct
+                struct BitFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            } expansion: {
+                """
+                struct BitFlags {
+                    var flag1: Bool
+                    var value: UInt8
+                    var flag2: Bool
+                }
+
+                extension BitFlags: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        // Parse bitmask fields
+                        let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 3 + (Bool).bitCount
+                        let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                        let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
+                        try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                        let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
+                        var __macro_local_16__bitmask_offsetfMu_ = 0
+                        // Parse `flag1` of type Bool from bits
+                        BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                        self.flag1 = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1)
+                        __macro_local_16__bitmask_offsetfMu_ += 1
+                        // Parse `value` of type UInt8 from bits
+                        BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                        self.value = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 3)
+                        __macro_local_16__bitmask_offsetfMu_ += 3
+                        // Parse `flag2` of type Bool from bits
+                        BinaryParseKit.__assertBitmaskParsable((Bool).self)
+                        self.flag2 = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: (Bool).bitCount)
+                        __macro_local_16__bitmask_offsetfMu_ += (Bool).bitCount
+                    }
+                }
+
+                extension BitFlags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        return .struct(
+                            .init(
+                                fields: []
+                            )
+                        )
+                    }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `mixed parse and mask fields in struct`() {
+            assertMacro {
+                """
+                @ParseStruct
+                struct MixedStruct {
+                    @parse
+                    var header: UInt8
+
+                    @mask(bitCount: 1)
+                    var flag: Bool
+
+                    @mask(bitCount: 7)
+                    var data: UInt8
+
+                    @parse
+                    var footer: UInt16
+                }
+                """
+            } expansion: {
+                """
+                struct MixedStruct {
+                    var header: UInt8
+                    var flag: Bool
+                    var data: UInt8
+                    var footer: UInt16
+                }
+
+                extension MixedStruct: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        // Parse `header` of type UInt8
+                        BinaryParseKit.__assertParsable((UInt8).self)
+                        self.header = try UInt8(parsing: &span)
+                        // Parse bitmask fields
+                        let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
+                        let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                        let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
+                        try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                        let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
+                        var __macro_local_16__bitmask_offsetfMu_ = 0
+                        // Parse `flag` of type Bool from bits
+                        BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                        self.flag = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1)
+                        __macro_local_16__bitmask_offsetfMu_ += 1
+                        // Parse `data` of type UInt8 from bits
+                        BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                        self.data = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 7)
+                        __macro_local_16__bitmask_offsetfMu_ += 7
+                        // Parse `footer` of type UInt16
+                        BinaryParseKit.__assertParsable((UInt16).self)
+                        self.footer = try UInt16(parsing: &span)
+                    }
+                }
+
+                extension MixedStruct: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        return .struct(
+                            .init(
+                                fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(header)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(footer))]
+                            )
+                        )
+                    }
+                }
+                """
+            }
+        }
     }
 }
 
-// swiftlint:enable line_length
+// swiftlint:enable line_length file_length

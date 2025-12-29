@@ -43,6 +43,24 @@ struct EnumCaseParameterParseInfo {
 enum EnumParseAction {
     case parse(EnumCaseParameterParseInfo)
     case skip(SkipMacroInfo)
+    case mask(EnumCaseParameterMaskInfo)
+
+    var isMask: Bool {
+        if case .mask = self { true } else { false }
+    }
+}
+
+/// Additional mask parsing information for each enum case associated value
+struct EnumCaseParameterMaskInfo {
+    let maskInfo: MaskMacroInfo
+    let firstName: TokenSyntax?
+    let type: TypeSyntax
+
+    init(maskInfo: MaskMacroInfo, firstName: TokenSyntax?, type: TypeSyntax) {
+        self.maskInfo = maskInfo
+        self.firstName = firstName?.trimmed
+        self.type = type.trimmed
+    }
 }
 
 enum EnumMatchTarget {

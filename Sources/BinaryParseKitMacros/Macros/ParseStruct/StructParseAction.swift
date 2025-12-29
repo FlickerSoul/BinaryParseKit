@@ -9,6 +9,7 @@ import SwiftSyntax
 enum StructParseAction {
     case parse(ParseMacroInfo)
     case skip(SkipMacroInfo)
+    case mask(MaskMacroInfo)
 
     var source: Syntax {
         switch self {
@@ -16,6 +17,12 @@ enum StructParseAction {
             parse.source
         case let .skip(skip):
             skip.source
+        case let .mask(mask):
+            mask.source
         }
+    }
+
+    var isMask: Bool {
+        if case .mask = self { true } else { false }
     }
 }

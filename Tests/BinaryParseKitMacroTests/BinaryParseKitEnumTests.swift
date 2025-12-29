@@ -12,8 +12,8 @@ import Testing
 
 // swiftlint:disable file_length line_length
 extension BinaryParseKitMacroTests {
-    @Suite(.macros(testMacros))
-    struct `Test Parsing Enum` { // swiftlint:disable:this type_name type_body_length
+    @Suite
+    struct `Test Parsing Enum` { // swiftlint:disable:this type_body_length
         @Test
         func `parse regular enum`() {
             assertMacro {
@@ -1120,6 +1120,202 @@ extension BinaryParseKitMacroTests {
                     case byteCase
                 }
                 """
+            }
+        }
+
+        @Test
+        func `enum with mask associated values`() {
+            assertMacro {
+                """
+                @ParseEnum
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: 1)
+                    @mask(bitCount: 7)
+                    case flags(Bool, UInt8)
+
+                    @match(byte: 0x02)
+                    @parse
+                    @mask(bitCount: 4)
+                    @mask
+                    case mixed(UInt16, value: UInt8, flag: Bool)
+                }
+                """
+            } expansion: {
+                #"""
+                enum TestEnum {
+                    case flags(Bool, UInt8)
+                    case mixed(UInt16, value: UInt8, flag: Bool)
+                }
+
+                extension TestEnum: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        if BinaryParseKit.__match([0x01], in: &span) {
+                            // Parse bitmask fields for `flags`
+                            let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
+                            let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                            let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
+                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                            let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
+                            var __macro_local_16__bitmask_offsetfMu_ = 0
+                            // Parse `__macro_local_16TestEnum_flags_0fMu_` of type Bool from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                            let __macro_local_16TestEnum_flags_0fMu_ = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1)
+                            __macro_local_16__bitmask_offsetfMu_ += 1
+                            // Parse `__macro_local_16TestEnum_flags_1fMu_` of type UInt8 from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                            let __macro_local_16TestEnum_flags_1fMu_ = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 7)
+                            __macro_local_16__bitmask_offsetfMu_ += 7
+                            // construct `flags` with above associated values
+                            self = .flags(__macro_local_16TestEnum_flags_0fMu_, __macro_local_16TestEnum_flags_1fMu_)
+                            return
+                        }
+                        if BinaryParseKit.__match([0x02], in: &span) {
+                            // Parse `__macro_local_16TestEnum_mixed_0fMu_` of type UInt16
+                            BinaryParseKit.__assertParsable((UInt16).self)
+                            let __macro_local_16TestEnum_mixed_0fMu_ = try UInt16(parsing: &span)
+                            // Parse bitmask fields for `mixed`
+                            let __macro_local_19__bitmask_totalBitsfMu0_ = 4 + (Bool).bitCount
+                            let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
+                            let __macro_local_14__bitmask_datafMu0_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu0_))
+                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu0_)
+                            let __macro_local_14__bitmask_bitsfMu0_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu0_, size: __macro_local_19__bitmask_totalBitsfMu0_)
+                            var __macro_local_16__bitmask_offsetfMu0_ = 0
+                            // Parse `value` of type UInt8 from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                            let value = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 4)
+                            __macro_local_16__bitmask_offsetfMu0_ += 4
+                            // Parse `flag` of type Bool from bits
+                            BinaryParseKit.__assertBitmaskParsable((Bool).self)
+                            let flag = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: (Bool).bitCount)
+                            __macro_local_16__bitmask_offsetfMu0_ += (Bool).bitCount
+                            // construct `mixed` with above associated values
+                            self = .mixed(__macro_local_16TestEnum_mixed_0fMu_, value: value, flag: flag)
+                            return
+                        }
+                        throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        switch self {
+                        case let .flags(__macro_local_13flags_index_0fMu_, __macro_local_13flags_index_1fMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x01]
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
+                                    parseType: .match,
+                                    fields: [],
+                                )
+                            )
+                        case let .mixed(__macro_local_13mixed_index_0fMu_, __macro_local_11mixed_valuefMu_, __macro_local_10mixed_flagfMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu0_: [UInt8] = [0x02]
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu0_,
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13mixed_index_0fMu_))],
+                                )
+                            )
+                        }
+                    }
+                }
+                """#
+            }
+        }
+
+        @Test
+        func `enum with alternating parse`() {
+            assertMacro {
+                """
+                @ParseEnum
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: 1)
+                    @mask(bitCount: 2)
+                    @parse
+                    @mask(bitCount: 7)
+                    @skip(byteCount: 2, reason: "skip")
+                    @mask(bitCount: 4)
+                    case flags(Bool, UInt8, UInt8, UInt8, UInt8)
+                }
+                """
+            } expansion: {
+                #"""
+                enum TestEnum {
+                    case flags(Bool, UInt8, UInt8, UInt8, UInt8)
+                }
+
+                extension TestEnum: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        if BinaryParseKit.__match([0x01], in: &span) {
+                            // Parse bitmask fields for `flags`
+                            let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 2
+                            let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                            let __macro_local_14__bitmask_datafMu_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu_))
+                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu_)
+                            let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
+                            var __macro_local_16__bitmask_offsetfMu_ = 0
+                            // Parse `__macro_local_16TestEnum_flags_0fMu_` of type Bool from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                            let __macro_local_16TestEnum_flags_0fMu_ = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1)
+                            __macro_local_16__bitmask_offsetfMu_ += 1
+                            // Parse `__macro_local_16TestEnum_flags_1fMu_` of type UInt8 from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                            let __macro_local_16TestEnum_flags_1fMu_ = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 2)
+                            __macro_local_16__bitmask_offsetfMu_ += 2
+                            // Parse `__macro_local_16TestEnum_flags_2fMu_` of type UInt8
+                            BinaryParseKit.__assertParsable((UInt8).self)
+                            let __macro_local_16TestEnum_flags_2fMu_ = try UInt8(parsing: &span)
+                            // Parse bitmask fields for `flags`
+                            let __macro_local_19__bitmask_totalBitsfMu0_ = 7
+                            let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
+                            let __macro_local_14__bitmask_datafMu0_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu0_))
+                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu0_)
+                            let __macro_local_14__bitmask_bitsfMu0_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu0_, size: __macro_local_19__bitmask_totalBitsfMu0_)
+                            var __macro_local_16__bitmask_offsetfMu0_ = 0
+                            // Parse `__macro_local_16TestEnum_flags_3fMu_` of type UInt8 from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                            let __macro_local_16TestEnum_flags_3fMu_ = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 7)
+                            __macro_local_16__bitmask_offsetfMu0_ += 7
+                            // Skip 2 because of "skip", before parsing `flags`
+                            try span.seek(toRelativeOffset: 2)
+                            // Parse bitmask fields for `flags`
+                            let __macro_local_19__bitmask_totalBitsfMu1_ = 4
+                            let __macro_local_19__bitmask_byteCountfMu1_ = (__macro_local_19__bitmask_totalBitsfMu1_ + 7) / 8
+                            let __macro_local_14__bitmask_datafMu1_ = Data(try span.slicing(first: __macro_local_19__bitmask_byteCountfMu1_))
+                            try span.seek(toRelativeOffset: __macro_local_19__bitmask_byteCountfMu1_)
+                            let __macro_local_14__bitmask_bitsfMu1_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu1_, size: __macro_local_19__bitmask_totalBitsfMu1_)
+                            var __macro_local_16__bitmask_offsetfMu1_ = 0
+                            // Parse `__macro_local_16TestEnum_flags_4fMu_` of type UInt8 from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                            let __macro_local_16TestEnum_flags_4fMu_ = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu1_, offset: __macro_local_16__bitmask_offsetfMu1_, count: 4)
+                            __macro_local_16__bitmask_offsetfMu1_ += 4
+                            // construct `flags` with above associated values
+                            self = .flags(__macro_local_16TestEnum_flags_0fMu_, __macro_local_16TestEnum_flags_1fMu_, __macro_local_16TestEnum_flags_2fMu_, __macro_local_16TestEnum_flags_3fMu_, __macro_local_16TestEnum_flags_4fMu_)
+                            return
+                        }
+                        throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        switch self {
+                        case let .flags(__macro_local_13flags_index_0fMu_, __macro_local_13flags_index_1fMu_, __macro_local_13flags_index_2fMu_, __macro_local_13flags_index_3fMu_, __macro_local_13flags_index_5fMu_):
+                            let __macro_local_20bytesTakenInMatchingfMu_: [UInt8] = [0x01]
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_20bytesTakenInMatchingfMu_,
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_2fMu_)), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2))))],
+                                )
+                            )
+                        }
+                    }
+                }
+                """#
             }
         }
     }

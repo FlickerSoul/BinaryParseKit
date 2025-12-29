@@ -577,22 +577,107 @@ public macro matchDefault() = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
-// MARK: - Bitmask
+// MARK: - Bitmask Parsing
 
+/// Parses a field at the bit level with an explicit bit count.
+///
+/// Use this macro to parse a field using a specific number of bits from a bitmask.
+/// The field type must conform to `ExpressibleByRawBits`.
+///
+/// Consecutive `@mask` fields are grouped together and read from a shared byte buffer.
+/// Gaps or interleaved non-mask fields start a new bitmask region.
+///
+/// - Parameter bitCount: The number of bits to read for this field
+///
+/// - Note: This macro can be used with `@ParseStruct`, `@ParseEnum`, or `@ParseBitmask`.
+///
+/// Example:
+/// ```swift
+/// @ParseStruct
+/// struct Header {
+///     @mask(bitCount: 4)
+///     var priority: UInt8
+///
+///     @mask(bitCount: 4)
+///     var flags: UInt8
+/// }
+/// ```
 @attached(peer)
 public macro mask(bitCount: Int) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
+/// Parses a field at the bit level with inferred bit count.
+///
+/// Use this macro to parse a field using the type's `bitCount` property.
+/// The field type must conform to `BitmaskParsable` (which includes `BitCountProviding`).
+///
+/// Consecutive `@mask` fields are grouped together and read from a shared byte buffer.
+/// Gaps or interleaved non-mask fields start a new bitmask region.
+///
+/// - Note: This macro can be used with `@ParseStruct`, `@ParseEnum`, or `@ParseBitmask`.
+///
+/// Example:
+/// ```swift
+/// @ParseStruct
+/// struct Header {
+///     @mask()
+///     var enabled: Bool  // Uses Bool.bitCount (1)
+///
+///     @mask()
+///     var value: UInt8   // Uses UInt8.bitCount (8)
+/// }
+/// ```
 @attached(peer)
 public macro mask() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "EmptyPeerMacro",
 )
 
-@attached(extension, conformances: BinaryParseKit.Parsable, names: arbitrary)
-public macro ParseBitmask() = #externalMacro(
+/// Generates a `BitmaskParsable` implementation for a struct with @mask fields.
+///
+/// This macro analyzes the struct's fields marked with `@mask` macros and generates
+/// the necessary code to parse the struct from a bit sequence.
+///
+/// The generated code includes:
+/// - `BitmaskParsable` conformance (includes `ExpressibleByRawBits` and `BitCountProviding`)
+/// - A `static var bitCount: Int` that is the sum of all field bit counts
+/// - An `init(bits: RawBits) throws` initializer
+///
+/// - Parameters:
+///   - parsingAccessor: The accessor level for the generated initializer (default is `.follow`)
+///   - printingAccessor: The accessor level for the generated `bitCount` property (default is `.follow`)
+///
+/// - Note: All fields in a `@ParseBitmask` struct must have `@mask` attribute.
+///
+/// Example:
+/// ```swift
+/// @ParseBitmask
+/// struct Flags {
+///     @mask(bitCount: 1)
+///     var enabled: Bool
+///
+///     @mask(bitCount: 3)
+///     var priority: UInt8
+///
+///     @mask(bitCount: 4)
+///     var reserved: UInt8
+/// }
+///
+/// // Flags.bitCount == 8 (1 + 3 + 4)
+/// // Can be used with @mask() in other structs:
+/// @ParseStruct
+/// struct Header {
+///     @mask()
+///     var flags: Flags  // Uses Flags.bitCount (8)
+/// }
+/// ```
+@attached(extension, conformances: BinaryParseKit.BitmaskParsable, names: arbitrary)
+public macro ParseBitmask(
+    parsingAccessor: ExtensionAccessor = .follow,
+    printingAccessor: ExtensionAccessor = .follow,
+) = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructParseBitmaskMacro",
 )

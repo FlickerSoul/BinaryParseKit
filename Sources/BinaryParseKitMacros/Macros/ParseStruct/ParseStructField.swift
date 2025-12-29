@@ -47,7 +47,7 @@ class ParseStructField: SyntaxVisitor {
 
         let structFieldVisitor = MacroAttributeCollector(context: context)
         structFieldVisitor.walk(node.attributes)
-        hasParse = structFieldVisitor.hasParse
+        hasParse = structFieldVisitor.hasParse || structFieldVisitor.hasMask
 
         do {
             try structFieldVisitor.validate()
@@ -107,7 +107,20 @@ class ParseStructField: SyntaxVisitor {
             throw .invalidTypeAnnotation
         }
 
-        variables[variableName.trimmed] = .init(type: typeName, parseActions: structFieldVisitor.parseActions)
+        // Update mask actions with field name and type
+        let parseActions = structFieldVisitor.parseActions.map { action -> StructParseAction in
+            if case let .mask(maskInfo) = action {
+                return .mask(MaskMacroInfo(
+                    bitCount: maskInfo.bitCount,
+                    fieldName: variableName.trimmed,
+                    fieldType: typeName,
+                    source: maskInfo.source,
+                ))
+            }
+            return action
+        }
+
+        variables[variableName.trimmed] = .init(type: typeName, parseActions: parseActions)
     }
 
     func validate(for node: some SwiftSyntax.SyntaxProtocol) throws(ParseStructMacroError) {
