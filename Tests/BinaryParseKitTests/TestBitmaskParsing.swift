@@ -249,3 +249,19 @@ struct BitmaskParsingTest {
         #expect(LargeValueBitmask.bitCount == 32)
     }
 }
+
+extension UInt16: ExpressibleByRawBits {
+    public init(bits: RawBits) throws {
+        self = try bits.data.withParserSpan { span in
+            try UInt16(parsingBigEndian: &span) >> (16 - bits.size)
+        }
+    }
+}
+
+extension UInt32: ExpressibleByRawBits {
+    public init(bits: RawBits) throws {
+        self = try bits.data.withParserSpan { span in
+            try UInt32(parsingBigEndian: &span) >> (32 - bits.size)
+        }
+    }
+}

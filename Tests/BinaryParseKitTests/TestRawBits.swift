@@ -447,7 +447,7 @@ struct ExpressibleByRawBitsTests {
         let bits = RawBits(data: data, size: 4)
 
         let value = try UInt8(bits: bits)
-        #expect(value == 10)
+        #expect(value == 0b1010)
     }
 
     @Test("Bool from RawBits (true)")
@@ -481,7 +481,8 @@ struct ExpressibleByRawBitsTests {
     @Test("Insufficient bits error")
     func insufficientBitsError() throws {
         let bits = RawBits()
-        let value = try UInt8(bits: bits)
-        #expect(value == 0)
+        #expect(throws: BitmaskParsableError.unsupportedBitCount) {
+            _ = try UInt8(bits: bits)
+        }
     }
 }

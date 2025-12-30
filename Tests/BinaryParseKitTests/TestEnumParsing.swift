@@ -582,7 +582,7 @@ struct EnumMaskParsingTest {
         // Match byte 0x01 (consumed), then parse: 1 0110100 = 0xB4
         // First mask: 1 (1 bit) -> 1
         // Second mask: 0110100 (7 bits) -> 52
-        let flags = try BasicEnumWithMask(parsing: Data([0x01, 0xB4]))
+        let flags = try BasicEnumWithMask(parsing: Data([0x01, 0b1011_0100]))
         #expect(flags == .flags(1, 52))
 
         // Simple case still works
@@ -599,7 +599,7 @@ struct EnumMaskParsingTest {
     @Test("Enum with mask - all ones")
     func enumWithMaskAllOnes() throws {
         // 1 1111111 = 0xFF
-        let flags = try BasicEnumWithMask(parsing: Data([0x01, 0xFF]))
+        let flags = try BasicEnumWithMask(parsing: Data([0x01, 0b1111_1111]))
         #expect(flags == .flags(1, 127))
     }
 
@@ -709,7 +709,7 @@ struct EnumMaskParsingTest {
         // Match 0x01 (consumed), then parse 16 bits: 1010 1011 0011 0100 = 0xAB34
         // First 12 bits: 1010 1011 0011 = 0xAB3 = 2739
         // Last 4 bits: 0100 = 4
-        let result = try MultiByteMask(parsing: Data([0x01, 0xAB, 0x34]))
+        let result = try MultiByteMask(parsing: Data([0x01, 0b1010_1011, 0b0011_0100]))
         #expect(result == .wide(2739, 4))
     }
 }

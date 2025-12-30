@@ -13,13 +13,13 @@ import Foundation
 /// It provides operations for slicing, equality comparison, and bitwise operations.
 public struct RawBits: Sendable {
     /// The number of valid bits stored.
-    public private(set) var size: Int
+    public let size: Int
 
     /// Number of bits per byte.
     private static let BitsPerWord = 8
 
     /// The underlying byte storage.
-    public private(set) var data: Data
+    public let data: Data
 
     /// Creates a RawBits instance from Data with a specified bit count.
     ///
@@ -92,18 +92,33 @@ public struct RawBits: Sendable {
     ///   - start: The starting bit index (inclusive, MSB-first)
     ///   - count: The number of bits to extract (max 64)
     /// - Returns: The extracted bits as a UInt64, right-aligned
-    public func extractBits(from start: Int, count: Int) -> UInt64 {
+    public func extractBits(from start: Int, count: Int) -> UInt8 {
         precondition(start >= 0, "Start index must be non-negative")
-        precondition(count >= 0 && count <= 64, "Count must be 0-64")
+        precondition(count >= 0 && count <= 8, "Count must be 0-64")
         precondition(start + count <= size, "Range exceeds size")
 
         if count == 0 { return 0 }
 
-        var result: UInt64 = 0
-        for i in 0 ..< count where bit(at: start + i) {
-            result |= (1 << (count - 1 - i))
+        let startByte = start / Self.BitsPerWord
+        let bitOffset = start % Self.BitsPerWord
+        let bytesSpanned = (count + (Self.BitsPerWord - 1)) / Self.BitsPerWord
+
+        let dataSpan = data.bytes
+
+        if bytesSpanned == 1 {
+            var value = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte, as: UInt8.self)
+            value <<= bitOffset
+            value >>= (8 - count)
+            return value
+        } else {
+            // Slow path: need 9 bytes (bitOffset > 0 and count = 64)
+            var highValue = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte, as: UInt8.self)
+            let lowByte = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte + Self.BitsPerWord, as: UInt8.self)
+
+            highValue <<= bitOffset
+            highValue |= lowByte >> (Self.BitsPerWord - bitOffset)
+            return highValue
         }
-        return result
     }
 }
 
@@ -125,16 +140,36 @@ public extension RawBits {
             return RawBits()
         }
 
-        // Calculate how many bytes we need for the result
         let resultByteCount = (count + Self.BitsPerWord - 1) / Self.BitsPerWord
         var resultData = Data(repeating: 0, count: resultByteCount)
 
-        // Copy bits one by one to ensure proper alignment
-        for i in 0 ..< count where bit(at: start + i) {
-            let byteIndex = i / Self.BitsPerWord
-            let bitOffset = i % Self.BitsPerWord
-            // MSB-first: bit 0 is the most significant bit (0x80)
-            resultData[byteIndex] |= (0x80 >> bitOffset)
+        let startByte = start / Self.BitsPerWord
+        let bitOffset = start % Self.BitsPerWord
+        let dataSpan = data.bytes
+
+        if bitOffset == 0 {
+            // Fast path: byte-aligned, just copy bytes
+            for i in 0 ..< resultByteCount {
+                resultData[i] = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte + i, as: UInt8.self)
+            }
+        } else {
+            // Combine bytes with shifting, loading each byte only once
+            var i = 0
+            var currentByte = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte, as: UInt8.self)
+
+            while i < resultByteCount {
+                var value = currentByte << bitOffset
+
+                let nextByteIndex = startByte + i + 1
+                if nextByteIndex < data.count {
+                    let nextByte = unsafe dataSpan.unsafeLoad(fromByteOffset: nextByteIndex, as: UInt8.self)
+                    value |= nextByte >> (Self.BitsPerWord - bitOffset)
+                    currentByte = nextByte
+                }
+
+                resultData[i] = value
+                i += 1
+            }
         }
 
         return RawBits(data: resultData, size: count)
@@ -177,15 +212,72 @@ public extension RawBits {
     /// - Parameters:
     ///   - other: The RawBits to compare against
     ///   - offset: The starting bit offset in this RawBits
-    ///   - length: The number of bits to compare
     /// - Returns: `true` if the bits match
     func sliceEquals(_ other: RawBits, at offset: Int = 0) -> Bool {
         precondition(offset >= 0, "Offset must be non-negative")
         precondition(offset + other.size <= size, "Range exceeds size")
 
-        for i in 0 ..< other.size where bit(at: offset + i) != other.bit(at: i) {
-            return false
+        if other.size == 0 {
+            return true
         }
+
+        let startByte = offset / Self.BitsPerWord
+        let bitOffset = offset % Self.BitsPerWord
+
+        let fullBytes = other.size / Self.BitsPerWord
+        let remainingBits = other.size % Self.BitsPerWord
+
+        if bitOffset == 0 {
+            // Fast path: byte-aligned, direct comparison
+            for i in 0 ..< fullBytes
+                where data[data.startIndex + startByte + i] != other.data[other.data.startIndex + i] {
+                return false
+            }
+
+            // Compare tail (remaining bits)
+            if remainingBits > 0 {
+                let selfByte = data[data.startIndex + startByte + fullBytes]
+                let otherByte = other.data[other.data.startIndex + fullBytes]
+                let mask: UInt8 = 0xFF << (Self.BitsPerWord - remainingBits)
+                if (selfByte & mask) != (otherByte & mask) { return false }
+            }
+        } else {
+            // Non-aligned: shift self's bytes to align with other
+            let selfSpan = data.bytes
+            var i = 0
+            var currentByte = unsafe selfSpan.unsafeLoad(fromByteOffset: startByte, as: UInt8.self)
+
+            // Compare middle (full bytes)
+            while i < fullBytes {
+                var selfValue = currentByte << bitOffset
+
+                let nextByteIndex = startByte + i + 1
+                if nextByteIndex < data.count {
+                    let nextByte = unsafe selfSpan.unsafeLoad(fromByteOffset: nextByteIndex, as: UInt8.self)
+                    selfValue |= nextByte >> (Self.BitsPerWord - bitOffset)
+                    currentByte = nextByte
+                }
+
+                if selfValue != other.data[other.data.startIndex + i] { return false }
+                i += 1
+            }
+
+            // Compare tail (remaining bits)
+            if remainingBits > 0 {
+                var selfValue = currentByte << bitOffset
+
+                let nextByteIndex = startByte + i + 1
+                if nextByteIndex < data.count {
+                    let nextByte = unsafe selfSpan.unsafeLoad(fromByteOffset: nextByteIndex, as: UInt8.self)
+                    selfValue |= nextByte >> (Self.BitsPerWord - bitOffset)
+                }
+
+                let otherByte = other.data[other.data.startIndex + fullBytes]
+                let mask: UInt8 = 0xFF << (Self.BitsPerWord - remainingBits)
+                if (selfValue & mask) != (otherByte & mask) { return false }
+            }
+        }
+
         return true
     }
 }
