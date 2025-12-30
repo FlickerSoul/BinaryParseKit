@@ -173,7 +173,7 @@ extension BinaryParseKitMacroTests {
                 @ParseStruct
                 public struct Header {
                     @parse
-                    let a = 1
+                    var a = 1
                 }
                 """#
             } diagnostics: {
@@ -183,7 +183,7 @@ extension BinaryParseKitMacroTests {
                 ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
                 public struct Header {
                     @parse
-                    let a = 1
+                    var a = 1
                         ┬────
                         ╰─ 🛑 Variable declarations must have a type annotation to be parsed.
                 }
@@ -908,6 +908,55 @@ extension BinaryParseKitMacroTests {
                             )
                         )
                     }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `struct with non-positive bit count in mask`() {
+            assertMacro {
+                """
+                @ParseStruct
+                struct InvalidMaskStruct {
+                    @mask(bitCount: -1)
+                    var flag: Bool
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
+                struct InvalidMaskStruct {
+                    @mask(bitCount: -1)
+                    ┬──────────────────
+                    ├─ 🛑 The bitCount argument must be a positive integer.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
+                    var flag: Bool
+                }
+                """
+            }
+
+            assertMacro {
+                """
+                @ParseStruct
+                struct InvalidMaskStruct {
+                    @mask(bitCount: 0)
+                    var flag: Bool
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 Fatal error: Parsing struct's fields has encountered an error.
+                struct InvalidMaskStruct {
+                    @mask(bitCount: 0)
+                    ┬─────────────────
+                    ├─ 🛑 The bitCount argument must be a positive integer.
+                    ╰─ 🛑 Fatal error: Encountered errors during parsing field.
+                    var flag: Bool
                 }
                 """
             }

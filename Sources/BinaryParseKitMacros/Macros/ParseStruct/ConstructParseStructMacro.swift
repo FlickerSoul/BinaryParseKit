@@ -9,44 +9,6 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-/// Represents a grouped action for struct parsing
-enum StructActionGroup {
-    case parse(TokenSyntax, TypeSyntax, ParseMacroInfo)
-    case skip(TokenSyntax, SkipMacroInfo)
-    case maskGroup([(TokenSyntax, TypeSyntax, MaskMacroInfo)])
-}
-
-/// Computes action groups from struct variables, grouping consecutive @mask fields
-func computeActionGroups(from variables: ParseStructField.ParseVariableMapping) -> [StructActionGroup] {
-    var result: [StructActionGroup] = []
-    var pendingMaskGroup: [(TokenSyntax, TypeSyntax, MaskMacroInfo)] = []
-
-    func flushMaskGroup() {
-        if !pendingMaskGroup.isEmpty {
-            result.append(.maskGroup(pendingMaskGroup))
-            pendingMaskGroup.removeAll()
-        }
-    }
-
-    for (variableName, variableInfo) in variables {
-        for action in variableInfo.parseActions {
-            switch action {
-            case let .parse(fieldParseInfo):
-                flushMaskGroup()
-                result.append(.parse(variableName, variableInfo.type, fieldParseInfo))
-            case let .skip(skipInfo):
-                flushMaskGroup()
-                result.append(.skip(variableName, skipInfo))
-            case let .mask(maskInfo):
-                pendingMaskGroup.append((variableName, variableInfo.type, maskInfo))
-            }
-        }
-    }
-
-    flushMaskGroup()
-    return result
-}
-
 public struct ConstructStructParseMacro: ExtensionMacro {
     public static func expansion(
         of attributeNode: SwiftSyntax.AttributeSyntax,
@@ -78,21 +40,21 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                 ) {
                     // Group consecutive mask fields and process them together
                     // Pre-compute groups of actions
-                    let actionGroups = computeActionGroups(from: structFieldInfo.variables)
+                    let actionGroups = computeStructActionGroups(from: structFieldInfo.variables)
 
                     for actionGroup in actionGroups {
                         switch actionGroup {
-                        case let .parse(variableName, variableType, fieldParseInfo):
+                        case let .parse(parseInfo):
                             generateParseBlock(
-                                variableName: variableName,
-                                variableType: variableType,
-                                fieldParseInfo: fieldParseInfo,
+                                variableName: parseInfo.variableName,
+                                variableType: parseInfo.variableType,
+                                fieldParseInfo: parseInfo.parseInfo,
                                 useSelf: true,
                             )
-                        case let .skip(variableName, skipInfo):
-                            generateSkipBlock(variableName: variableName, skipInfo: skipInfo)
+                        case let .skip(skipInfo):
+                            generateSkipBlock(variableName: skipInfo.variableName, skipInfo: skipInfo.skipInfo)
                         case let .maskGroup(maskFields):
-                            try generateMaskGroupBlock(maskGroup: maskFields, context: context)
+                            try generateMaskGroupBlock(maskActions: maskFields, context: context)
                         }
                     }
                 }

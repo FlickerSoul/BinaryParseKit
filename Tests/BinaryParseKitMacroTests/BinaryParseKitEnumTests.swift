@@ -715,7 +715,7 @@ extension BinaryParseKitMacroTests {
                 """
                 @ParseEnum
                 enum TestEnum {
-                    @match
+                    @match()
                     @parse
                     case a(
                         value: Int // some value
@@ -1311,6 +1311,57 @@ extension BinaryParseKitMacroTests {
                     }
                 }
                 """#
+            }
+        }
+
+        @Test
+        func `enum with non-negative bit count in mask`() {
+            assertMacro {
+                """
+                @ParseEnum
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: -1)
+                    case invalid(Bool)
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseEnum
+                ┬─────────
+                ╰─ 🛑 Unexpected error: Enum macro parsing encountered errors
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: -1)
+                    ┬──────────────────
+                    ╰─ 🛑 The bitCount argument must be a positive integer.
+                    case invalid(Bool)
+                }
+                """
+            }
+
+            assertMacro {
+                """
+                @ParseEnum
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: 0)
+                    case invalid(Bool)
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseEnum
+                ┬─────────
+                ╰─ 🛑 Unexpected error: Enum macro parsing encountered errors
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: 0)
+                    ┬─────────────────
+                    ╰─ 🛑 The bitCount argument must be a positive integer.
+                    case invalid(Bool)
+                }
+                """
             }
         }
     }

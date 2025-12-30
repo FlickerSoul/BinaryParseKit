@@ -107,18 +107,18 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
 
                         for actionGroup in actionGroups {
                             switch actionGroup {
-                            case let .parse(variableName, caseArgParseInfo):
+                            case let .parse(parseInfo):
                                 generateParseBlock(
-                                    variableName: variableName,
-                                    variableType: caseArgParseInfo.type,
-                                    fieldParseInfo: caseArgParseInfo.parseInfo,
+                                    variableName: parseInfo.variableName,
+                                    variableType: parseInfo.variableType,
+                                    fieldParseInfo: parseInfo.parseInfo,
                                     useSelf: false,
                                 )
-                            case let .skip(variableName, skipInfo):
-                                generateSkipBlock(variableName: variableName, skipInfo: skipInfo)
-                            case let .maskGroup(maskFields):
+                            case let .skip(skipInfo):
+                                generateSkipBlock(variableName: skipInfo.variableName, skipInfo: skipInfo.skipInfo)
+                            case let .maskGroup(maskActions):
                                 try generateEnumMaskGroupBlock(
-                                    maskGroup: maskFields,
+                                    maskActions: maskActions,
                                     caseElementName: caseParseInfo.caseElementName,
                                     context: context,
                                 )
@@ -130,7 +130,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                         } else {
                             """
                             // construct `\(caseParseInfo.caseElementName)` with above associated values
-                            self = .\(caseParseInfo.caseElementName)(\(arguments.argumentList))
+                            self = .\(caseParseInfo.caseElementName)(\(arguments.asArgumentList))
                             """
                         }
 
@@ -278,87 +278,14 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
     }
 }
 
-/// Represents an enum case argument for code generation
-enum EnumCaseArgument {
-    case parse(EnumCaseParameterParseInfo)
-    case mask(EnumCaseParameterMaskInfo)
-
-    var firstName: TokenSyntax? {
-        switch self {
-        case let .parse(info): info.firstName
-        case let .mask(info): info.firstName
-        }
-    }
-}
-
-extension OrderedDictionary<TokenSyntax, EnumCaseArgument> {
+private extension OrderedDictionary<TokenSyntax, TokenSyntax?> {
     @LabeledExprListBuilder
-    var argumentList: LabeledExprListSyntax {
+    var asArgumentList: LabeledExprListSyntax {
         for (varName, varInfo) in self {
             LabeledExprSyntax(
-                label: varInfo.firstName?.text,
+                label: varInfo?.text,
                 expression: DeclReferenceExprSyntax(baseName: varName),
             )
         }
     }
-}
-
-/// Represents a grouped action for enum parsing
-enum EnumActionGroup {
-    case parse(TokenSyntax, EnumCaseParameterParseInfo)
-    case skip(TokenSyntax, SkipMacroInfo)
-    case maskGroup([(TokenSyntax, TypeSyntax, MaskMacroInfo)])
-}
-
-/// Computes action groups from enum parse actions, grouping consecutive @mask fields
-func computeEnumActionGroups(
-    from parseActions: [EnumParseAction],
-    caseElementName: TokenSyntax,
-    type: some TypeSyntaxProtocol,
-    context: some MacroExpansionContext,
-) -> ([EnumActionGroup], OrderedDictionary<TokenSyntax, EnumCaseArgument>) {
-    var result: [EnumActionGroup] = []
-    var arguments: OrderedDictionary<TokenSyntax, EnumCaseArgument> = [:]
-    var pendingMaskGroup: [(TokenSyntax, TypeSyntax, MaskMacroInfo)] = []
-
-    func flushMaskGroup() {
-        if !pendingMaskGroup.isEmpty {
-            result.append(.maskGroup(pendingMaskGroup))
-            pendingMaskGroup.removeAll()
-        }
-    }
-
-    for parseAction in parseActions {
-        switch parseAction {
-        case let .parse(caseArgParseInfo):
-            flushMaskGroup()
-            let variableName = if let argName = caseArgParseInfo.firstName {
-                argName
-            } else {
-                context.makeUniqueName(
-                    "\(type)_\(caseElementName.text)_\(arguments.count)"
-                        .replacingOccurrences(of: ".", with: "_"),
-                )
-            }
-            result.append(.parse(variableName, caseArgParseInfo))
-            arguments[variableName] = .parse(caseArgParseInfo)
-        case let .skip(skipInfo):
-            flushMaskGroup()
-            result.append(.skip(caseElementName, skipInfo))
-        case let .mask(maskArgInfo):
-            let variableName = if let argName = maskArgInfo.firstName {
-                argName
-            } else {
-                context.makeUniqueName(
-                    "\(type)_\(caseElementName.text)_\(arguments.count)"
-                        .replacingOccurrences(of: ".", with: "_"),
-                )
-            }
-            pendingMaskGroup.append((variableName, maskArgInfo.type, maskArgInfo.maskInfo))
-            arguments[variableName] = .mask(maskArgInfo)
-        }
-    }
-
-    flushMaskGroup()
-    return (result, arguments)
 }

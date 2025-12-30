@@ -21,8 +21,4 @@ enum StructParseAction {
             mask.source
         }
     }
-
-    var isMask: Bool {
-        if case .mask = self { true } else { false }
-    }
 }

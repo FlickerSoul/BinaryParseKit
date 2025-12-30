@@ -95,32 +95,15 @@ class ParseStructField: SyntaxVisitor {
             existParseRestContent = true
         }
 
-        guard binding.hasTypeAnnotation else {
-            throw .variableDeclNoTypeAnnotation
-        }
-
-        guard let variableName = binding.identifierName else {
+        guard let variableName = binding.identifierName?.trimmed else {
             throw .notIdentifierDef
         }
 
         guard let typeName = binding.typeName else {
-            throw .invalidTypeAnnotation
+            throw .variableDeclNoTypeAnnotation
         }
 
-        // Update mask actions with field name and type
-        let parseActions = structFieldVisitor.parseActions.map { action -> StructParseAction in
-            if case let .mask(maskInfo) = action {
-                return .mask(MaskMacroInfo(
-                    bitCount: maskInfo.bitCount,
-                    fieldName: variableName.trimmed,
-                    fieldType: typeName,
-                    source: maskInfo.source,
-                ))
-            }
-            return action
-        }
-
-        variables[variableName.trimmed] = .init(type: typeName, parseActions: parseActions)
+        variables[variableName] = .init(type: typeName, parseActions: structFieldVisitor.parseActions)
     }
 
     func validate(for node: some SwiftSyntax.SyntaxProtocol) throws(ParseStructMacroError) {

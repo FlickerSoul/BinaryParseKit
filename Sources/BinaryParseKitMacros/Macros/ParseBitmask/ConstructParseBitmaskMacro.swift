@@ -10,165 +10,6 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-enum ParseBitmaskMacroError: Error, DiagnosticMessage {
-    case onlyStructsAreSupported
-    case fieldMustHaveMaskAttribute
-    case noFieldsFound
-    case fatalError(description: String)
-
-    var message: String {
-        switch self {
-        case .onlyStructsAreSupported: "@ParseBitmask can only be applied to structs."
-        case .fieldMustHaveMaskAttribute: "All fields in @ParseBitmask struct must have @mask attribute."
-        case .noFieldsFound: "@ParseBitmask struct must have at least one field with @mask attribute."
-        case let .fatalError(description: description): "Fatal error in ParseBitmask macro: \(description)"
-        }
-    }
-
-    var diagnosticID: SwiftDiagnostics.MessageID {
-        .init(
-            domain: "observer.universe.BinaryParseKit.ParseBitmaskMacroError",
-            id: "\(self)",
-        )
-    }
-
-    var severity: SwiftDiagnostics.DiagnosticSeverity {
-        .error
-    }
-}
-
-/// Visitor to collect @mask field information from a struct
-private class ParseBitmaskField: SyntaxVisitor {
-    struct FieldInfo {
-        let name: TokenSyntax
-        let type: TypeSyntax
-        let maskInfo: MaskMacroInfo
-
-        init(name: TokenSyntax, type: TypeSyntax, maskInfo: MaskMacroInfo) {
-            self.name = name.trimmed
-            self.type = type.trimmed
-            self.maskInfo = maskInfo
-        }
-    }
-
-    private let context: any MacroExpansionContext
-    private(set) var fields: OrderedDictionary<TokenSyntax, FieldInfo> = [:]
-    private(set) var errors: [Diagnostic] = []
-
-    private var currentMaskInfo: MaskMacroInfo?
-
-    init(context: any MacroExpansionContext) {
-        self.context = context
-        super.init(viewMode: .sourceAccurate)
-    }
-
-    override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
-        // Skip static declarations
-        guard !node.isStaticDecl else {
-            return .skipChildren
-        }
-
-        guard currentMaskInfo == nil else {
-            errors.append(
-                .init(
-                    node: node,
-                    message: MaskMacroError
-                        .fatalError(
-                            description: "Multiple variable declaration in single `@mask` attribute is not supported.",
-                        ),
-                ),
-            )
-            return .skipChildren
-        }
-
-        currentMaskInfo = nil
-
-        return .visitChildren
-    }
-
-    override func visit(_ node: AttributeSyntax) -> SyntaxVisitorContinueKind {
-        guard let identifier = node.attributeName.as(IdentifierTypeSyntax.self),
-              identifier.name.text == "mask" else {
-            return .skipChildren
-        }
-
-        do {
-            currentMaskInfo = try MaskMacroInfo.parse(from: node, fieldName: nil, fieldType: nil)
-        } catch {
-            errors.append(.init(node: node, message: error))
-        }
-
-        return .skipChildren
-    }
-
-    override func visitPost(_: VariableDeclSyntax) {
-        currentMaskInfo = nil
-    }
-
-    override func visit(_ node: PatternBindingSyntax) -> SyntaxVisitorContinueKind {
-        // Skip computed properties
-        guard !node.hasAccessor else {
-            return .skipChildren
-        }
-
-        guard let maskInfo = currentMaskInfo else {
-            // Field without @mask - this is an error in @ParseBitmask
-            errors.append(.init(
-                node: node,
-                message: ParseBitmaskMacroError.fieldMustHaveMaskAttribute,
-            ))
-            return .skipChildren
-        }
-
-        guard let variableName = node.identifierName else {
-            errors.append(
-                .init(
-                    node: node,
-                    message: MaskMacroError.fatalError(description: "Expected identifier in variable declaration."),
-                ),
-            )
-            return .skipChildren
-        }
-
-        guard let typeName = node.typeName else {
-            errors.append(
-                .init(
-                    node: node,
-                    message: MaskMacroError.noTypeAnnotation,
-                ),
-            )
-            return .skipChildren
-        }
-
-        let fieldInfo = FieldInfo(
-            name: variableName,
-            type: typeName,
-            maskInfo: MaskMacroInfo(
-                bitCount: maskInfo.bitCount,
-                fieldName: variableName,
-                fieldType: typeName,
-                source: maskInfo.source,
-            ),
-        )
-        fields[variableName.trimmed] = fieldInfo
-
-        return .skipChildren
-    }
-
-    func validate() throws(ParseBitmaskMacroError) {
-        if !errors.isEmpty {
-            for error in errors {
-                context.diagnose(error)
-            }
-            throw .fatalError(description: "Errors encountered while parsing @mask fields.")
-        }
-
-        if fields.isEmpty {
-            throw .noFieldsFound
-        }
-    }
-}
-
 public struct ConstructParseBitmaskMacro: ExtensionMacro {
     public static func expansion(
         of node: SwiftSyntax.AttributeSyntax,
@@ -190,18 +31,13 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
         )
 
         // Extract mask field info
-        let fieldVisitor = ParseBitmaskField(context: context)
+        let fieldVisitor = MaskMacroVisitor(context: context)
         fieldVisitor.walk(structDeclaration)
         try fieldVisitor.validate()
 
         // Build bitCount expression as sum of all field bit counts
         let bitCountExprs = fieldVisitor.fields.values.map { fieldInfo -> ExprSyntax in
-            switch fieldInfo.maskInfo.bitCount {
-            case let .specified(count):
-                count.expr
-            case .inferred:
-                "(\(fieldInfo.type)).bitCount"
-            }
+            fieldInfo.maskInfo.bitCount.expr(of: fieldInfo.type)
         }
 
         let firstField = bitCountExprs.first
@@ -211,7 +47,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                 "\(partialResult) + \(next)"
             }
         } else {
-            "0"
+            throw ParseBitmaskMacroError.noFieldsFound
         }
 
         let bitmaskParsableExtension =

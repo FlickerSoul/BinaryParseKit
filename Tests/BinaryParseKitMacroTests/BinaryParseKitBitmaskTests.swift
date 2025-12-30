@@ -375,5 +375,55 @@ extension BinaryParseKitMacroTests {
                 """
             }
         }
+
+        @Test
+        func `negative mask bit count`() async throws {
+            assertMacro {
+                """
+                @ParseBitmask
+                struct PublicFlags {
+                    @mask(bitCount: -1)
+                    var flag: Int
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseBitmask
+                ┬────────────
+                ╰─ 🛑 Fatal error in ParseBitmask macro: Errors encountered while parsing @mask fields.
+                struct PublicFlags {
+                    @mask(bitCount: -1)
+                    ┬──────────────────
+                    ╰─ 🛑 The bitCount argument must be a positive integer.
+                    var flag: Int
+                }
+                """
+            }
+        }
+
+        @Test
+        func `zero mask bit count`() async throws {
+            assertMacro {
+                """
+                @ParseBitmask
+                struct PublicFlags {
+                    @mask(bitCount: 0)
+                    var flag: Int
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseBitmask
+                ┬────────────
+                ╰─ 🛑 Fatal error in ParseBitmask macro: Errors encountered while parsing @mask fields.
+                struct PublicFlags {
+                    @mask(bitCount: 0)
+                    ┬─────────────────
+                    ╰─ 🛑 The bitCount argument must be a positive integer.
+                    var flag: Int
+                }
+                """
+            }
+        }
     }
 }

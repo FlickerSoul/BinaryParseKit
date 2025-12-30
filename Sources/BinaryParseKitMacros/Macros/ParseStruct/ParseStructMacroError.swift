@@ -12,7 +12,6 @@ enum ParseStructMacroError: Error, DiagnosticMessage {
     case noParseAttributeOnVariableDecl
     case variableDeclNoTypeAnnotation
     case notIdentifierDef
-    case invalidTypeAnnotation
     case multipleOrNonTrailingParseRest
     case emptyParse
     case unknownParseArgument(String)
@@ -32,8 +31,6 @@ enum ParseStructMacroError: Error, DiagnosticMessage {
             "Variable declarations must have a type annotation to be parsed."
         case .notIdentifierDef:
             "Variable declaration must be an identifier definition."
-        case .invalidTypeAnnotation:
-            "Invalid type annotation in variable declaration. Expected a valid type."
         case .multipleOrNonTrailingParseRest:
             "Multiple or non-trailing `@parseRest` attributes are not allowed. Only one trailing `@parseRest` is permitted."
         case .emptyParse:
@@ -56,8 +53,8 @@ enum ParseStructMacroError: Error, DiagnosticMessage {
     var severity: SwiftDiagnostics.DiagnosticSeverity {
         switch self {
         case .invalidParseStruct, .onlyStructsAreSupported, .noParseAttributeOnVariableDecl,
-             .variableDeclNoTypeAnnotation, .notIdentifierDef, .invalidTypeAnnotation,
-             .multipleOrNonTrailingParseRest, .unknownParseArgument, .parseAccessorVariableDecl, .fatalError,
+             .variableDeclNoTypeAnnotation, .notIdentifierDef, .multipleOrNonTrailingParseRest,
+             .unknownParseArgument, .parseAccessorVariableDecl, .fatalError,
              .failedExpectation:
             .error
         case .emptyParse:

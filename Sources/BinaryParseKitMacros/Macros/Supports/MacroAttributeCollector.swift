@@ -64,18 +64,11 @@ class MacroAttributeCollector: SyntaxVisitor {
                 errors.append(.init(node: attribute, message: error))
             }
         } else if identifierToken == "mask" {
-            do {
-                // Parse @mask attribute - field name and type will be filled in later
-                let maskInfo = try MaskMacroInfo.parse(
-                    from: attribute,
-                    fieldName: nil,
-                    fieldType: nil,
-                )
-                parseActions.append(.mask(maskInfo))
-                hasMask = true
-            } catch {
-                errors.append(.init(node: attribute, message: error))
-            }
+            // Parse @mask attribute - field name and type will be filled in later
+            let maskInfo = MaskMacroInfo.parse(from: attribute)
+            parseActions.append(.mask(maskInfo))
+            hasMask = true
+            maskInfo.validate(in: &errors)
         } else if identifierToken == "match" {
             ensureMatchFirst(at: attribute)
             do {

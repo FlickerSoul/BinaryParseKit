@@ -138,10 +138,10 @@ func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListS
 
 /// Generates code to parse a group of consecutive @mask fields for structs
 func generateMaskGroupBlock(
-    maskGroup: [(TokenSyntax, TypeSyntax, MaskMacroInfo)],
+    maskActions: [ParseActionGroup.MaskGroupAction],
     context: some MacroExpansionContext,
 ) throws -> CodeBlockItemListSyntax {
-    guard !maskGroup.isEmpty else {
+    guard !maskActions.isEmpty else {
         return CodeBlockItemListSyntax {}
     }
 
@@ -154,16 +154,8 @@ func generateMaskGroupBlock(
     let offsetVarName = context.makeUniqueName("__bitmask_offset")
 
     // Calculate total bits
-    let bitCountExprs = maskGroup.map { _, _, maskInfo -> ExprSyntax in
-        guard let fieldType = maskInfo.fieldType else {
-            fatalError("MaskMacroInfo must have fieldType set for struct mask groups")
-        }
-        switch maskInfo.bitCount {
-        case let .specified(count):
-            return count.expr
-        case .inferred:
-            return "(\(fieldType.trimmed)).bitCount"
-        }
+    let bitCountExprs = maskActions.map { maskAction in
+        maskAction.maskInfo.bitCount.expr(of: maskAction.variableType)
     }
     let firstBitExpr = bitCountExprs.first
     let remainingBitExprs = bitCountExprs.dropFirst()
@@ -172,7 +164,7 @@ func generateMaskGroupBlock(
             "\(partialResult) + \(next)"
         }
     } else {
-        "0"
+        throw ParseStructMacroError.fatalError(message: "Failed to calculate total bits.")
     }
 
     return CodeBlockItemListSyntax {
@@ -194,8 +186,11 @@ func generateMaskGroupBlock(
         "var \(offsetVarName) = 0"
 
         // Parse each field
-        for (variableName, fieldType, maskInfo) in maskGroup {
-            switch maskInfo.bitCount {
+        for action in maskActions {
+            let variableName = action.variableName
+            let fieldType = action.variableType
+
+            switch action.maskInfo.bitCount {
             case let .specified(count):
                 // Assert ExpressibleByRawBits for explicit bit count
                 """
@@ -219,11 +214,11 @@ func generateMaskGroupBlock(
 
 /// Generates code to parse a group of consecutive @mask fields for enum associated values
 func generateEnumMaskGroupBlock(
-    maskGroup: [(TokenSyntax, TypeSyntax, MaskMacroInfo)],
+    maskActions: [ParseActionGroup.MaskGroupAction],
     caseElementName: TokenSyntax,
     context: some MacroExpansionContext,
 ) throws -> CodeBlockItemListSyntax {
-    guard !maskGroup.isEmpty else {
+    guard !maskActions.isEmpty else {
         return CodeBlockItemListSyntax {}
     }
 
@@ -235,13 +230,8 @@ func generateEnumMaskGroupBlock(
     let offsetVarName = context.makeUniqueName("__bitmask_offset")
 
     // Calculate total bits
-    let bitCountExprs = maskGroup.map { _, type, maskInfo -> ExprSyntax in
-        switch maskInfo.bitCount {
-        case let .specified(count):
-            return count.expr
-        case .inferred:
-            return "(\(type.trimmed)).bitCount"
-        }
+    let bitCountExprs = maskActions.map { maskAction in
+        maskAction.maskInfo.bitCount.expr(of: maskAction.variableType)
     }
     let firstBitCountExpr = bitCountExprs.first
     let remainingBitCountExprs = bitCountExprs.dropFirst()
@@ -250,7 +240,8 @@ func generateEnumMaskGroupBlock(
             "\(partialResult) + \(next)"
         }
     } else {
-        "0"
+        throw ParseEnumMacroError
+            .unexpectedError(description: "Failed to calculate total bits for enum case \(caseElementName.text).")
     }
 
     return CodeBlockItemListSyntax {
@@ -272,8 +263,11 @@ func generateEnumMaskGroupBlock(
         "var \(offsetVarName) = 0"
 
         // Parse each field
-        for (variableName, fieldType, maskInfo) in maskGroup {
-            switch maskInfo.bitCount {
+        for maskAction in maskActions {
+            let variableName = maskAction.variableName
+            let fieldType = maskAction.variableType
+
+            switch maskAction.maskInfo.bitCount {
             case let .specified(count):
                 // Assert ExpressibleByRawBits for explicit bit count
                 """

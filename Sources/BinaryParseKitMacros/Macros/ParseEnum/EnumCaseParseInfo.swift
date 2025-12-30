@@ -148,7 +148,7 @@ struct EnumCaseMatchAction {
         }
 
         // Otherwise, parse as byte-based match
-        let bytes = try parseBytesArgument(in: arguments, at: 0)
+        let bytes = try parseBytesArgument(in: arguments)
         return .match(bytes: bytes)
     }
 
@@ -158,26 +158,34 @@ struct EnumCaseMatchAction {
 
     static func parseMatchAndTake(from attribute: AttributeSyntax) throws(ParseEnumMacroError) -> EnumCaseMatchAction {
         let arguments = attribute.arguments?.as(LabeledExprListSyntax.self)
-        let bytes = try parseBytesArgument(in: arguments, at: 0)
+        let bytes = try parseBytesArgument(in: arguments)
 
         return .matchAndTake(bytes: bytes)
     }
 
-    private static func parseBytesArgument(
-        in list: LabeledExprListSyntax?,
-        at index: Int,
-    ) throws(ParseEnumMacroError) -> ExprSyntax? {
-        guard let list else {
+    private static func parseBytesArgument(in list: LabeledExprListSyntax?) throws(ParseEnumMacroError) -> ExprSyntax? {
+        guard let list, !list.isEmpty else {
             return nil
         }
 
-        let byteCountArgument = list[list.index(at: index)]
-        return if byteCountArgument.label?.text == "byte" {
-            "[\(byteCountArgument.expression)]"
-        } else if byteCountArgument.label?.text == "bytes" {
-            byteCountArgument.expression
+        let byteCountArguments = list.compactMap { labelExpr -> ExprSyntax? in
+            if labelExpr.label?.text == "byte" {
+                "[\(labelExpr.expression)]"
+            } else if labelExpr.label?.text == "bytes" {
+                labelExpr.expression
+            } else {
+                nil
+            }
+        }
+
+        if let byteCountArgument = byteCountArguments.first {
+            if byteCountArguments.count > 1 {
+                throw .unexpectedError(description: "Multiple 'byte' or 'bytes' arguments found.")
+            } else {
+                return byteCountArgument
+            }
         } else {
-            nil
+            throw .unexpectedError(description: "Expected 'byte' or 'bytes' argument.")
         }
     }
 }

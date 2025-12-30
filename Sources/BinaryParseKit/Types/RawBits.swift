@@ -19,7 +19,7 @@ public struct RawBits: Sendable {
     private static let BitsPerWord = 8
 
     /// The underlying byte storage.
-    public fileprivate(set) var data: Data
+    public private(set) var data: Data
 
     /// Creates a RawBits instance from Data with a specified bit count.
     ///
@@ -34,7 +34,7 @@ public struct RawBits: Sendable {
         let requiredBytes = (size + Self.BitsPerWord - 1) / Self.BitsPerWord
 
         if requiredBytes == 0 {
-            self = .init(data: .init())
+            self = .init()
             return
         }
 
@@ -65,8 +65,7 @@ public struct RawBits: Sendable {
 
     /// Creates an empty RawBits instance.
     public init() {
-        data = Data()
-        size = 0
+        self = .init(data: .init())
     }
 
     /// The number of bytes needed to store the bits.
