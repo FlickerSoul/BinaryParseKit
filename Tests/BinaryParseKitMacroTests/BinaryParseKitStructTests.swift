@@ -838,7 +838,7 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         return .struct(
                             .init(
-                                fields: []
+                                fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(flag1)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(value)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(flag2))]
                             )
                         )
                     }
@@ -904,7 +904,7 @@ extension BinaryParseKitMacroTests {
                     internal func printerIntel() throws -> PrinterIntel {
                         return .struct(
                             .init(
-                                fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(header)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(footer))]
+                                fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(header)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(flag)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(data)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(footer))]
                             )
                         )
                     }

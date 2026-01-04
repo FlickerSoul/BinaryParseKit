@@ -195,8 +195,18 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                     let argumentBindingToken = context.makeUniqueName(
                                         "\(caseParseInfo.caseElementName)_\(maskParseInfo.firstName ?? "index_\(raw: index)")",
                                     )
-                                    // TODO: Add proper printer support for mask fields
-                                    // For now, we just bind the variable without adding printer info
+                                    // Mask fields now conform to Printable via RawBitsConvertible
+                                    // Include them in printer intel with nil byte count (the bitmask intel
+                                    // will handle the proper bit-level representation)
+                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                    let _ = parseSkipMacroInfo.append(
+                                        .init(
+                                            binding: argumentBindingToken,
+                                            byteCount: nil,
+                                            endianness: nil,
+                                        ),
+                                    )
+
                                     LabeledExprSyntax(
                                         label: nil,
                                         expression: PatternExprSyntax(

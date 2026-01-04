@@ -118,6 +118,19 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                 }
             }
 
-        return [bitmaskParsableExtension, rawBitsConvertibleExtension]
+        let printableExtension =
+            try ExtensionDeclSyntax(
+                "extension \(type): \(raw: Constants.Protocols.printableProtocol)",
+            ) {
+                // printerIntel() method
+                try FunctionDeclSyntax(
+                    "\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel",
+                ) {
+                    "let bits = try self.toRawBits(bitCount: Self.bitCount)"
+                    "return .bitmask(.init(bits: bits))"
+                }
+            }
+
+        return [bitmaskParsableExtension, rawBitsConvertibleExtension, printableExtension]
     }
 }

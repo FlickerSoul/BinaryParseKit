@@ -46,6 +46,10 @@ public struct ByteArrayPrinter: Printer {
             )
         case let .skip(skipPrinterIntel):
             return Array(repeating: 0, count: skipPrinterIntel.byteCount)
+        case let .bitmask(bitmaskPrinterIntel):
+            // Convert RawBits to byte array
+            let bits = bitmaskPrinterIntel.bits
+            return Array(bits.data.prefix(bits.byteCount))
         }
     }
 

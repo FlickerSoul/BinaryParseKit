@@ -83,9 +83,16 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                         ),
                     )
                 case .mask:
-                    // TODO: Add proper printer support for mask fields
-                    // For now, mask fields are not included in printer intel
-                    continue
+                    // Mask fields now conform to Printable via RawBitsConvertible
+                    // Include them in printer intel with nil byte count (the bitmask intel
+                    // will handle the proper bit-level representation)
+                    parseSkipMacroInfo.append(
+                        .init(
+                            binding: variableName,
+                            byteCount: nil,
+                            endianness: nil,
+                        ),
+                    )
                 }
             }
         }

@@ -12,6 +12,7 @@ public enum PrinterIntel: Equatable {
     case `enum`(EnumCasePrinterIntel)
     case builtIn(BuiltInPrinterIntel)
     case skip(SkipPrinterIntel)
+    case bitmask(BitmaskPrinterIntel)
 }
 
 public extension PrinterIntel {
@@ -119,6 +120,18 @@ public extension PrinterIntel {
             self.bytes = bytes
             self.parseType = parseType
             self.fields = fields
+        }
+    }
+}
+
+public extension PrinterIntel {
+    /// An instruction representing a bitmask struct with bit-level fields
+    struct BitmaskPrinterIntel: Equatable {
+        /// The raw bits representation of the bitmask
+        public let bits: RawBits
+
+        public init(bits: RawBits) {
+            self.bits = bits
         }
     }
 }

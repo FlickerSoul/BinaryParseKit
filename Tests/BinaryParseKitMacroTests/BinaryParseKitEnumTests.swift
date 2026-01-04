@@ -1204,7 +1204,7 @@ extension BinaryParseKitMacroTests {
                                 .init(
                                     bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
-                                    fields: [],
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_0fMu_)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_1fMu_))],
                                 )
                             )
                         case let .mixed(__macro_local_13mixed_index_0fMu_, __macro_local_11mixed_valuefMu_, __macro_local_10mixed_flagfMu_):
@@ -1213,7 +1213,7 @@ extension BinaryParseKitMacroTests {
                                 .init(
                                     bytes: __macro_local_20bytesTakenInMatchingfMu0_,
                                     parseType: .match,
-                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13mixed_index_0fMu_))],
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13mixed_index_0fMu_)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_11mixed_valuefMu_)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_10mixed_flagfMu_))],
                                 )
                             )
                         }
@@ -1304,7 +1304,7 @@ extension BinaryParseKitMacroTests {
                                 .init(
                                     bytes: __macro_local_20bytesTakenInMatchingfMu_,
                                     parseType: .match,
-                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_2fMu_)), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2))))],
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_0fMu_)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_1fMu_)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_2fMu_)), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_3fMu_)), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_13flags_index_5fMu_))],
                                 )
                             )
                         }

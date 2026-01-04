@@ -10,7 +10,7 @@ import Testing
 
 extension BinaryParseKitMacroTests {
     @Suite
-    struct `Test Parsing Bitmask` {
+    struct `Test Parsing Bitmask` { // swiftlint:disable:this type_body_length
         @Test
         func `successful expansion`() {
             assertMacro {
@@ -53,6 +53,25 @@ extension BinaryParseKitMacroTests {
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
                         self.flag2 = try BinaryParseKit.__parseFromBits((Bool).self, from: bits, offset: offset, count: (Bool).bitCount)
                         offset += (Bool).bitCount
+                    }
+                }
+
+                extension Flags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag1, bitCount: 1))
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 3))
+                        // Convert `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertRawBitsConvertible((Bool).self)
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag2, bitCount: (Bool).bitCount))
+                        return result
+                    }
+                }
+
+                extension Flags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
                     }
                 }
                 """
@@ -158,6 +177,21 @@ extension BinaryParseKitMacroTests {
                         offset += 1
                     }
                 }
+
+                extension SingleFlag: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag, bitCount: 1))
+                        return result
+                    }
+                }
+
+                extension SingleFlag: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
+                    }
+                }
                 """
             }
         }
@@ -196,6 +230,21 @@ extension BinaryParseKitMacroTests {
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         self.value = try BinaryParseKit.__parseFromBits((UInt8).self, from: bits, offset: offset, count: 4)
                         offset += 4
+                    }
+                }
+
+                extension Flags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 4))
+                        return result
+                    }
+                }
+
+                extension Flags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
                     }
                 }
                 """
@@ -240,6 +289,21 @@ extension BinaryParseKitMacroTests {
                         offset += 8
                     }
                 }
+
+                extension Flags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.rawValue, bitCount: 8))
+                        return result
+                    }
+                }
+
+                extension Flags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
+                    }
+                }
                 """
             }
         }
@@ -273,6 +337,21 @@ extension BinaryParseKitMacroTests {
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         self.value = try BinaryParseKit.__parseFromBits((UInt8).self, from: bits, offset: offset, count: 8)
                         offset += 8
+                    }
+                }
+
+                extension Flags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 8))
+                        return result
+                    }
+                }
+
+                extension Flags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
                     }
                 }
                 """
@@ -315,6 +394,26 @@ extension BinaryParseKitMacroTests {
                         offset += (Bool).bitCount
                     }
                 }
+
+                extension InferredFlags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        // Convert `flag1` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertRawBitsConvertible((Bool).self)
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag1, bitCount: (Bool).bitCount))
+                        // Convert `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertRawBitsConvertible((Bool).self)
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag2, bitCount: (Bool).bitCount))
+                        return result
+                    }
+                }
+
+                extension InferredFlags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
+                    }
+                }
                 """
             }
         }
@@ -345,6 +444,21 @@ extension BinaryParseKitMacroTests {
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         self.flag = try BinaryParseKit.__parseFromBits((Bool).self, from: bits, offset: offset, count: 1)
                         offset += 1
+                    }
+                }
+
+                extension PublicFlags: BinaryParseKit.RawBitsConvertible {
+                    public func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag, bitCount: 1))
+                        return result
+                    }
+                }
+
+                extension PublicFlags: BinaryParseKit.Printable {
+                    public func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
                     }
                 }
                 """
