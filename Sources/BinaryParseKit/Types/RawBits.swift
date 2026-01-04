@@ -122,6 +122,72 @@ public struct RawBits: Sendable {
     }
 }
 
+// MARK: - Concatenation
+
+public extension RawBits {
+    /// Appends another RawBits to this one, returning a new combined RawBits.
+    ///
+    /// The bits from `other` are placed immediately after the bits of `self`,
+    /// maintaining MSB-first ordering.
+    ///
+    /// - Parameter other: The RawBits to append
+    /// - Returns: A new RawBits containing both bit sequences
+    func appending(_ other: RawBits) -> RawBits {
+        if size == 0 {
+            return other
+        }
+        if other.size == 0 {
+            return self
+        }
+
+        let totalSize = size + other.size
+        let resultByteCount = (totalSize + Self.BitsPerWord - 1) / Self.BitsPerWord
+        var resultData = Data(repeating: 0, count: resultByteCount)
+
+        // Copy self's bytes
+        let selfByteCount = (size + Self.BitsPerWord - 1) / Self.BitsPerWord
+        for i in 0 ..< selfByteCount {
+            resultData[i] = data[data.startIndex + i]
+        }
+
+        // Calculate where to start appending other's bits
+        let bitOffset = size % Self.BitsPerWord
+
+        if bitOffset == 0 {
+            // Byte-aligned: just copy other's bytes
+            let otherByteCount = (other.size + Self.BitsPerWord - 1) / Self.BitsPerWord
+            for i in 0 ..< otherByteCount {
+                resultData[selfByteCount + i] = other.data[other.data.startIndex + i]
+            }
+        } else {
+            // Non-aligned: need to shift and merge
+            let otherByteCount = (other.size + Self.BitsPerWord - 1) / Self.BitsPerWord
+            var destIndex = selfByteCount - 1
+
+            for i in 0 ..< otherByteCount {
+                let otherByte = other.data[other.data.startIndex + i]
+                // High bits go into current byte
+                resultData[destIndex] |= otherByte >> bitOffset
+                // Low bits go into next byte
+                destIndex += 1
+                if destIndex < resultByteCount {
+                    resultData[destIndex] = otherByte << (Self.BitsPerWord - bitOffset)
+                }
+            }
+        }
+
+        return RawBits(data: resultData, size: totalSize)
+    }
+
+    /// Concatenates multiple RawBits instances into one.
+    ///
+    /// - Parameter bits: The RawBits instances to concatenate
+    /// - Returns: A new RawBits containing all bit sequences in order
+    static func concatenate(_ bits: [RawBits]) -> RawBits {
+        bits.reduce(RawBits()) { $0.appending($1) }
+    }
+}
+
 // MARK: - Slicing
 
 public extension RawBits {

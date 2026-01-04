@@ -79,3 +79,25 @@ public func __parseFromBits<T: ExpressibleByRawBits>(
     let slice = bits.slice(from: offset, count: count)
     return try T(bits: slice)
 }
+
+// MARK: - RawBits Conversion Utilities
+
+/// Asserts that the given type conforms to `RawBitsConvertible` and `BitCountProviding`.
+/// - Warning: This function is used by `@ParseBitmask` macro and should not be used directly.
+@inlinable
+public func __assertRawBitsConvertible(_: (some RawBitsConvertible & BitCountProviding).Type) {}
+
+/// Converts a value to RawBits with the specified bit count.
+/// - Warning: This function is used by bitmask macros and should not be used directly.
+/// - Parameters:
+///   - value: The value to convert
+///   - bitCount: The number of bits to produce
+/// - Returns: The raw bits representation
+/// - Throws: An error if the conversion cannot be performed
+@inlinable
+public func __toRawBits(
+    _ value: some RawBitsConvertible,
+    bitCount: Int,
+) throws -> RawBits {
+    try value.toRawBits(bitCount: bitCount)
+}

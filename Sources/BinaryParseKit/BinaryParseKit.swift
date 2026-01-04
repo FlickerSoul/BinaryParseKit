@@ -677,6 +677,7 @@ public macro mask() = #externalMacro(
     extension,
     conformances: BinaryParseKit.ExpressibleByRawBits,
     BinaryParseKit.BitCountProviding,
+    BinaryParseKit.RawBitsConvertible,
     names: arbitrary
 )
 public macro ParseBitmask(

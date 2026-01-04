@@ -87,6 +87,37 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                 }
             }
 
-        return [bitmaskParsableExtension]
+        let rawBitsConvertibleExtension =
+            try ExtensionDeclSyntax(
+                "extension \(type): \(raw: Constants.Protocols.rawBitsConvertibleProtocol)",
+            ) {
+                // toRawBits(bitCount:) method
+                try FunctionDeclSyntax(
+                    "\(accessorInfo.printingAccessor) func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits",
+                ) {
+                    "var result = BinaryParseKit.RawBits()"
+
+                    for fieldInfo in fieldVisitor.fields.values {
+                        switch fieldInfo.maskInfo.bitCount {
+                        case let .specified(count):
+                            """
+                            // Convert `\(fieldInfo.name)` of type `\(fieldInfo.type)` with specified bit count \(count
+                                .expr)
+                            """
+                            "result = result.appending(try \(raw: Constants.UtilityFunctions.toRawBits)(self.\(fieldInfo.name), bitCount: \(count.expr)))"
+                        case .inferred:
+                            """
+                            // Convert `\(fieldInfo.name)` of type `\(fieldInfo.type)` with inferred bit count
+                            \(raw: Constants.UtilityFunctions.assertRawBitsConvertible)((\(fieldInfo.type)).self)
+                            """
+                            "result = result.appending(try \(raw: Constants.UtilityFunctions.toRawBits)(self.\(fieldInfo.name), bitCount: (\(fieldInfo.type)).bitCount))"
+                        }
+                    }
+
+                    "return result"
+                }
+            }
+
+        return [bitmaskParsableExtension, rawBitsConvertibleExtension]
     }
 }

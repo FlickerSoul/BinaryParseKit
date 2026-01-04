@@ -250,18 +250,26 @@ struct BitmaskParsingTest {
     }
 }
 
-extension UInt16: ExpressibleByRawBits {
+extension UInt16: ExpressibleByRawBits, RawBitsConvertible {
     public init(bits: RawBits) throws {
         self = try bits.data.withParserSpan { span in
             try UInt16(parsingBigEndian: &span) >> (16 - bits.size)
         }
     }
+
+    public func toRawBits(bitCount: Int) throws -> RawBits {
+        RawBits(data: withUnsafeBytes(of: bigEndian) { Data($0) }, size: bitCount)
+    }
 }
 
-extension UInt32: ExpressibleByRawBits {
+extension UInt32: ExpressibleByRawBits, RawBitsConvertible {
     public init(bits: RawBits) throws {
         self = try bits.data.withParserSpan { span in
             try UInt32(parsingBigEndian: &span) >> (32 - bits.size)
         }
+    }
+
+    public func toRawBits(bitCount: Int) throws -> RawBits {
+        RawBits(data: withUnsafeBytes(of: bigEndian) { Data($0) }, size: bitCount)
     }
 }

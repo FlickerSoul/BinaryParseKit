@@ -37,6 +37,7 @@ extension Constants {
         static let printableProtocol = PackageMember(name: "Printable")
         static let expressibleByRawBitsProtocol = PackageMember(name: "ExpressibleByRawBits")
         static let bitCountProvidingProtocol = PackageMember(name: "BitCountProviding")
+        static let rawBitsConvertibleProtocol = PackageMember(name: "RawBitsConvertible")
     }
 }
 
@@ -51,7 +52,9 @@ extension Constants {
         static let getPrintIntel = PackageMember(name: "__getPrinterIntel")
         static let assertBitmaskParsable = PackageMember(name: "__assertBitmaskParsable")
         static let assertExpressibleByRawBits = PackageMember(name: "__assertExpressibleByRawBits")
+        static let assertRawBitsConvertible = PackageMember(name: "__assertRawBitsConvertible")
         static let parseFromBits = PackageMember(name: "__parseFromBits")
+        static let toRawBits = PackageMember(name: "__toRawBits")
     }
 }
 

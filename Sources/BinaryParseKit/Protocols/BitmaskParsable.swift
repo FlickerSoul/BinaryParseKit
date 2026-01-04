@@ -60,3 +60,36 @@ public protocol BitCountProviding {
     /// The number of bits this type occupies.
     static var bitCount: Int { get }
 }
+
+/// A protocol for types that can be converted to a bit sequence.
+///
+/// Types conforming to this protocol can produce raw bits representation,
+/// enabling bit-level printing/serialization of binary data structures.
+/// This is the inverse of ``ExpressibleByRawBits``.
+///
+/// The returned `RawBits` must have exactly `bitCount` bits, properly padded
+/// in MSB-first order. For values smaller than `bitCount` bits, the value
+/// should be placed in the most significant bits of the result.
+///
+/// Example:
+/// ```swift
+/// struct Priority: RawBitsConvertible {
+///     let value: UInt8
+///
+///     func toRawBits(bitCount: Int) throws -> RawBits {
+///         // Value is placed in MSB position, e.g., for 3 bits:
+///         // value=5 (0b101) becomes 0b10100000 in the byte
+///         let byte = value << (8 - bitCount)
+///         return RawBits(data: Data([byte]), size: bitCount)
+///     }
+/// }
+/// ```
+public protocol RawBitsConvertible {
+    /// Converts this instance to a bit sequence.
+    ///
+    /// - Parameter bitCount: The number of bits to produce. The returned
+    ///   `RawBits` must have exactly this many bits, padded appropriately.
+    /// - Returns: The raw bits representation of this value with proper padding
+    /// - Throws: An error if the conversion cannot be performed
+    func toRawBits(bitCount: Int) throws -> RawBits
+}
