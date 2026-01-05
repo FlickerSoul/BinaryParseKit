@@ -710,6 +710,164 @@ struct EnumMaskParsingTest {
         // First 12 bits: 1010 1011 0011 = 0xAB3 = 2739
         // Last 4 bits: 0100 = 4
         let result = try MultiByteMask(parsing: Data([0x01, 0b1010_1011, 0b0011_0100]))
-        #expect(result == .wide(2739, 4))
+        #expect(result == .wide(0b1010_1011_0011_0000, 0b0100))
+    }
+}
+
+// MARK: - @ParseEnum Mask Printing Integration Tests
+
+@Suite
+struct EnumMaskPrintingTest {
+    // MARK: - Basic Mask Round-Trip Tests
+
+    @ParseEnum
+    enum BasicEnumWithMask: Equatable {
+        @matchAndTake(byte: 0x01)
+        @mask(bitCount: 1)
+        @mask(bitCount: 7)
+        case flags(UInt8, UInt8)
+
+        @matchAndTake(byte: 0x02)
+        @parse(endianness: .big)
+        case simple(UInt16)
+    }
+
+    @Test("Enum with mask round-trip")
+    func enumWithMaskRoundTrip() throws {
+        // Match byte 0x01 (consumed), then parse: 1 0110100 = 0xB4
+        let originalData = Data([0x01, 0b1011_0100])
+        let parsed = try BasicEnumWithMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x01, 0b1011_0100])
+    }
+
+    @Test("Enum with mask round-trip all zeros")
+    func enumWithMaskRoundTripAllZeros() throws {
+        let originalData = Data([0x01, 0x00])
+        let parsed = try BasicEnumWithMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x01, 0x00])
+    }
+
+    @Test("Enum with mask round-trip all ones")
+    func enumWithMaskRoundTripAllOnes() throws {
+        let originalData = Data([0x01, 0xFF])
+        let parsed = try BasicEnumWithMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x01, 0xFF])
+    }
+
+    @Test("Enum simple case round-trip")
+    func enumSimpleCaseRoundTrip() throws {
+        let originalData = Data([0x02, 0x12, 0x34])
+        let parsed = try BasicEnumWithMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x02, 0x12, 0x34])
+    }
+
+    // MARK: - Mixed Parse and Mask Round-Trip Tests
+
+    @ParseEnum
+    enum MixedParseAndMask: Equatable {
+        @matchAndTake(byte: 0x01)
+        @parse(endianness: .big)
+        @mask(bitCount: 4)
+        @mask(bitCount: 4)
+        case mixed(UInt16, nibble1: UInt8, nibble2: UInt8)
+
+        @matchAndTake(byte: 0x02)
+        @mask(bitCount: 8)
+        case singleMask(UInt8)
+    }
+
+    @Test("Enum with mixed @parse and @mask round-trip")
+    func enumMixedParseAndMaskRoundTrip() throws {
+        // Match 0x01 (consumed), then parse UInt16 BE (0x1234), then parse mask byte: 1010 0101 = 0xA5
+        let originalData = Data([0x01, 0x12, 0x34, 0xA5])
+        let parsed = try MixedParseAndMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x01, 0x12, 0x34, 0xA5])
+    }
+
+    @Test("Enum single mask case round-trip")
+    func enumSingleMaskCaseRoundTrip() throws {
+        let originalData = Data([0x02, 0x42])
+        let parsed = try MixedParseAndMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x02, 0x42])
+    }
+
+    // MARK: - Multiple Mask Groups Round-Trip Tests
+
+    @ParseEnum
+    enum MultipleMaskGroups: Equatable {
+        @matchAndTake(byte: 0x01)
+        @mask(bitCount: 2)
+        @mask(bitCount: 6)
+        @parse(endianness: .big)
+        @mask(bitCount: 4)
+        @mask(bitCount: 4)
+        case complex(group1a: UInt8, group1b: UInt8, separator: UInt8, group2a: UInt8, group2b: UInt8)
+    }
+
+    @Test("Enum with multiple mask groups round-trip")
+    func enumMultipleMaskGroupsRoundTrip() throws {
+        // Match 0x01 (consumed)
+        // First mask group: 11 010110 = 0xD6 -> group1a=3, group1b=22
+        // Separator: 0xFF
+        // Second mask group: 1010 0101 = 0xA5 -> group2a=10, group2b=5
+        let originalData = Data([0x01, 0xD6, 0xFF, 0xA5])
+        let parsed = try MultipleMaskGroups(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x01, 0xD6, 0xFF, 0xA5])
+    }
+
+    // MARK: - Mask with Skip Round-Trip Tests
+
+    @ParseEnum
+    enum MaskWithSkip: Equatable {
+        @matchAndTake(byte: 0x01)
+        @skip(byteCount: 2, because: "reserved")
+        @mask(bitCount: 4)
+        @mask(bitCount: 4)
+        case withPadding(UInt8, UInt8)
+    }
+
+    @Test("Enum with skip before mask round-trip")
+    func enumMaskWithSkipRoundTrip() throws {
+        // Match 0x01 (consumed), skip 2 bytes, then parse mask: 1100 0011 = 0xC3
+        let originalData = Data([0x01, 0xFF, 0xFF, 0xC3])
+        let parsed = try MaskWithSkip(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        // Skip bytes become zeros in output
+        #expect(printedBytes == [0x01, 0x00, 0x00, 0xC3])
+    }
+
+    // MARK: - Multi-byte Mask Round-Trip Tests
+
+    @ParseEnum
+    enum MultiByteMask: Equatable {
+        @matchAndTake(byte: 0x01)
+        @mask(bitCount: 12)
+        @mask(bitCount: 4)
+        case wide(UInt16, UInt8)
+    }
+
+    @Test("Enum with multi-byte mask round-trip")
+    func enumMultiByteMaskRoundTrip() throws {
+        // Match 0x01 (consumed), then parse 16 bits: 1010 1011 0011 0100 = 0xAB34
+        let originalData = Data([0x01, 0b1010_1011, 0b0011_0100])
+        let parsed = try MultiByteMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x01, 0b1010_1011, 0b0011_0100])
     }
 }

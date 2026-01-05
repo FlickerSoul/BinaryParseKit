@@ -36,7 +36,6 @@ enum ParseActionGroup {
 func computeEnumActionGroups(
     from parseActions: [EnumParseAction],
     caseElementName: TokenSyntax,
-    type: some TypeSyntaxProtocol,
     context: some MacroExpansionContext,
 ) -> ([ParseActionGroup], OrderedDictionary<TokenSyntax, TokenSyntax?>) {
     var result: [ParseActionGroup] = []
@@ -54,9 +53,7 @@ func computeEnumActionGroups(
         switch parseAction {
         case let .parse(caseArgParseInfo):
             flushMaskGroup()
-            let variableName = caseArgParseInfo.firstName ?? context.makeUniqueName(
-                "\(type)_\(caseElementName.text)_\(arguments.count)".escapeForVariableName(),
-            )
+            let variableName = caseArgParseInfo.firstName ?? context.makeUniqueName("__parse_\(arguments.count)th_arg_")
             result.append(.parse(.init(
                 variableName: variableName,
                 variableType: caseArgParseInfo.type,
@@ -67,9 +64,7 @@ func computeEnumActionGroups(
             flushMaskGroup()
             result.append(.skip(.init(variableName: caseElementName, skipInfo: skipInfo)))
         case let .mask(maskArgInfo):
-            let variableName = maskArgInfo.firstName ?? context.makeUniqueName(
-                "\(type)_\(caseElementName.text)_\(arguments.count)".escapeForVariableName(),
-            )
+            let variableName = maskArgInfo.firstName ?? context.makeUniqueName("__mask_\(arguments.count)th_arg_")
             pendingMaskGroup.append(.init(
                 variableName: variableName,
                 variableType: maskArgInfo.type,

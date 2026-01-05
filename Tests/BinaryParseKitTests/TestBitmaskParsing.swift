@@ -250,10 +250,156 @@ struct BitmaskParsingTest {
     }
 }
 
+// MARK: - @ParseBitmask Printing Integration Tests
+
+@Suite
+struct BitmaskPrintingTest {
+    // MARK: - Basic Round-Trip Tests
+
+    @ParseBitmask
+    struct BasicFlags {
+        @mask(bitCount: 1)
+        var flag1: UInt8
+
+        @mask(bitCount: 3)
+        var value: UInt8
+
+        @mask(bitCount: 4)
+        var nibble: UInt8
+    }
+
+    @Test("Basic bitmask round-trip: parse then print")
+    func basicBitmaskRoundTrip() throws {
+        // Binary: 1 010 0011 = 0xA3
+        let originalBytes = Data([0xA3])
+        let bits = RawBits(data: originalBytes, size: 8)
+        let flags = try BasicFlags(bits: bits)
+
+        // Print back to bytes
+        let printedBytes = try flags.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0xA3])
+    }
+
+    @Test("Basic bitmask round-trip: all zeros")
+    func basicBitmaskRoundTripAllZeros() throws {
+        let originalBytes = Data([0x00])
+        let bits = RawBits(data: originalBytes, size: 8)
+        let flags = try BasicFlags(bits: bits)
+
+        let printedBytes = try flags.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x00])
+    }
+
+    @Test("Basic bitmask round-trip: all ones")
+    func basicBitmaskRoundTripAllOnes() throws {
+        let originalBytes = Data([0xFF])
+        let bits = RawBits(data: originalBytes, size: 8)
+        let flags = try BasicFlags(bits: bits)
+
+        let printedBytes = try flags.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0xFF])
+    }
+
+    // MARK: - Multi-Byte Round-Trip Tests
+
+    @ParseBitmask
+    struct WideBitmask {
+        @mask(bitCount: 4)
+        var high: UInt8
+
+        @mask(bitCount: 8)
+        var middle: UInt8
+
+        @mask(bitCount: 4)
+        var low: UInt8
+    }
+
+    @Test("Multi-byte bitmask round-trip")
+    func multiByteBitmaskRoundTrip() throws {
+        // Binary: 1010 10110011 0100 = 0xAB 0x34
+        let originalBytes = Data([0xAB, 0x34])
+        let bits = RawBits(data: originalBytes, size: 16)
+        let wide = try WideBitmask(bits: bits)
+
+        let printedBytes = try wide.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0xAB, 0x34])
+    }
+
+    // MARK: - Non-Byte-Aligned Round-Trip Tests
+
+    @ParseBitmask
+    struct NonByteAligned {
+        @mask(bitCount: 3)
+        var first: UInt8
+
+        @mask(bitCount: 5)
+        var second: UInt8
+
+        @mask(bitCount: 2)
+        var third: UInt8
+    }
+
+    @Test("Non-byte-aligned bitmask round-trip (10 bits)")
+    func nonByteAlignedBitmaskRoundTrip() throws {
+        // Binary: 101 01100 11 = 10 bits
+        // Byte representation: 10101100 11000000 = 0xAC 0xC0
+        let bits = RawBits(data: Data([0xAC, 0xC0]), size: 10)
+        let bitmask = try NonByteAligned(bits: bits)
+
+        let printedBytes = try bitmask.printParsed(printer: .byteArray)
+        // Should output 2 bytes with the 10 bits at MSB
+        #expect(printedBytes == [0xAC, 0xC0])
+    }
+
+    // MARK: - toRawBits Tests
+
+    @Test("toRawBits produces correct bits")
+    func toRawBitsCorrectness() throws {
+        let flags = BasicFlags(flag1: 1, value: 2, nibble: 3)
+        let rawBits = try flags.toRawBits(bitCount: BasicFlags.bitCount)
+
+        #expect(rawBits.size == 8)
+        #expect(Array(rawBits.data) == [0xA3]) // 1 010 0011
+    }
+
+    @Test("toRawBits with different values")
+    func toRawBitsDifferentValues() throws {
+        let flags = BasicFlags(flag1: 0, value: 7, nibble: 15)
+        let rawBits = try flags.toRawBits(bitCount: BasicFlags.bitCount)
+
+        #expect(rawBits.size == 8)
+        // 0 111 1111 = 0x7F
+        #expect(Array(rawBits.data) == [0x7F])
+    }
+
+    // MARK: - printerIntel Tests
+
+    @Test("printerIntel returns bitmask intel")
+    func printerIntelReturnsBitmask() throws {
+        let bits = RawBits(data: Data([0xA3]), size: 8)
+        let flags = try BasicFlags(bits: bits)
+
+        let intel = try flags.printerIntel()
+        guard case let .bitmask(bitmaskIntel) = intel else {
+            Issue.record("Expected .bitmask intel, got \(intel)")
+            return
+        }
+
+        #expect(bitmaskIntel.bits.size == 8)
+        #expect(Array(bitmaskIntel.bits.data) == [0xA3])
+    }
+}
+
 extension UInt16: ExpressibleByRawBits, RawBitsConvertible {
     public init(bits: RawBits) throws {
-        self = try bits.data.withParserSpan { span in
-            try UInt16(parsingBigEndian: &span) >> (16 - bits.size)
+        let data = if bits.data.count < 2 {
+            bits.data + Data([UInt8](repeating: 0, count: 2 - bits.data.count))
+        } else {
+            bits.data
+        }
+
+        self = try data.withParserSpan { span in
+            try UInt16(parsingBigEndian: &span)
         }
     }
 
@@ -264,8 +410,13 @@ extension UInt16: ExpressibleByRawBits, RawBitsConvertible {
 
 extension UInt32: ExpressibleByRawBits, RawBitsConvertible {
     public init(bits: RawBits) throws {
-        self = try bits.data.withParserSpan { span in
-            try UInt32(parsingBigEndian: &span) >> (32 - bits.size)
+        let data = if bits.data.count < 4 {
+            bits.data + Data([UInt8](repeating: 0, count: 4 - bits.data.count))
+        } else {
+            bits.data
+        }
+        self = try data.withParserSpan { span in
+            try UInt32(parsingBigEndian: &span)
         }
     }
 

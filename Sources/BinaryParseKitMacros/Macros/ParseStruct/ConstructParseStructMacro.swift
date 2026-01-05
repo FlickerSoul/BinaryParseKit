@@ -33,15 +33,15 @@ public struct ConstructStructParseMacro: ExtensionMacro {
 
         let type = TypeSyntax(type)
 
+        // Group consecutive mask fields and process them together
+        // Pre-compute groups of actions
+        let actionGroups = computeStructActionGroups(from: structFieldInfo.variables)
+
         let extensionSyntax =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.parsableProtocol)") {
                 try InitializerDeclSyntax(
                     "\(accessorInfo.parsingAccessor) init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
-                    // Group consecutive mask fields and process them together
-                    // Pre-compute groups of actions
-                    let actionGroups = computeStructActionGroups(from: structFieldInfo.variables)
-
                     for actionGroup in actionGroups {
                         switch actionGroup {
                         case let .parse(parseInfo):
@@ -60,47 +60,67 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                 }
             }
 
-        // Collect printer field info before the result builder
-        var parseSkipMacroInfo: [PrintableFieldInfo] = []
-        for (variableName, variableInfo) in structFieldInfo.variables {
-            for parseAction in variableInfo.parseActions {
-                switch parseAction {
-                case let .parse(parseInfo):
-                    parseSkipMacroInfo.append(
-                        .init(
-                            binding: variableName,
-                            byteCount: parseInfo.byteCount.toExprSyntax()
-                                .map { "\(raw: Constants.Swift.byteCountType)(\($0))" },
-                            endianness: parseInfo.endianness,
-                        ),
-                    )
-                case let .skip(skipInfo):
-                    parseSkipMacroInfo.append(
-                        .init(
-                            binding: nil,
-                            byteCount: "\(raw: Constants.Swift.byteCountType)(\(raw: skipInfo.byteCount))",
-                            endianness: nil,
-                        ),
-                    )
-                case .mask:
-                    // Mask fields now conform to Printable via RawBitsConvertible
-                    // Include them in printer intel with nil byte count (the bitmask intel
-                    // will handle the proper bit-level representation)
-                    parseSkipMacroInfo.append(
-                        .init(
-                            binding: variableName,
-                            byteCount: nil,
-                            endianness: nil,
-                        ),
-                    )
-                }
-            }
-        }
-
         let printerExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
                 try FunctionDeclSyntax("\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel") {
-                    let fields = ArrayExprSyntax(elements: generatePrintableFields(parseSkipMacroInfo))
+                    var printingInfo: [PrintableFieldInfo] = []
+                    for parseAction in actionGroups {
+                        switch parseAction {
+                        case let .parse(parseInfo):
+                            // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                            let _ = printingInfo.append(
+                                .init(
+                                    content: .binding(fieldName: parseInfo.variableName),
+                                    byteCount: parseInfo.parseInfo.byteCount.toExprSyntax()
+                                        .map { "\(raw: Constants.Swift.byteCountType)(\($0))" },
+                                    endianness: parseInfo.parseInfo.endianness,
+                                ),
+                            )
+                        case let .skip(skipInfo):
+                            // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                            let _ = printingInfo.append(
+                                .init(
+                                    content: .skip,
+                                    byteCount: "\(raw: Constants.Swift.byteCountType)(\(raw: skipInfo.skipInfo.byteCount))",
+                                    endianness: nil,
+                                ),
+                            )
+                        case let .maskGroup(masks):
+                            // Mask fields now conform to Printable via RawBitsConvertible
+                            // Include them in printer intel with nil byte count (the bitmask intel
+                            // will handle the proper bit-level representation)
+                            let maskResult = context.makeUniqueName("__maskBits")
+
+                            let bitCountExtractExprs = masks
+                                .map { mask -> ExprSyntax in
+                                    "\(raw: Constants.UtilityFunctions.toRawBits)(\(mask.variableName), bitCount: \(mask.maskInfo.bitCount.expr(of: mask.variableType)))"
+                                }
+
+                            let combinedExpr: ExprSyntax = if let firstExpr = bitCountExtractExprs.first {
+                                bitCountExtractExprs.dropFirst().reduce("try \(firstExpr)") { partialResult, nextExpr in
+                                    "\(partialResult).appending(\(nextExpr))"
+                                }
+                            } else {
+                                "RawBits()"
+                            }
+
+                            """
+                            // bits from \(raw: masks.map(\.variableName.text).joined(separator: ", "))
+                            let \(maskResult) = \(combinedExpr)
+                            """
+
+                            // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                            let _ = printingInfo.append(
+                                .init(
+                                    content: .bits(variableName: maskResult),
+                                    byteCount: nil,
+                                    endianness: nil,
+                                ),
+                            )
+                        }
+                    }
+
+                    let fields = ArrayExprSyntax(elements: generatePrintableFields(printingInfo))
 
                     #"""
                     return .struct(

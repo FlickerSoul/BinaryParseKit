@@ -101,7 +101,6 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                         let (actionGroups, arguments) = computeEnumActionGroups(
                             from: caseParseInfo.parseActions,
                             caseElementName: caseParseInfo.caseElementName,
-                            type: type,
                             context: context,
                         )
 
@@ -153,71 +152,13 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
             try FunctionDeclSyntax("\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel") {
                 try SwitchExprSyntax("switch self") {
                     for caseParseInfo in parseInfo.caseParseInfo {
-                        var parseSkipMacroInfo: [PrintableFieldInfo] = []
+                        let (actionGroups, arguments) = computeEnumActionGroups(
+                            from: caseParseInfo.parseActions,
+                            caseElementName: caseParseInfo.caseElementName,
+                            context: context,
+                        )
 
-                        let arguments = LabeledExprListSyntax {
-                            for (index, parseAction) in caseParseInfo.parseActions.enumerated() {
-                                switch parseAction {
-                                case let .parse(enumCaseParameterParseInfo):
-                                    let argumentBindingToken = context.makeUniqueName(
-                                        "\(caseParseInfo.caseElementName)_\(enumCaseParameterParseInfo.firstName ?? "index_\(raw: index)")",
-                                    )
-                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
-                                    let _ = parseSkipMacroInfo.append(
-                                        .init(
-                                            binding: argumentBindingToken,
-                                            byteCount: enumCaseParameterParseInfo.parseInfo
-                                                .byteCount
-                                                .toExprSyntax()
-                                                .map { "\(raw: Constants.Swift.byteCountType)(\($0))" },
-                                            endianness: enumCaseParameterParseInfo.parseInfo.endianness,
-                                        ),
-                                    )
-
-                                    LabeledExprSyntax(
-                                        label: nil,
-                                        expression: PatternExprSyntax(
-                                            pattern: IdentifierPatternSyntax(
-                                                identifier: argumentBindingToken,
-                                            ),
-                                        ),
-                                    )
-                                case let .skip(skipMacroInfo):
-                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
-                                    let _ = parseSkipMacroInfo.append(
-                                        .init(
-                                            binding: nil,
-                                            byteCount: "\(raw: Constants.Swift.byteCountType)(\(raw: skipMacroInfo.byteCount))",
-                                            endianness: nil,
-                                        ),
-                                    )
-                                case let .mask(maskParseInfo):
-                                    let argumentBindingToken = context.makeUniqueName(
-                                        "\(caseParseInfo.caseElementName)_\(maskParseInfo.firstName ?? "index_\(raw: index)")",
-                                    )
-                                    // Mask fields now conform to Printable via RawBitsConvertible
-                                    // Include them in printer intel with nil byte count (the bitmask intel
-                                    // will handle the proper bit-level representation)
-                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
-                                    let _ = parseSkipMacroInfo.append(
-                                        .init(
-                                            binding: argumentBindingToken,
-                                            byteCount: nil,
-                                            endianness: nil,
-                                        ),
-                                    )
-
-                                    LabeledExprSyntax(
-                                        label: nil,
-                                        expression: PatternExprSyntax(
-                                            pattern: IdentifierPatternSyntax(
-                                                identifier: argumentBindingToken,
-                                            ),
-                                        ),
-                                    )
-                                }
-                            }
-                        }
+                        let argumentList = arguments.asArgumentList
 
                         let caseLabel = SwitchCaseLabelSyntax(
                             caseItems: SwitchCaseItemListSyntax {
@@ -230,7 +171,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                                     calledExpression: MemberAccessExprSyntax(name: caseParseInfo
                                                         .caseElementName),
                                                     leftParen: .leftParenToken(),
-                                                    arguments: arguments,
+                                                    arguments: argumentList,
                                                     rightParen: .rightParenToken(),
                                                 ),
                                             ),
@@ -248,7 +189,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             })
 
                         let caseCodeBlock = try CodeBlockItemListSyntax {
-                            let bytesTakenInMatching = context.makeUniqueName("bytesTakenInMatching")
+                            let bytesTakenInMatching = context.makeUniqueName("__bytesTakenInMatching")
 
                             if caseParseInfo.matchAction.target.isLengthMatch
                                 || caseParseInfo.matchAction.target.isDefaultMatch {
@@ -264,7 +205,59 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
 
                             let matchPolicy = caseParseInfo.matchAction.matchPolicy
 
-                            let fields = ArrayExprSyntax(elements: generatePrintableFields(parseSkipMacroInfo))
+                            var printerInfo: [PrintableFieldInfo] = []
+
+                            for action in actionGroups {
+                                switch action {
+                                case let .parse(caseParseInfo):
+                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                    let _ = printerInfo.append(
+                                        .init(
+                                            content: .binding(fieldName: caseParseInfo.variableName),
+                                            byteCount: caseParseInfo.parseInfo
+                                                .byteCount
+                                                .toExprSyntax()
+                                                .map { "\(raw: Constants.Swift.byteCountType)(\($0))" },
+                                            endianness: caseParseInfo.parseInfo.endianness,
+                                        ),
+                                    )
+                                case let .skip(skipInfo):
+                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                    let _ = printerInfo.append(.init(
+                                        content: .skip,
+                                        byteCount: "\(raw: Constants.Swift.byteCountType)(\(raw: skipInfo.skipInfo.byteCount))",
+                                        endianness: nil,
+                                    ))
+                                case let .maskGroup(masks):
+                                    let bitsVariableName = context.makeUniqueName("__maskBits")
+                                    let maskBits = masks.map { mask -> ExprSyntax in
+                                        "\(raw: Constants.UtilityFunctions.toRawBits)(\(mask.variableName), bitCount: \(mask.maskInfo.bitCount.expr(of: mask.variableType)))"
+                                    }
+
+                                    let rawBits: ExprSyntax = if let firstMask = maskBits.first {
+                                        maskBits.dropFirst().reduce("try \(firstMask)") { partialResult, nextExpr in
+                                            "\(partialResult).appending(\(nextExpr))"
+                                        }
+                                    } else {
+                                        "RawBits()"
+                                    }
+                                    """
+                                    // bits from \(raw: masks.map(\.variableName.text).joined(separator: ", "))
+                                    let \(bitsVariableName) = \(rawBits)
+                                    """
+
+                                    // swiftformat:disable:next redundantLet swiftlint:disable:next redundant_discardable_let
+                                    let _ = printerInfo.append(
+                                        .init(
+                                            content: .bits(variableName: bitsVariableName),
+                                            byteCount: nil,
+                                            endianness: nil,
+                                        ),
+                                    )
+                                }
+                            }
+
+                            let fields = ArrayExprSyntax(elements: generatePrintableFields(printerInfo))
 
                             #"""
                             return .enum(

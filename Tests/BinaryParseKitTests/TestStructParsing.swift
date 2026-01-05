@@ -585,7 +585,7 @@ struct StructMaskParsingTest {
     // MARK: - Custom Types for Bitmask Testing
 
     /// A simple flag type that conforms to BitmaskParsable with 1 bit.
-    struct Flag: ExpressibleByRawBits, BitCountProviding, Equatable {
+    struct Flag: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
         static var bitCount: Int { 1 }
         let value: Bool
 
@@ -599,10 +599,14 @@ struct StructMaskParsingTest {
             }
             value = bits.bit(at: 0)
         }
+
+        func toRawBits(bitCount: Int) throws -> RawBits {
+            try value.toRawBits(bitCount: bitCount)
+        }
     }
 
     /// A 4-bit nibble type that conforms to BitmaskParsable.
-    struct Nibble: ExpressibleByRawBits, BitCountProviding, Equatable {
+    struct Nibble: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
         static var bitCount: Int { 4 }
         let value: UInt8
 
@@ -617,10 +621,14 @@ struct StructMaskParsingTest {
             }
             value = UInt8(bits.extractBits(from: 0, count: bits.size))
         }
+
+        func toRawBits(bitCount: Int) throws -> RawBits {
+            try value.toRawBits(bitCount: bitCount)
+        }
     }
 
     /// A 3-bit value type for testing.
-    struct ThreeBit: ExpressibleByRawBits, BitCountProviding, Equatable {
+    struct ThreeBit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
         static var bitCount: Int { 3 }
         let value: UInt8
 
@@ -634,6 +642,10 @@ struct StructMaskParsingTest {
                 throw BitmaskParsableError.unsupportedBitCount
             }
             value = UInt8(bits.extractBits(from: 0, count: bits.size))
+        }
+
+        func toRawBits(bitCount: Int) throws -> RawBits {
+            try value.toRawBits(bitCount: bitCount)
         }
     }
 
@@ -858,5 +870,160 @@ struct StructMaskParsingTest {
         let parsed = try SkipWithMask(parsing: Data([0xFF, 0xFF, 0xC3]))
         #expect(parsed.value == 12) // 0b1100
         #expect(parsed.flags == 3) // 0b0011
+    }
+}
+
+// MARK: - @ParseStruct Mask Printing Integration Tests
+
+@Suite
+struct StructMaskPrintingTest {
+    // MARK: - Basic Mask Round-Trip Tests
+
+    @ParseStruct
+    struct BasicBitmask {
+        @mask(bitCount: 1)
+        var flag1: UInt8
+
+        @mask(bitCount: 3)
+        var value: UInt8
+
+        @mask(bitCount: 4)
+        var nibble: UInt8
+    }
+
+    @Test("Basic bitmask struct round-trip")
+    func basicBitmaskRoundTrip() throws {
+        // Binary: 1 010 0011 = 0xA3
+        let originalData = Data([0xA3])
+        let parsed = try BasicBitmask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0xA3])
+    }
+
+    @Test("Basic bitmask struct round-trip all zeros")
+    func basicBitmaskRoundTripAllZeros() throws {
+        let originalData = Data([0x00])
+        let parsed = try BasicBitmask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x00])
+    }
+
+    @Test("Basic bitmask struct round-trip all ones")
+    func basicBitmaskRoundTripAllOnes() throws {
+        let originalData = Data([0xFF])
+        let parsed = try BasicBitmask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0xFF])
+    }
+
+    // MARK: - Mixed Parse and Mask Round-Trip Tests
+
+    @ParseStruct
+    struct MixedParseMask {
+        @parse(endianness: .big)
+        var header: UInt8
+
+        @mask(bitCount: 1)
+        var flag: UInt8
+
+        @mask(bitCount: 7)
+        var value: UInt8
+
+        @parse(endianness: .big)
+        var footer: UInt16
+    }
+
+    @Test("Mixed @parse and @mask round-trip")
+    func mixedParseMaskRoundTrip() throws {
+        // header = 0x42
+        // Binary for mask byte: 1 0110100 = 0xB4
+        // footer = 0x1234
+        let originalData = Data([0x42, 0xB4, 0x12, 0x34])
+        let parsed = try MixedParseMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0x42, 0xB4, 0x12, 0x34])
+    }
+
+    // MARK: - Multiple Mask Groups Round-Trip Tests
+
+    @ParseStruct
+    struct MultipleMaskGroups {
+        @mask(bitCount: 4)
+        var first: UInt8
+
+        @mask(bitCount: 4)
+        var second: UInt8
+
+        @parse(endianness: .big)
+        var separator: UInt8
+
+        @mask(bitCount: 2)
+        var third: UInt8
+
+        @mask(bitCount: 6)
+        var fourth: UInt8
+    }
+
+    @Test("Multiple mask groups round-trip")
+    func multipleMaskGroupsRoundTrip() throws {
+        // First group: 1010 0101 = 0xA5 -> first=10, second=5
+        // Separator: 0xFF
+        // Second group: 11 010110 = 0xD6 -> third=3, fourth=22
+        let originalData = Data([0xA5, 0xFF, 0xD6])
+        let parsed = try MultipleMaskGroups(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0xA5, 0xFF, 0xD6])
+    }
+
+    // MARK: - Multi-Byte Bitmask Round-Trip Tests
+
+    @ParseStruct
+    struct MultiBytesBitmask {
+        @mask(bitCount: 4)
+        var high: UInt8
+
+        @mask(bitCount: 8)
+        var middle: UInt8
+
+        @mask(bitCount: 4)
+        var low: UInt8
+    }
+
+    @Test("Multi-byte bitmask round-trip")
+    func multiBytesBitmaskRoundTrip() throws {
+        // Binary: 1010 10110011 0100 = 0xAB 0x34
+        let originalData = Data([0xAB, 0x34])
+        let parsed = try MultiBytesBitmask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        #expect(printedBytes == [0xAB, 0x34])
+    }
+
+    // MARK: - Skip with Mask Round-Trip Tests
+
+    @ParseStruct
+    struct SkipWithMask {
+        @skip(byteCount: 2, because: "header padding")
+        @mask(bitCount: 4)
+        var value: UInt8
+
+        @mask(bitCount: 4)
+        var flags: UInt8
+    }
+
+    @Test("Skip with mask round-trip")
+    func skipWithMaskRoundTrip() throws {
+        // Skip 2 bytes, then parse mask byte: 1100 0011 = 0xC3
+        let originalData = Data([0xFF, 0xFF, 0xC3])
+        let parsed = try SkipWithMask(parsing: originalData)
+
+        let printedBytes = try parsed.printParsed(printer: .byteArray)
+        // Skip bytes become zeros in output, mask byte preserved
+        #expect(printedBytes == [0x00, 0x00, 0xC3])
     }
 }

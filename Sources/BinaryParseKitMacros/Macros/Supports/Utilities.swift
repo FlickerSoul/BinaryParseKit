@@ -94,7 +94,13 @@ func generateSkipBlock(variableName: TokenSyntax, skipInfo: SkipMacroInfo) -> Co
 }
 
 struct PrintableFieldInfo {
-    let binding: TokenSyntax?
+    enum Content {
+        case binding(fieldName: TokenSyntax)
+        case skip
+        case bits(variableName: TokenSyntax)
+    }
+
+    let content: Content
     let byteCount: ExprSyntax?
     let endianness: ExprSyntax?
 }
@@ -114,18 +120,26 @@ func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListS
                     expression: info.endianness ?? ExprSyntax("nil"),
                 )
 
-                if let binding = info.binding {
+                switch info.content {
+                case let .binding(binding):
                     LabeledExprSyntax(
                         label: "intel",
                         expression: ExprSyntax(
                             "try \(raw: Constants.UtilityFunctions.getPrintIntel)(\(binding))",
                         ),
                     )
-                } else {
+                case .skip:
                     LabeledExprSyntax(
                         label: "intel",
                         expression: ExprSyntax(
                             ".skip(.init(byteCount: \(info.byteCount)))",
+                        ),
+                    )
+                case let .bits(variableName):
+                    LabeledExprSyntax(
+                        label: "intel",
+                        expression: ExprSyntax(
+                            ".bitmask(.init(bits: \(variableName)))",
                         ),
                     )
                 }
