@@ -40,6 +40,9 @@ extension BinaryParseKitMacroTests {
                         1 + 3 + (Bool).bitCount
                     }
                     internal init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `flag1` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
@@ -190,6 +193,9 @@ extension BinaryParseKitMacroTests {
                         1
                     }
                     internal init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `flag` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
@@ -252,6 +258,9 @@ extension BinaryParseKitMacroTests {
                         4
                     }
                     internal init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `value` of type `UInt8` with specified bit count 4
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -316,6 +325,9 @@ extension BinaryParseKitMacroTests {
                         8
                     }
                     internal init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `rawValue` of type `UInt8` with specified bit count 8
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -373,6 +385,9 @@ extension BinaryParseKitMacroTests {
                         8
                     }
                     internal init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `value` of type `UInt8` with specified bit count 8
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -431,6 +446,9 @@ extension BinaryParseKitMacroTests {
                         (Bool).bitCount + (Bool).bitCount
                     }
                     internal init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `flag1` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
@@ -499,6 +517,9 @@ extension BinaryParseKitMacroTests {
                         1
                     }
                     public init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `flag` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
@@ -702,6 +723,9 @@ extension BinaryParseKitMacroTests {
                         (Flag).bitCount
                     }
                     internal init(bits: RawBitsInteger) throws {
+                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
+                        }
                         var bitPosition = 0
                         // Parse `a` of type `Flag` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Flag).self)

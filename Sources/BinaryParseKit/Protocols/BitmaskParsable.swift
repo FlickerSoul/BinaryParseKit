@@ -10,10 +10,8 @@ import BinaryParsing
 public enum BitmaskParsableError: Error, Sendable {
     /// The bit count is not supported for the target type.
     case unsupportedBitCount
-    /// The bit pattern is invalid for the target type.
-    case invalidBitPattern
-    /// Not enough bits available in the buffer.
-    case insufficientBits
+    /// The raw bits integer type is not wide enough to hold the extracted bits.
+    case rawBitsIntegerNotWideEnough
 }
 
 // MARK: - Core Protocols

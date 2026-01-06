@@ -65,6 +65,12 @@ extension Constants {
 }
 
 extension Constants {
+    enum BitmaskParsableError {
+        static let failedToParse = PackageMember(name: "BitmaskParsableError.rawBitsIntegerNotWideEnough")
+    }
+}
+
+extension Constants {
     enum BinaryParsing {
         private static let packageName = "BinaryParsing"
         static let parserSpan = PackageMember(package: packageName, name: "ParserSpan")

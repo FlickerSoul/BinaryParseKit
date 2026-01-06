@@ -61,6 +61,12 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                 try InitializerDeclSyntax(
                     "\(accessorInfo.parsingAccessor) init(bits: RawBitsInteger) throws",
                 ) {
+                    """
+                    guard Self.bitCount <= RawBitsInteger.bitWidth else {
+                        throw \(raw: Constants.BitmaskParsableError.failedToParse)
+                    }
+                    """
+
                     "var bitPosition = 0"
 
                     for fieldInfo in fieldVisitor.fields.values {
@@ -85,6 +91,8 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                             """
                         }
 
+                        let fieldRawBitsIntegerType: ExprSyntax = "(\(fieldInfo.type)).RawBitsInteger"
+
                         // Extract field bits from the integer: shift right and mask
                         // bits >> (RawBitsInteger.bitWidth - bitPosition - fieldBitCount) & mask
                         """
@@ -92,8 +100,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                             let fieldBitCount = \(bitCountExpr)
                             let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
                             let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (\(fieldInfo
-                            .type)).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
+                            let fieldBits = \(fieldRawBitsIntegerType)(truncatingIfNeeded: (bits >> shift) & mask)
                             self.\(fieldInfo.name) = try .init(bits: fieldBits)
                             bitPosition += fieldBitCount
                         }
