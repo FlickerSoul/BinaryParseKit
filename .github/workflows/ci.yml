@@ -59,7 +59,7 @@ jobs:
         run: |
           set -o pipefail && \
           xcodebuild test \
-          -scheme BinaryParseKit-Package \
+          -scheme BinaryParseKit \
           -destination 'platform=macOS' \
           -skipMacroValidation | xcbeautify --renderer github-actions
 
