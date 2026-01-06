@@ -25,6 +25,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.5"),
         .package(url: "https://github.com/pointfreeco/swift-macro-testing.git", from: "0.6.4"),
         .package(url: "https://github.com/stackotter/swift-macro-toolkit.git", from: "0.8.0"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"),
     ],
     targets: [
         .macro(
@@ -84,6 +85,33 @@ let package = Package(
             dependencies: [
                 "BinaryParseKit",
             ],
+        ),
+        .target(
+            name: "BenchmarkCommons",
+            dependencies: [
+                "BinaryParseKit",
+            ],
+            path: "Benchmarks/BenchmarkCommons",
+        ),
+        .executableTarget(
+            name: "ParsingBenchmarks",
+            dependencies: [
+                .product(name: "Benchmark", package: "package-benchmark"),
+                .product(name: "BenchmarkPlugin", package: "package-benchmark"),
+                "BinaryParseKit",
+                "BenchmarkCommons",
+            ],
+            path: "Benchmarks/ParsingBenchmarks",
+        ),
+        .executableTarget(
+            name: "PrintingBenchmarks",
+            dependencies: [
+                .product(name: "Benchmark", package: "package-benchmark"),
+                .product(name: "BenchmarkPlugin", package: "package-benchmark"),
+                "BinaryParseKit",
+                "BenchmarkCommons",
+            ],
+            path: "Benchmarks/PrintingBenchmarks",
         ),
     ],
     swiftLanguageModes: [.v6],
