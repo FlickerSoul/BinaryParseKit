@@ -10,10 +10,11 @@ import BinaryParsing
 import Foundation
 import Testing
 
+extension ParsingTests { @Suite struct BitmaskParsingTest {} }
+
 // MARK: - @ParseBitmask Integration Tests
 
-@Suite
-struct BitmaskParsingTest {
+extension ParsingTests.BitmaskParsingTest {
     // MARK: - Basic Bitmask Struct
 
     @ParseBitmask

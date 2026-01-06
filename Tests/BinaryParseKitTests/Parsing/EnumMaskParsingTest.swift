@@ -10,10 +10,11 @@ import BinaryParsing
 import Foundation
 import Testing
 
+extension ParsingTests { @Suite struct EnumMaskParsingTest {} }
+
 // MARK: - @mask Integration Tests for Enums
 
-@Suite
-struct EnumMaskParsingTest {
+extension ParsingTests.EnumMaskParsingTest {
     // MARK: - Basic Mask in Enum Associated Values
 
     @ParseEnum

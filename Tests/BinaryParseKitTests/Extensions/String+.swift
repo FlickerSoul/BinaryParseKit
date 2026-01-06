@@ -25,3 +25,9 @@ extension String: Printable {
         )
     }
 }
+
+extension String: Matchable {
+    public func bytesToMatch() -> [UInt8] {
+        utf8.map(\.self)
+    }
+}

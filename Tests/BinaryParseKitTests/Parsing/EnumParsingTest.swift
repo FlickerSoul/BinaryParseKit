@@ -9,8 +9,9 @@ import BinaryParsing
 import Foundation
 import Testing
 
-@Suite
-struct EnumParsingTest {
+extension ParsingTests { @Suite struct EnumParsingTest {} }
+
+extension ParsingTests.EnumParsingTest {
     // MARK: - Basic Enum Matching Tests
 
     @ParseEnum
@@ -450,8 +451,9 @@ struct EnumParsingTest {
 
 // MARK: - Length-Based Matching Tests
 
-@Suite
-struct LengthMatchingTest {
+extension ParsingTests { @Suite struct LengthMatchingTest {} }
+
+extension ParsingTests.LengthMatchingTest {
     @ParseEnum
     enum VariableSizePayload: Equatable {
         @match(length: 4)

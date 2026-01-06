@@ -10,10 +10,11 @@ import BinaryParsing
 import Foundation
 import Testing
 
+extension PrintingTests { @Suite struct BitmaskPrintingTest {} }
+
 // MARK: - @ParseBitmask Printing Integration Tests
 
-@Suite
-struct BitmaskPrintingTest {
+extension PrintingTests.BitmaskPrintingTest {
     // MARK: - Basic Round-Trip Tests
 
     @ParseBitmask

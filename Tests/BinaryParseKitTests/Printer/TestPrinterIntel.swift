@@ -10,8 +10,11 @@ import BinaryParsing
 import Foundation
 import Testing
 
-@Suite
-struct PrinterIntelTest {
+extension PrinterTests { @Suite struct PrinterIntelTest {} }
+
+// MARK: - PrinterIntel Tests
+
+extension PrinterTests.PrinterIntelTest {
     // MARK: - Builtin PrinterIntel Generation
 
     @Test

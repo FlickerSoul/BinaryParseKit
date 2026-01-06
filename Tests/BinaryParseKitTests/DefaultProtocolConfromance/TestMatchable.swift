@@ -8,14 +8,12 @@
 import BinaryParseKit
 import Testing
 
-extension String: Matchable {
-    public func bytesToMatch() -> [UInt8] {
-        utf8.map(\.self)
-    }
+extension DefaultProtocolConformanceTests {
+    @Suite
+    struct MatchableTests {}
 }
 
-@Suite
-struct MatchableTests {
+extension DefaultProtocolConformanceTests.MatchableTests {
     enum RawRepresentableMatch: UInt8, Matchable, Codable {
         case success = 0x00
         case failure = 0x01

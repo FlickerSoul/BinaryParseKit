@@ -10,10 +10,11 @@ import BinaryParsing
 import Foundation
 import Testing
 
+extension ParsingTests { @Suite struct StructMaskParsingTest {} }
+
 // MARK: - @mask Integration Tests
 
-@Suite
-struct StructMaskParsingTest {
+extension ParsingTests.StructMaskParsingTest {
     // MARK: - Custom Types for Bitmask Testing
 
     /// A simple flag type that conforms to BitmaskParsable with 1 bit.
@@ -129,10 +130,10 @@ struct StructMaskParsingTest {
     @ParseStruct
     struct BitmaskInferred {
         @mask
-        var flag1: StructMaskParsingTest.Flag
+        var flag1: ParsingTests.StructMaskParsingTest.Flag
 
         @mask
-        var flag2: StructMaskParsingTest.Flag
+        var flag2: ParsingTests.StructMaskParsingTest.Flag
 
         @mask(bitCount: 6)
         var value: UInt8
@@ -153,13 +154,13 @@ struct StructMaskParsingTest {
     @ParseStruct
     struct BitmaskAllInferred {
         @mask
-        var first: StructMaskParsingTest.Flag
+        var first: ParsingTests.StructMaskParsingTest.Flag
 
         @mask
-        var second: StructMaskParsingTest.Nibble
+        var second: ParsingTests.StructMaskParsingTest.Nibble
 
         @mask
-        var third: StructMaskParsingTest.ThreeBit
+        var third: ParsingTests.StructMaskParsingTest.ThreeBit
     }
 
     @Test("All fields with inferred bit counts")

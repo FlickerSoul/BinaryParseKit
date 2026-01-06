@@ -16,10 +16,16 @@ typealias StructPrintIntel = PrinterIntel.StructPrintIntel
 typealias EnumCasePrinterIntel = PrinterIntel.EnumCasePrinterIntel
 typealias SkipPrinterIntel = PrinterIntel.SkipPrinterIntel
 
-@Suite
-struct ByteArrayPrinterTest {
-    let printer = ByteArrayPrinter()
+extension PrinterTests {
+    @Suite
+    struct ByteArrayPrinterTest {
+        let printer = ByteArrayPrinter()
+    }
+}
 
+// MARK: - ByteArrayPrinter Tests
+
+extension PrinterTests.ByteArrayPrinterTest {
     // MARK: - Built-in Types Tests
 
     @Test

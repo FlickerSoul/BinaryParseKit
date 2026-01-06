@@ -10,10 +10,11 @@ import BinaryParsing
 import Foundation
 import Testing
 
+extension PrintingTests { @Suite struct EnumMaskPrintingTest {} }
+
 // MARK: - @ParseEnum Mask Printing Integration Tests
 
-@Suite
-struct EnumMaskPrintingTest {
+extension PrintingTests.EnumMaskPrintingTest {
     // MARK: - Basic Mask Round-Trip Tests
 
     @ParseEnum

@@ -10,8 +10,9 @@ import BinaryParsing
 import Foundation
 import Testing
 
-@Suite
-struct StructParsingTest {
+extension ParsingTests { @Suite struct StructParsingTest {} }
+
+extension ParsingTests.StructParsingTest {
     @ParseStruct
     struct DataLargerParseBE {
         @parse(byteCount: 4, endianness: .big)

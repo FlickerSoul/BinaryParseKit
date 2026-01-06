@@ -10,10 +10,11 @@ import BinaryParsing
 import Foundation
 import Testing
 
+extension PrintingTests { @Suite struct StructMaskPrintingTest {} }
+
 // MARK: - @ParseStruct Mask Printing Integration Tests
 
-@Suite
-struct StructMaskPrintingTest {
+extension PrintingTests.StructMaskPrintingTest {
     // MARK: - Basic Mask Round-Trip Tests
 
     @ParseStruct
