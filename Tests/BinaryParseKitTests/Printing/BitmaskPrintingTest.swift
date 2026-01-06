@@ -510,23 +510,4 @@ extension PrintingTests.BitmaskPrintingTest {
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == Data([0b1111_0101, 0b1001_1110, 0b1010_1010, 0b1010_0000]))
     }
-
-    @ParseBitmask
-    struct OverflowBits {
-        typealias RawBitsInteger = UInt8
-
-        @mask(bitCount: 5)
-        var first: UInt8
-
-        @mask(bitCount: 4)
-        var second: UInt8
-    }
-
-    @Test("Throws unsupportedBitCount when bits exceed storage")
-    func throwsUnsupportedBitCount() {
-        // Total bits = 9, RawBitsInteger = UInt8 (8 bits)
-        #expect(throws: BitmaskParsableError.rawBitsIntegerNotWideEnough) {
-            try OverflowBits(bits: 0)
-        }
-    }
 }

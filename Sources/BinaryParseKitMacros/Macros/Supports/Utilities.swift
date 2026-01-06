@@ -203,20 +203,36 @@ func generateMaskGroupBlock(
             switch action.maskInfo.bitCount {
             case let .specified(count):
                 // Assert ExpressibleByRawBits for explicit bit count
+                let countExpr = count.expr
                 """
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
-                "self.\(variableName) = try .init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: \(count.expr)))"
-                "\(offsetVarName) += \(count.expr)"
+                """
+                self.\(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
+                "\(offsetVarName) += \(countExpr)"
             case .inferred:
                 // Assert BitmaskParsable for inferred bit count
+                let countExpr: ExprSyntax = "(\(fieldType.trimmed)).bitCount"
                 """
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
-                "self.\(variableName) = try .init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: (\(fieldType.trimmed)).bitCount))"
-                "\(offsetVarName) += (\(fieldType.trimmed)).bitCount"
+                """
+                self.\(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
+                "\(offsetVarName) += \(countExpr)"
             }
         }
     }
@@ -276,20 +292,36 @@ func generateEnumMaskGroupBlock(
             switch maskAction.maskInfo.bitCount {
             case let .specified(count):
                 // Assert ExpressibleByRawBits for explicit bit count
+                let countExpr = count.expr
                 """
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
-                "let \(variableName) = try (\(fieldType)).init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: \(count.expr)))"
+                """
+                let \(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
                 "\(offsetVarName) += \(count.expr)"
             case .inferred:
                 // Assert BitmaskParsable for inferred bit count
+                let countExpr: ExprSyntax = "(\(fieldType.trimmed)).bitCount"
                 """
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
-                "let \(variableName) = try (\(fieldType)).init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: (\(fieldType.trimmed)).bitCount))"
-                "\(offsetVarName) += (\(fieldType.trimmed)).bitCount"
+                """
+                let \(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
+                "\(offsetVarName) += \(countExpr)"
             }
         }
     }

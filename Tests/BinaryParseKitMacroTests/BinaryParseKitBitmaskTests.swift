@@ -40,38 +40,44 @@ extension BinaryParseKitMacroTests {
                         1 + 3 + (Bool).bitCount
                     }
                     internal init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `flag1` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         do {
                             let fieldBitCount = 1
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (Bool).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.flag1 = try .init(bits: fieldBits)
+                            self.flag1 = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (Bool).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                         // Parse `value` of type `UInt8` with specified bit count 3
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
                             let fieldBitCount = 3
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (UInt8).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.value = try .init(bits: fieldBits)
+                            self.value = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (UInt8).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                         // Parse `flag2` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
                         do {
                             let fieldBitCount = (Bool).bitCount
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (Bool).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.flag2 = try .init(bits: fieldBits)
+                            self.flag2 = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (Bool).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }
@@ -193,18 +199,18 @@ extension BinaryParseKitMacroTests {
                         1
                     }
                     internal init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `flag` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         do {
                             let fieldBitCount = 1
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (Bool).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.flag = try .init(bits: fieldBits)
+                            self.flag = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (Bool).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }
@@ -258,18 +264,18 @@ extension BinaryParseKitMacroTests {
                         4
                     }
                     internal init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `value` of type `UInt8` with specified bit count 4
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
                             let fieldBitCount = 4
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (UInt8).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.value = try .init(bits: fieldBits)
+                            self.value = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (UInt8).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }
@@ -325,18 +331,18 @@ extension BinaryParseKitMacroTests {
                         8
                     }
                     internal init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `rawValue` of type `UInt8` with specified bit count 8
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
                             let fieldBitCount = 8
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (UInt8).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.rawValue = try .init(bits: fieldBits)
+                            self.rawValue = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (UInt8).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }
@@ -385,18 +391,18 @@ extension BinaryParseKitMacroTests {
                         8
                     }
                     internal init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `value` of type `UInt8` with specified bit count 8
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
                             let fieldBitCount = 8
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (UInt8).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.value = try .init(bits: fieldBits)
+                            self.value = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (UInt8).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }
@@ -446,28 +452,31 @@ extension BinaryParseKitMacroTests {
                         (Bool).bitCount + (Bool).bitCount
                     }
                     internal init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `flag1` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
                         do {
                             let fieldBitCount = (Bool).bitCount
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (Bool).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.flag1 = try .init(bits: fieldBits)
+                            self.flag1 = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (Bool).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                         // Parse `flag2` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
                         do {
                             let fieldBitCount = (Bool).bitCount
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (Bool).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.flag2 = try .init(bits: fieldBits)
+                            self.flag2 = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (Bool).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }
@@ -517,18 +526,18 @@ extension BinaryParseKitMacroTests {
                         1
                     }
                     public init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `flag` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         do {
                             let fieldBitCount = 1
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (Bool).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.flag = try .init(bits: fieldBits)
+                            self.flag = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (Bool).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }
@@ -723,18 +732,18 @@ extension BinaryParseKitMacroTests {
                         (Flag).bitCount
                     }
                     internal init(bits: RawBitsInteger) throws {
-                        guard Self.bitCount <= RawBitsInteger.bitWidth else {
-                            throw BinaryParseKit.BitmaskParsableError.rawBitsIntegerNotWideEnough
-                        }
                         var bitPosition = 0
                         // Parse `a` of type `Flag` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Flag).self)
                         do {
                             let fieldBitCount = (Flag).bitCount
-                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
-                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
-                            let fieldBits = (Flag).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
-                            self.a = try .init(bits: fieldBits)
+                            self.a = try BinaryParseKit.__maskParsing(
+                                from: bits,
+                                parentType: Self.self,
+                                fieldType: (Flag).self,
+                                fieldRequestedBitCount: fieldBitCount,
+                                at: bitPosition
+                            )
                             bitPosition += fieldBitCount
                         }
                     }

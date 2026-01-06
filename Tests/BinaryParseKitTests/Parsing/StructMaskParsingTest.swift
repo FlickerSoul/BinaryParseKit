@@ -298,4 +298,75 @@ extension ParsingTests.StructMaskParsingTest {
         #expect(parsed.value == 12) // 0b1100
         #expect(parsed.flags == 3) // 0b0011
     }
+
+    // MARK: - Logic Tests (Insufficient & Excess Bits)
+
+    /// A type with bitCount = 6 and RawBitsInteger = UInt8 for testing bit count logic.
+    struct Strict6Bit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
+        typealias RawBitsInteger = UInt8
+        static let bitCount = 6
+        let value: UInt8
+
+        init(bits: UInt8) {
+            value = bits
+        }
+
+        func toRawBits(bitCount: Int) throws -> RawBits {
+            try value.toRawBits(bitCount: bitCount)
+        }
+    }
+
+    @ParseStruct
+    struct InsufficientBitsStruct {
+        @mask(bitCount: 5)
+        var field: ParsingTests.StructMaskParsingTest.Strict6Bit
+    }
+
+    @Test("Throws error when bitCount < Type.bitCount")
+    func insufficientBits() {
+        #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
+            try InsufficientBitsStruct(parsing: Data([0xFF]))
+        }
+    }
+
+    @ParseStruct
+    struct SameBitCountStruct {
+        @mask(bitCount: 6)
+        var field: ParsingTests.StructMaskParsingTest.Strict6Bit
+    }
+
+    @Test("Exact bitCount equal to Type.bitCount")
+    func sameBitCountBits() throws {
+        // Input: 1011_0100 (first 6 bits: 101101 = 45)
+        let parsed = try SameBitCountStruct(parsing: Data([0b1011_0100]))
+        #expect(parsed.field.value == 0b101101)
+    }
+
+    @ParseStruct
+    struct SufficientBitsStruct {
+        @mask(bitCount: 7)
+        var field: ParsingTests.StructMaskParsingTest.Strict6Bit
+    }
+
+    @Test("Takes MSB when bitCount > Type.bitCount (7 > 6)")
+    func sufficientBits() throws {
+        // Input: 1011_0101 (first 7 bits: 1011010 = 90)
+        // Take MSB 6 bits: 101101 = 45
+        let parsed = try SufficientBitsStruct(parsing: Data([0b1011_0101]))
+        #expect(parsed.field.value == 0b101101)
+    }
+
+    @ParseStruct
+    struct ExcessBitsStruct {
+        @mask(bitCount: 15)
+        var field: ParsingTests.StructMaskParsingTest.Strict6Bit
+    }
+
+    @Test("Takes MSB when bitCount > Type.bitCount (15 > 6)")
+    func excessBits() throws {
+        // Input: 0b1111_0000_1111_0010 (15 bits: 111100001111001)
+        // Take MSB 6 bits: 111100 = 60
+        let parsed = try ExcessBitsStruct(parsing: Data([0b1111_0000, 0b1111_0010]))
+        #expect(parsed.field.value == 0b111100)
+    }
 }

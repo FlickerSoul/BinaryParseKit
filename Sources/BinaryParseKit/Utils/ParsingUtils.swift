@@ -82,13 +82,17 @@ public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 /// - Right-aligned result: 0b0000_0011 = 3
 /// - Warning: This function is used by bitmask macros and should not be used directly.
 @inline(__always)
-public func __extractBitsAsInteger<I: FixedWidthInteger>(
+func __extractBitsAsInteger<I: FixedWidthInteger>(
     _: I.Type,
     from input: borrowing BinaryParsing.ParserSpan,
     offset: Int,
     count: Int,
-) -> I {
-    precondition(count >= 0 && count <= I.bitWidth, "Bit count must fit in target integer")
+) throws -> I {
+    precondition(count >= 0, "Count has to be grater than 0")
+
+    guard count <= I.bitWidth else {
+        throw BitmaskParsableError.rawBitsIntegerNotWideEnough
+    }
 
     guard count > 0 else { return 0 }
 
@@ -159,4 +163,58 @@ public func __toRawBits(
     bitCount: Int,
 ) throws -> RawBits {
     try value.toRawBits(bitCount: bitCount)
+}
+
+// MARK: - Bit Adjustment Utilities for @mask(bitCount:)
+
+@inline(__always)
+func __createFromBits<T: ExpressibleByRawBits>(
+    _: T.Type,
+    fieldBits: some FixedWidthInteger,
+    fieldRequestedBitCount: Int,
+) throws -> T {
+    // Check if T conforms to BitCountProviding at runtime
+    if let bitCountType = T.self as? any BitCountProviding.Type {
+        let typeBitCount = bitCountType.bitCount
+        if fieldRequestedBitCount < typeBitCount {
+            throw BitmaskParsableError.insufficientBitsAvailable
+        }
+        // When fieldBitCount > typeBitCount, take MSB typeBitCount bits
+        if fieldRequestedBitCount > typeBitCount {
+            let adjustedBits = fieldBits >> (fieldRequestedBitCount - typeBitCount)
+            return try T(bits: T.RawBitsInteger(truncatingIfNeeded: adjustedBits))
+        }
+    }
+    return try T(bits: T.RawBitsInteger(truncatingIfNeeded: fieldBits))
+}
+
+@inline(__always)
+public func __maskParsing<Parent: ExpressibleByRawBits, Field: ExpressibleByRawBits>(
+    from bits: Parent.RawBitsInteger,
+    parentType: Parent.Type,
+    fieldType: Field.Type,
+    fieldRequestedBitCount: Int,
+    at bitPosition: Int,
+) throws -> Field {
+    let shift = parentType.RawBitsInteger.bitWidth - bitPosition - fieldRequestedBitCount
+    let mask = parentType.RawBitsInteger((1 << fieldRequestedBitCount) - 1)
+    let fieldBits = (bits >> shift) & mask
+
+    return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
+}
+
+@inline(__always)
+public func __maskParsing<Field: ExpressibleByRawBits>(
+    from span: borrowing BinaryParsing.ParserSpan,
+    fieldType: Field.Type,
+    fieldRequestedBitCount: Int,
+    at bitOffset: Int,
+) throws -> Field {
+    let fieldBits = try __extractBitsAsInteger(
+        UInt64.self,
+        from: span,
+        offset: bitOffset,
+        count: fieldRequestedBitCount,
+    )
+    return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
 }

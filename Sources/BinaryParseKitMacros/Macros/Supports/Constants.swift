@@ -53,8 +53,9 @@ extension Constants {
         static let assertBitmaskParsable = PackageMember(name: "__assertBitmaskParsable")
         static let assertExpressibleByRawBits = PackageMember(name: "__assertExpressibleByRawBits")
         static let assertRawBitsConvertible = PackageMember(name: "__assertRawBitsConvertible")
-        static let extractBitsAsInteger = PackageMember(name: "__extractBitsAsInteger")
         static let toRawBits = PackageMember(name: "__toRawBits")
+        static let maskParsing = PackageMember(name: "__maskParsing")
+        static let maskParsingFromSpan = PackageMember(name: "__maskParsing")
     }
 }
 

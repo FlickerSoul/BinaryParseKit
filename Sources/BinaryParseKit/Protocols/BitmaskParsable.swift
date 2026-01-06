@@ -12,6 +12,8 @@ public enum BitmaskParsableError: Error, Sendable {
     case unsupportedBitCount
     /// The raw bits integer type is not wide enough to hold the extracted bits.
     case rawBitsIntegerNotWideEnough
+    /// The specified bit count is less than what the type requires (Type.bitCount).
+    case insufficientBitsAvailable
 }
 
 // MARK: - Core Protocols
@@ -29,6 +31,9 @@ public enum BitmaskParsableError: Error, Sendable {
 ///
 /// For example, extracting 3 bits `0b011` from input `[0b0110_0000]` yields
 /// `bits = 0b0000_0011` (value 3) when `RawBitsInteger` is `UInt8`.
+///
+/// - Note: Callee assumes that `bits` contain sufficient bits for the type. For instance,
+/// if the type requires 5 bits, the caller must ensure that `bits` contains at least 5 bits extracted
 ///
 /// Example:
 /// ```swift

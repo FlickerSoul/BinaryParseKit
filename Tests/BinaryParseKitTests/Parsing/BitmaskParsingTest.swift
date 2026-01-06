@@ -258,4 +258,76 @@ extension ParsingTests.BitmaskParsingTest {
     func largeValueBitmaskBitCount() {
         #expect(LargeValueBitmask.bitCount == 32)
     }
+
+    // MARK: - Logic Tests (Insufficient & Excess Bits)
+
+    struct Strict8Bit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
+        typealias RawBitsInteger = UInt8
+        static let bitCount = 6
+        let value: UInt8
+
+        init(bits: UInt8) {
+            value = bits
+        }
+
+        func toRawBits(bitCount: Int) throws -> RawBits {
+            try value.toRawBits(bitCount: bitCount)
+        }
+    }
+
+    @ParseBitmask
+    struct InsufficientBitsStruct {
+        typealias RawBitsInteger = UInt8
+        @mask(bitCount: 5)
+        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+    }
+
+    @Test("Throws error when bitCount < Type.bitCount")
+    func insufficientBits() {
+        #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
+            try InsufficientBitsStruct(bits: 0xFF)
+        }
+    }
+
+    @ParseBitmask
+    struct SameBitCountBitsStruct {
+        typealias RawBitsInteger = UInt16
+        @mask(bitCount: 6)
+        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+    }
+
+    @Test("Exact bitCount equal to Type.bitCount")
+    func sameBitCountBits() throws {
+        let input: UInt16 = 0b1011_0101_0000_0000
+        let parsed = try SameBitCountBitsStruct(bits: input)
+        #expect(parsed.field.value == 0b101101)
+    }
+
+    @ParseBitmask
+    struct SufficientBitsStruct {
+        typealias RawBitsInteger = UInt16
+        @mask(bitCount: 7)
+        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+    }
+
+    @Test("Exact bitCount equal to Type.bitCount")
+    func sufficientBits() throws {
+        let input: UInt16 = 0b1011_0101_0000_0000
+        let parsed = try SufficientBitsStruct(bits: input)
+        #expect(parsed.field.value == 0b101101)
+    }
+
+    @ParseBitmask
+    struct ExcessBitsStruct {
+        typealias RawBitsInteger = UInt16
+        @mask(bitCount: 15)
+        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+    }
+
+    @Test("Takes MSB when bitCount > Type.bitCount")
+    func excessBits() throws {
+        let input: UInt16 = 0b1111_0000_1111_0010
+        let parsed = try ExcessBitsStruct(bits: input)
+        #expect(parsed.field.value == 0b111100)
+    }
 }
