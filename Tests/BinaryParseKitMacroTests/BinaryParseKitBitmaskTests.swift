@@ -59,7 +59,9 @@ extension BinaryParseKitMacroTests {
                 extension Flags: BinaryParseKit.RawBitsConvertible {
                     internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
                         var result = BinaryParseKit.RawBits()
+                        // Convert `flag1` of type `Bool` with specified bit count 1
                         result = result.appending(try BinaryParseKit.__toRawBits(self.flag1, bitCount: 1))
+                        // Convert `value` of type `UInt8` with specified bit count 3
                         result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 3))
                         // Convert `flag2` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertRawBitsConvertible((Bool).self)
@@ -181,6 +183,7 @@ extension BinaryParseKitMacroTests {
                 extension SingleFlag: BinaryParseKit.RawBitsConvertible {
                     internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
                         var result = BinaryParseKit.RawBits()
+                        // Convert `flag` of type `Bool` with specified bit count 1
                         result = result.appending(try BinaryParseKit.__toRawBits(self.flag, bitCount: 1))
                         return result
                     }
@@ -236,6 +239,7 @@ extension BinaryParseKitMacroTests {
                 extension Flags: BinaryParseKit.RawBitsConvertible {
                     internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
                         var result = BinaryParseKit.RawBits()
+                        // Convert `value` of type `UInt8` with specified bit count 4
                         result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 4))
                         return result
                     }
@@ -293,6 +297,7 @@ extension BinaryParseKitMacroTests {
                 extension Flags: BinaryParseKit.RawBitsConvertible {
                     internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
                         var result = BinaryParseKit.RawBits()
+                        // Convert `rawValue` of type `UInt8` with specified bit count 8
                         result = result.appending(try BinaryParseKit.__toRawBits(self.rawValue, bitCount: 8))
                         return result
                     }
@@ -343,6 +348,7 @@ extension BinaryParseKitMacroTests {
                 extension Flags: BinaryParseKit.RawBitsConvertible {
                     internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
                         var result = BinaryParseKit.RawBits()
+                        // Convert `value` of type `UInt8` with specified bit count 8
                         result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 8))
                         return result
                     }
@@ -450,6 +456,7 @@ extension BinaryParseKitMacroTests {
                 extension PublicFlags: BinaryParseKit.RawBitsConvertible {
                     public func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
                         var result = BinaryParseKit.RawBits()
+                        // Convert `flag` of type `Bool` with specified bit count 1
                         result = result.appending(try BinaryParseKit.__toRawBits(self.flag, bitCount: 1))
                         return result
                     }

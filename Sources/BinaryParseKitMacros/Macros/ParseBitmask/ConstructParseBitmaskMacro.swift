@@ -103,8 +103,9 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                             """
                             // Convert `\(fieldInfo.name)` of type `\(fieldInfo.type)` with specified bit count \(count
                                 .expr)
+                            result = result.appending(try \(raw: Constants.UtilityFunctions.toRawBits)(self.\(fieldInfo
+                                .name), bitCount: \(count.expr)))
                             """
-                            "result = result.appending(try \(raw: Constants.UtilityFunctions.toRawBits)(self.\(fieldInfo.name), bitCount: \(count.expr)))"
                         case .inferred:
                             """
                             // Convert `\(fieldInfo.name)` of type `\(fieldInfo.type)` with inferred bit count
