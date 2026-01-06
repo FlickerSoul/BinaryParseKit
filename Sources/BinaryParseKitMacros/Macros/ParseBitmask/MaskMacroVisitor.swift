@@ -1,5 +1,5 @@
 //
-//  ConstructParseBitmaskMacro.swift
+//  MaskMacroVisitor.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 12/30/25.
@@ -47,7 +47,7 @@ class MaskMacroVisitor: SyntaxVisitor {
                     node: node,
                     message: MaskMacroError
                         .fatalError(
-                            message: "Multiple variable declaration in single `@mask` attribute is not supported.",
+                            message: "Multiple variable declarations in single `@mask` attribute is not supported.",
                         ),
                 ),
             )
