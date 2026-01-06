@@ -397,12 +397,12 @@ extension PrintingTests.StructMaskPrintingTest {
 
     @Test("Large mask fields (32 bits total) round-trip")
     func largeMaskFieldsRoundTrip() throws {
-        // 20 bits: 0001 0010 0011 0100 0101 -> large=0x12345
-        // 12 bits: 0110 0111 1000 -> medium=0x678
+        // 20 bits: 0001 0010 0011 0100 0101 -> large=0x12345 (right-aligned)
+        // 12 bits: 0110 0111 1000 -> medium=0x678 (right-aligned)
         // Combined 32 bits: 00010010 00110100 01010110 01111000 = 0x12345678
         let originalData = Data([0x12, 0x34, 0x56, 0x78])
         let parsed = try LargeMaskFields(parsing: originalData)
-        #expect(parsed == LargeMaskFields(large: 0x1234_5000, medium: 0x6780))
+        #expect(parsed == LargeMaskFields(large: 0x12345, medium: 0x678))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
     }

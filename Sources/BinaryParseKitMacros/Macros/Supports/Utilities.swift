@@ -163,8 +163,7 @@ func generateMaskGroupBlock(
     // For each field, we use either the explicit bitCount or the type's bitCount
     let bitsVarName = context.makeUniqueName("__bitmask_totalBits")
     let bytesVarName = context.makeUniqueName("__bitmask_byteCount")
-    let dataVarName = context.makeUniqueName("__bitmask_data")
-    let bitsObjVarName = context.makeUniqueName("__bitmask_bits")
+    let spanVarName = context.makeUniqueName("__bitmask_span")
     let offsetVarName = context.makeUniqueName("__bitmask_offset")
 
     // Calculate total bits
@@ -190,11 +189,8 @@ func generateMaskGroupBlock(
         // Calculate byte count: (totalBits + 7) / 8
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
-        // Read bytes from span
-        "let \(dataVarName) = try span.sliceSpan(byteCount: \(bytesVarName)).withUnsafeBytes(Data.init(_:))"
-
-        // Create RawBits
-        "let \(bitsObjVarName) = BinaryParseKit.RawBits(data: \(dataVarName), size: \(bitsVarName))"
+        // Get a sliced span for bitmask bytes
+        "let \(spanVarName) = try span.sliceSpan(byteCount: \(bytesVarName))"
 
         // Track offset for each field
         "var \(offsetVarName) = 0"
@@ -211,7 +207,7 @@ func generateMaskGroupBlock(
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
-                "self.\(variableName) = try \(raw: Constants.UtilityFunctions.parseFromBits)((\(fieldType)).self, from: \(bitsObjVarName), offset: \(offsetVarName), count: \(count.expr))"
+                "self.\(variableName) = try .init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: \(count.expr)))"
                 "\(offsetVarName) += \(count.expr)"
             case .inferred:
                 // Assert BitmaskParsable for inferred bit count
@@ -219,7 +215,7 @@ func generateMaskGroupBlock(
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
-                "self.\(variableName) = try \(raw: Constants.UtilityFunctions.parseFromBits)((\(fieldType)).self, from: \(bitsObjVarName), offset: \(offsetVarName), count: (\(fieldType.trimmed)).bitCount)"
+                "self.\(variableName) = try .init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: (\(fieldType.trimmed)).bitCount))"
                 "\(offsetVarName) += (\(fieldType.trimmed)).bitCount"
             }
         }
@@ -239,8 +235,7 @@ func generateEnumMaskGroupBlock(
     // Calculate total bits needed
     let bitsVarName = context.makeUniqueName("__bitmask_totalBits")
     let bytesVarName = context.makeUniqueName("__bitmask_byteCount")
-    let dataVarName = context.makeUniqueName("__bitmask_data")
-    let bitsObjVarName = context.makeUniqueName("__bitmask_bits")
+    let spanVarName = context.makeUniqueName("__bitmask_span")
     let offsetVarName = context.makeUniqueName("__bitmask_offset")
 
     // Calculate total bits
@@ -267,11 +262,8 @@ func generateEnumMaskGroupBlock(
         // Calculate byte count: (totalBits + 7) / 8
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
-        // Read bytes from span
-        "let \(dataVarName) = try span.sliceSpan(byteCount: \(bytesVarName)).withUnsafeBytes(Data.init(_:))"
-
-        // Create RawBits
-        "let \(bitsObjVarName) = BinaryParseKit.RawBits(data: \(dataVarName), size: \(bitsVarName))"
+        // Get a sliced span for bitmask bytes
+        "let \(spanVarName) = try span.sliceSpan(byteCount: \(bytesVarName))"
 
         // Track offset for each field
         "var \(offsetVarName) = 0"
@@ -288,7 +280,7 @@ func generateEnumMaskGroupBlock(
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
-                "let \(variableName) = try \(raw: Constants.UtilityFunctions.parseFromBits)((\(fieldType)).self, from: \(bitsObjVarName), offset: \(offsetVarName), count: \(count.expr))"
+                "let \(variableName) = try (\(fieldType)).init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: \(count.expr)))"
                 "\(offsetVarName) += \(count.expr)"
             case .inferred:
                 // Assert BitmaskParsable for inferred bit count
@@ -296,7 +288,7 @@ func generateEnumMaskGroupBlock(
                 // Parse `\(variableName)` of type \(fieldType) from bits
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
-                "let \(variableName) = try \(raw: Constants.UtilityFunctions.parseFromBits)((\(fieldType)).self, from: \(bitsObjVarName), offset: \(offsetVarName), count: (\(fieldType.trimmed)).bitCount)"
+                "let \(variableName) = try (\(fieldType)).init(bits: \(raw: Constants.UtilityFunctions.extractBitsAsInteger)((\(fieldType)).RawBitsInteger.self, from: \(spanVarName), offset: \(offsetVarName), count: (\(fieldType.trimmed)).bitCount))"
                 "\(offsetVarName) += (\(fieldType.trimmed)).bitCount"
             }
         }

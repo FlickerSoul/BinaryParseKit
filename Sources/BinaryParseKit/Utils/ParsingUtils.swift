@@ -65,23 +65,78 @@ public func __assertBitmaskParsable(_: (some ExpressibleByRawBits & BitCountProv
 @inline(__always)
 public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 
-/// Parses a value from a bit slice.
-/// - Warning: This function is used by bitmask macros and should not be used directly.
+/// Extracts bits from a ParserSpan and returns them as a right-aligned FixedWidthInteger.
+///
+/// The bits are extracted in MSB-first order and returned right-aligned in the integer.
+/// Excess bits in the integer are masked to 0.
+///
 /// - Parameters:
-///   - type: The type to parse
-///   - bits: The RawBits containing all bits
-///   - offset: The bit offset to start from
-///   - count: The number of bits to extract
-/// - Returns: The parsed value
+///   - type: The integer type to return
+///   - input: The source ParserSpan
+///   - offset: Bit offset to start extraction
+///   - count: Number of bits to extract
+/// - Returns: The extracted bits right-aligned in the integer with excess bits masked to 0
+///
+/// Example: Input `[0b0110_1101]` extracting 3 bits at offset 0:
+/// - MSB-first extraction: bits 0, 1, 2 → values 0, 1, 1
+/// - Right-aligned result: 0b0000_0011 = 3
+/// - Warning: This function is used by bitmask macros and should not be used directly.
 @inline(__always)
-public func __parseFromBits<T: ExpressibleByRawBits>(
-    _: T.Type,
-    from bits: RawBits,
+public func __extractBitsAsInteger<I: FixedWidthInteger>(
+    _: I.Type,
+    from input: borrowing BinaryParsing.ParserSpan,
     offset: Int,
     count: Int,
-) throws -> T {
-    let slice = bits.slice(from: offset, count: count)
-    return try T(bits: slice)
+) -> I {
+    precondition(count >= 0 && count <= I.bitWidth, "Bit count must fit in target integer")
+
+    guard count > 0 else { return 0 }
+
+    let startByte = offset / 8
+    let bitOffset = offset % 8
+    let dataSpan = input.bytes
+
+    // For small extractions (up to 8 bits), use optimized single/double byte path
+    if count <= 8 {
+        var value: UInt8
+        if bitOffset + count <= 8 {
+            // Single byte extraction
+            value = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte, as: UInt8.self)
+            value <<= bitOffset
+            value >>= (8 - count)
+        } else {
+            // Two byte extraction
+            let highByte = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte, as: UInt8.self)
+            let lowByte = unsafe dataSpan.unsafeLoad(fromByteOffset: startByte + 1, as: UInt8.self)
+            let combined = (UInt16(highByte) << 8) | UInt16(lowByte)
+            value = UInt8((combined << bitOffset) >> (16 - count))
+        }
+        return I(value)
+    }
+
+    // For larger extractions, build the integer using << and | for speed
+    var result: I = 0
+    var bitsRemaining = count
+    var currentByteIndex = startByte
+    var currentBitOffset = bitOffset
+
+    while bitsRemaining > 0 {
+        let bitsInCurrentByte = min(8 - currentBitOffset, bitsRemaining)
+        let byte = unsafe dataSpan.unsafeLoad(fromByteOffset: currentByteIndex, as: UInt8.self)
+
+        // Extract bits from this byte: shift left to clear leading bits, shift right to position
+        let extracted = (byte << currentBitOffset) >> (8 - bitsInCurrentByte)
+
+        // Add to result
+        result = (result << bitsInCurrentByte) | I(extracted)
+
+        bitsRemaining -= bitsInCurrentByte
+        currentByteIndex += 1
+        currentBitOffset = 0
+    }
+
+    // The result is already right-aligned and masked by construction
+    return result
 }
 
 // MARK: - RawBits Conversion Utilities

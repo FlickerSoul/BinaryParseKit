@@ -722,7 +722,7 @@ extension BinaryParseKitMacroTests {
             ] as [StructAccessorTestCase],
         )
         func `struct accessor`(testCase: StructAccessorTestCase) {
-            assertMacro {
+            assertMacro(record: .never) {
                 """
                 // \(testCase.arguments)
                 @ParseStruct(\(testCase.arguments))
@@ -816,20 +816,19 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 3 + (Bool).bitCount
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_datafMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).withUnsafeBytes(Data.init(_:))
-                        let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
+                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
                         var __macro_local_16__bitmask_offsetfMu_ = 0
                         // Parse `flag1` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.flag1 = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1)
+                        self.flag1 = try .init(bits: BinaryParseKit.__extractBitsAsInteger((Bool).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1))
                         __macro_local_16__bitmask_offsetfMu_ += 1
                         // Parse `value` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.value = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 3)
+                        self.value = try .init(bits: BinaryParseKit.__extractBitsAsInteger((UInt8).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 3))
                         __macro_local_16__bitmask_offsetfMu_ += 3
                         // Parse `flag2` of type Bool from bits
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
-                        self.flag2 = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: (Bool).bitCount)
+                        self.flag2 = try .init(bits: BinaryParseKit.__extractBitsAsInteger((Bool).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: (Bool).bitCount))
                         __macro_local_16__bitmask_offsetfMu_ += (Bool).bitCount
                     }
                 }
@@ -885,16 +884,15 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_datafMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).withUnsafeBytes(Data.init(_:))
-                        let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
+                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
                         var __macro_local_16__bitmask_offsetfMu_ = 0
                         // Parse `flag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.flag = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1)
+                        self.flag = try .init(bits: BinaryParseKit.__extractBitsAsInteger((Bool).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1))
                         __macro_local_16__bitmask_offsetfMu_ += 1
                         // Parse `data` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.data = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 7)
+                        self.data = try .init(bits: BinaryParseKit.__extractBitsAsInteger((UInt8).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 7))
                         __macro_local_16__bitmask_offsetfMu_ += 7
                         // Parse `footer` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
@@ -969,16 +967,15 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 4
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_datafMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).withUnsafeBytes(Data.init(_:))
-                        let __macro_local_14__bitmask_bitsfMu_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu_, size: __macro_local_19__bitmask_totalBitsfMu_)
+                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
                         var __macro_local_16__bitmask_offsetfMu_ = 0
                         // Parse `topFlag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.topFlag = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1)
+                        self.topFlag = try .init(bits: BinaryParseKit.__extractBitsAsInteger((Bool).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 1))
                         __macro_local_16__bitmask_offsetfMu_ += 1
                         // Parse `topData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.topData = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 4)
+                        self.topData = try .init(bits: BinaryParseKit.__extractBitsAsInteger((UInt8).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: 4))
                         __macro_local_16__bitmask_offsetfMu_ += 4
                         // Parse `divider` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
@@ -986,20 +983,19 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu0_ = 1 + 4 + 2
                         let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
-                        let __macro_local_14__bitmask_datafMu0_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_).withUnsafeBytes(Data.init(_:))
-                        let __macro_local_14__bitmask_bitsfMu0_ = BinaryParseKit.RawBits(data: __macro_local_14__bitmask_datafMu0_, size: __macro_local_19__bitmask_totalBitsfMu0_)
+                        let __macro_local_14__bitmask_spanfMu0_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_)
                         var __macro_local_16__bitmask_offsetfMu0_ = 0
                         // Parse `bottomFlag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.bottomFlag = try BinaryParseKit.__parseFromBits((Bool).self, from: __macro_local_14__bitmask_bitsfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 1)
+                        self.bottomFlag = try .init(bits: BinaryParseKit.__extractBitsAsInteger((Bool).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 1))
                         __macro_local_16__bitmask_offsetfMu0_ += 1
                         // Parse `bottomData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.bottomData = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 4)
+                        self.bottomData = try .init(bits: BinaryParseKit.__extractBitsAsInteger((UInt8).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 4))
                         __macro_local_16__bitmask_offsetfMu0_ += 4
                         // Parse `bottomAdditionalData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.bottomAdditionalData = try BinaryParseKit.__parseFromBits((UInt8).self, from: __macro_local_14__bitmask_bitsfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 2)
+                        self.bottomAdditionalData = try .init(bits: BinaryParseKit.__extractBitsAsInteger((UInt8).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: 2))
                         __macro_local_16__bitmask_offsetfMu0_ += 2
                         // Parse `footer` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)

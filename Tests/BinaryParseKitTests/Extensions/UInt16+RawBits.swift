@@ -9,20 +9,20 @@ import BinaryParseKit
 import BinaryParsing
 import Foundation
 
-extension UInt16: ExpressibleByRawBits, RawBitsConvertible {
-    public init(bits: RawBits) throws {
-        let data = if bits.data.count < 2 {
-            bits.data + Data([UInt8](repeating: 0, count: 2 - bits.data.count))
-        } else {
-            bits.data
-        }
+extension UInt16: ExpressibleByRawBits {
+    public typealias RawBitsInteger = UInt16
 
-        self = try data.withParserSpan { span in
-            try UInt16(parsingBigEndian: &span)
-        }
+    public init(bits: RawBitsInteger) throws {
+        self = bits
     }
+}
 
+extension UInt16: RawBitsConvertible {
     public func toRawBits(bitCount: Int) throws -> RawBits {
-        RawBits(data: withUnsafeBytes(of: bigEndian) { Data($0) }, size: bitCount)
+        // Left-align the value within 16 bits, then convert to big-endian bytes
+        // e.g., value=0xAB3 with bitCount=12 -> shift left by 4 -> 0xAB30
+        let effectiveBits = Swift.min(bitCount, 16)
+        let shifted = self << (16 - effectiveBits)
+        return RawBits(data: withUnsafeBytes(of: shifted.bigEndian) { Data($0) }, size: bitCount)
     }
 }

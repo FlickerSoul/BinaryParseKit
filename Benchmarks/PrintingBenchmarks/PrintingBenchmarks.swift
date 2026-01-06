@@ -136,7 +136,7 @@ let benchmarks: @Sendable () -> Void = {
 
     let roundTripEnumData = Data([0x03, 0x12, 0x34, 0x56, 0x78])
     let roundTripStructData = Data([0x12, 0x34, 0x56, 0x78])
-    let roundTripBitmaskBits = RawBits(data: Data([0xA3]), size: 8)
+    let roundTripBitmaskBits: UInt8 = 0b1010_0011
 
     Benchmark("Round-Trip Enum (Parse + Print)") { benchmark in
         for _ in benchmark.scaledIterations {

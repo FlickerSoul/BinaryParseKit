@@ -10,12 +10,11 @@ import Foundation
 // MARK: - Bool Conformance
 
 extension Bool: ExpressibleByRawBits {
-    public init(bits: RawBits) throws {
-        if bits.size == 0 {
-            throw BitmaskParsableError.unsupportedBitCount
-        } else {
-            self = bits.bit(at: 0)
-        }
+    public typealias RawBitsInteger = UInt8
+
+    public init(bits: RawBitsInteger) throws {
+        // bits is right-aligned, check LSB
+        self = (bits & 0x01) != 0
     }
 }
 
@@ -31,12 +30,10 @@ extension Bool: RawBitsConvertible {
 // MARK: - Integer Conformances
 
 extension UInt8: ExpressibleByRawBits {
-    public init(bits: RawBits) throws {
-        if bits.size == 0 {
-            throw BitmaskParsableError.unsupportedBitCount
-        } else {
-            self = bits.extractBits(from: 0, count: Swift.min(bits.size, 8))
-        }
+    public typealias RawBitsInteger = UInt8
+
+    public init(bits: RawBitsInteger) throws {
+        self = bits
     }
 }
 
@@ -51,12 +48,10 @@ extension UInt8: RawBitsConvertible {
 }
 
 extension Int8: ExpressibleByRawBits {
-    public init(bits: RawBits) throws {
-        if bits.size == 0 {
-            throw BitmaskParsableError.unsupportedBitCount
-        } else {
-            self = Int8(bitPattern: bits.extractBits(from: 0, count: Swift.min(bits.size, 8)))
-        }
+    public typealias RawBitsInteger = UInt8
+
+    public init(bits: RawBitsInteger) throws {
+        self = Int8(bitPattern: bits)
     }
 }
 

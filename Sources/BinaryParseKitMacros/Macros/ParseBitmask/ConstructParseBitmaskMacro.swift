@@ -61,28 +61,45 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
 
                 // init(bits:) initializer
                 try InitializerDeclSyntax(
-                    "\(accessorInfo.parsingAccessor) init(bits: BinaryParseKit.RawBits) throws",
+                    "\(accessorInfo.parsingAccessor) init(bits: RawBitsInteger) throws",
                 ) {
-                    "var offset = 0"
+                    "var bitPosition = 0"
 
                     for fieldInfo in fieldVisitor.fields.values {
-                        switch fieldInfo.maskInfo.bitCount {
+                        let bitCountExpr: ExprSyntax = switch fieldInfo.maskInfo.bitCount {
                         case let .specified(count):
+                            count.expr
+                        case .inferred:
+                            "(\(fieldInfo.type)).bitCount"
+                        }
+
+                        switch fieldInfo.maskInfo.bitCount {
+                        case .specified:
                             """
-                            // Parse `\(fieldInfo.name)` of type `\(fieldInfo.type)` with specified bit count \(count
-                                .expr)
+                            // Parse `\(fieldInfo.name)` of type `\(fieldInfo
+                                .type)` with specified bit count \(bitCountExpr)
                             \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldInfo.type)).self)
                             """
-                            "self.\(fieldInfo.name) = try \(raw: Constants.UtilityFunctions.parseFromBits)((\(fieldInfo.type)).self, from: bits, offset: offset, count: \(count.expr))"
-                            "offset += \(count.expr)"
                         case .inferred:
                             """
                             // Parse `\(fieldInfo.name)` of type `\(fieldInfo.type)` with inferred bit count
                             \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldInfo.type)).self)
                             """
-                            "self.\(fieldInfo.name) = try \(raw: Constants.UtilityFunctions.parseFromBits)((\(fieldInfo.type)).self, from: bits, offset: offset, count: (\(fieldInfo.type)).bitCount)"
-                            "offset += (\(fieldInfo.type)).bitCount"
                         }
+
+                        // Extract field bits from the integer: shift right and mask
+                        // bits >> (RawBitsInteger.bitWidth - bitPosition - fieldBitCount) & mask
+                        """
+                        do {
+                            let fieldBitCount = \(bitCountExpr)
+                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
+                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
+                            let fieldBits = (\(fieldInfo
+                            .type)).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
+                            self.\(fieldInfo.name) = try .init(bits: fieldBits)
+                            bitPosition += fieldBitCount
+                        }
+                        """
                     }
                 }
             }

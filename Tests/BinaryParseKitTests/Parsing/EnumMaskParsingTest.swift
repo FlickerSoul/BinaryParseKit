@@ -159,9 +159,9 @@ extension ParsingTests.EnumMaskParsingTest {
     @Test("Enum with multi-byte mask field")
     func enumMultiByteMask() throws {
         // Match 0x01 (consumed), then parse 16 bits: 1010 1011 0011 0100 = 0xAB34
-        // First 12 bits: 1010 1011 0011 = 0xAB3 = 2739
+        // First 12 bits: 1010 1011 0011 = 0xAB3 = 2739 (right-aligned)
         // Last 4 bits: 0100 = 4
         let result = try MultiByteMask(parsing: Data([0x01, 0b1010_1011, 0b0011_0100]))
-        #expect(result == .wide(0b1010_1011_0011_0000, 0b0100))
+        #expect(result == .wide(0b1010_1011_0011, 0b0100))
     }
 }

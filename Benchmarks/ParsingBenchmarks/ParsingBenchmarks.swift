@@ -87,9 +87,9 @@ let benchmarks: @Sendable () -> Void = {
     // MARK: - Bitmask Parsing Benchmarks
 
     let simpleBitmaskData = Data([0xA3])
-    let simpleBitmaskBits = RawBits(data: simpleBitmaskData, size: 8)
+    let simpleBitmaskBits: UInt8 = 0b1010_0011
     let complexBitmaskData = Data([0xAB, 0xCD, 0xEF, 0x12])
-    let complexBitmaskBits = RawBits(data: complexBitmaskData, size: 32)
+    let complexBitmaskBits: UInt32 = 0xABCD_EF12
 
     Benchmark("Parse Simple Bitmask") { benchmark in
         for _ in benchmark.scaledIterations {
@@ -164,7 +164,7 @@ let benchmarks: @Sendable () -> Void = {
     // MARK: - Non-Byte-Aligned Bitmask Benchmarks
 
     let nonAlignedData = Data([0xAC, 0xC0])
-    let nonAlignedBits = RawBits(data: nonAlignedData, size: 10)
+    let nonAlignedBits: UInt16 = 0b1010_1100_1100_0000
 
     Benchmark("Parse Non-Byte-Aligned Bitmask (10 bits)") { benchmark in
         for _ in benchmark.scaledIterations {

@@ -123,6 +123,8 @@ struct BenchmarkStructComplex: Equatable {
 // Simple bitmask for parsing benchmarks
 @ParseBitmask
 struct BenchmarkBitmaskSimple: Equatable {
+    typealias RawBitsInteger = UInt8
+
     @mask(bitCount: 1)
     var flag: UInt8
 
@@ -142,6 +144,8 @@ struct BenchmarkBitmaskSimple: Equatable {
 // Complex bitmask with multiple fields
 @ParseBitmask
 struct BenchmarkBitmaskComplex: Equatable {
+    typealias RawBitsInteger = UInt32
+
     @mask(bitCount: 1)
     var flag1: UInt8
 
@@ -212,6 +216,8 @@ struct LittleEndianStruct: Equatable {
 
 @ParseBitmask
 struct NonByteAlignedBitmask: Equatable {
+    typealias RawBitsInteger = UInt16
+
     @mask(bitCount: 3)
     var first: UInt8
 

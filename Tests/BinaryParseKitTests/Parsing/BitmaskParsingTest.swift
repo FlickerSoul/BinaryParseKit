@@ -19,6 +19,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct BasicFlags {
+        typealias RawBitsInteger = UInt8
+
         @mask(bitCount: 1)
         var flag1: UInt8
 
@@ -32,8 +34,7 @@ extension ParsingTests.BitmaskParsingTest {
     @Test("Basic bitmask struct parsing")
     func basicBitmaskParsing() throws {
         // Binary: 1 010 0011 = 0xA3
-        let bits = RawBits(data: Data([0xA3]), size: 8)
-        let flags = try BasicFlags(bits: bits)
+        let flags = try BasicFlags(bits: 0xA3)
         #expect(flags.flag1 == 1)
         #expect(flags.value == 2)
         #expect(flags.nibble == 3)
@@ -41,8 +42,7 @@ extension ParsingTests.BitmaskParsingTest {
 
     @Test("Basic bitmask struct - all zeros")
     func basicBitmaskAllZeros() throws {
-        let bits = RawBits(data: Data([0x00]), size: 8)
-        let flags = try BasicFlags(bits: bits)
+        let flags = try BasicFlags(bits: 0x00)
         #expect(flags.flag1 == 0)
         #expect(flags.value == 0)
         #expect(flags.nibble == 0)
@@ -50,8 +50,7 @@ extension ParsingTests.BitmaskParsingTest {
 
     @Test("Basic bitmask struct - all ones")
     func basicBitmaskAllOnes() throws {
-        let bits = RawBits(data: Data([0xFF]), size: 8)
-        let flags = try BasicFlags(bits: bits)
+        let flags = try BasicFlags(bits: 0xFF)
         #expect(flags.flag1 == 1)
         #expect(flags.value == 7)
         #expect(flags.nibble == 15)
@@ -66,18 +65,18 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct SingleFlag {
+        typealias RawBitsInteger = UInt8
+
         @mask(bitCount: 1)
         var flag: UInt8
     }
 
     @Test("Single field bitmask")
     func singleFieldBitmask() throws {
-        let bits1 = RawBits(data: Data([0x80]), size: 1)
-        let flag1 = try SingleFlag(bits: bits1)
+        let flag1 = try SingleFlag(bits: 0x80)
         #expect(flag1.flag == 1)
 
-        let bits0 = RawBits(data: Data([0x00]), size: 1)
-        let flag0 = try SingleFlag(bits: bits0)
+        let flag0 = try SingleFlag(bits: 0x00)
         #expect(flag0.flag == 0)
     }
 
@@ -90,6 +89,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct WideBitmask {
+        typealias RawBitsInteger = UInt16
+
         @mask(bitCount: 4)
         var high: UInt8
 
@@ -103,9 +104,8 @@ extension ParsingTests.BitmaskParsingTest {
     @Test("Multi-byte bitmask spanning 2 bytes")
     func multiByteBitmask() throws {
         // Binary: 1010 10110011 0100
-        // Bytes: [0xAB, 0x34]
-        let bits = RawBits(data: Data([0xAB, 0x34]), size: 16)
-        let wide = try WideBitmask(bits: bits)
+        // Bytes: [0xAB, 0x34] = 0xAB34
+        let wide = try WideBitmask(bits: 0xAB34)
         #expect(wide.high == 10) // 0b1010
         #expect(wide.middle == 179) // 0b10110011
         #expect(wide.low == 4) // 0b0100
@@ -120,6 +120,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct MixedIntegerTypes {
+        typealias RawBitsInteger = UInt32
+
         @mask(bitCount: 8)
         var byte: UInt8
 
@@ -132,10 +134,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @Test("Bitmask with different integer types")
     func mixedIntegerTypes() throws {
-        // 0x12 | 0x3456 | 0x78
-        // Binary: 00010010 0011010001010110 01111000
-        let bits = RawBits(data: Data([0x12, 0x34, 0x56, 0x78]), size: 32)
-        let mixed = try MixedIntegerTypes(bits: bits)
+        // 0x12 | 0x3456 | 0x78 = 0x12345678
+        let mixed = try MixedIntegerTypes(bits: 0x1234_5678)
         #expect(mixed.byte == 0x12)
         #expect(mixed.word == 0x3456)
         #expect(mixed.signed == 0x78)
@@ -150,6 +150,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct BitmaskWithComputed {
+        typealias RawBitsInteger = UInt8
+
         @mask(bitCount: 4)
         var value: UInt8
 
@@ -165,8 +167,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @Test("Computed properties are ignored in bitmask")
     func bitmaskIgnoresComputed() throws {
-        let bits = RawBits(data: Data([0xA0]), size: 4) // 1010 = 10
-        let bitmask = try BitmaskWithComputed(bits: bits)
+        // 1010 = 10, in MSB position: 0xA0
+        let bitmask = try BitmaskWithComputed(bits: 0xA0)
         #expect(bitmask.value == 10)
         #expect(bitmask.computedDouble == 20)
         #expect(bitmask.computedWithGetSet == 10)
@@ -181,6 +183,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct BitmaskWithStatic {
+        typealias RawBitsInteger = UInt8
+
         static let defaultValue: UInt8 = 0
 
         @mask(bitCount: 8)
@@ -189,8 +193,7 @@ extension ParsingTests.BitmaskParsingTest {
 
     @Test("Static properties are ignored in bitmask")
     func bitmaskIgnoresStatic() throws {
-        let bits = RawBits(data: Data([0x42]), size: 8)
-        let bitmask = try BitmaskWithStatic(bits: bits)
+        let bitmask = try BitmaskWithStatic(bits: 0x42)
         #expect(bitmask.value == 0x42)
         #expect(BitmaskWithStatic.defaultValue == 0)
     }
@@ -204,6 +207,8 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct NonByteAligned {
+        typealias RawBitsInteger = UInt16
+
         @mask(bitCount: 3)
         var first: UInt8
 
@@ -217,9 +222,12 @@ extension ParsingTests.BitmaskParsingTest {
     @Test("Non-byte-aligned bitmask (10 bits)")
     func nonByteAlignedBitmask() throws {
         // Binary: 101 01100 11 = 10 bits
-        // Byte representation: 10101100 11000000 = 0xAC 0xC0
-        let bits = RawBits(data: Data([0xAC, 0xC0]), size: 10)
-        let bitmask = try NonByteAligned(bits: bits)
+        // As 16-bit integer (right-aligned in 10 bits): 0b10101100_11 = 0x2B3
+        // But we need it MSB-aligned: 0xACC0 >> 6 = 0x2B3
+        // Actually: 0xACC0 as full 16-bit, then shift
+        // Let's calculate: 101 01100 11 in MSB position of 16 bits = 10101100_11000000 = 0xACC0
+        // The init expects MSB-aligned input
+        let bitmask = try NonByteAligned(bits: 0xACC0)
         #expect(bitmask.first == 5) // 0b101
         #expect(bitmask.second == 12) // 0b01100
         #expect(bitmask.third == 3) // 0b11
@@ -234,14 +242,15 @@ extension ParsingTests.BitmaskParsingTest {
 
     @ParseBitmask
     struct LargeValueBitmask {
+        typealias RawBitsInteger = UInt32
+
         @mask(bitCount: 32)
         var large: UInt32
     }
 
     @Test("Large 32-bit bitmask value")
     func largeBitmaskValue() throws {
-        let bits = RawBits(data: Data([0x12, 0x34, 0x56, 0x78]), size: 32)
-        let bitmask = try LargeValueBitmask(bits: bits)
+        let bitmask = try LargeValueBitmask(bits: 0x1234_5678)
         #expect(bitmask.large == 0x1234_5678)
     }
 

@@ -70,6 +70,8 @@ struct PrintBenchmarkStructComplex: Equatable {
 // Simple bitmask for printing benchmarks
 @ParseBitmask
 struct PrintBenchmarkBitmaskSimple: Equatable {
+    typealias RawBitsInteger = UInt8
+
     @mask(bitCount: 1)
     var flag: UInt8
 
@@ -80,6 +82,8 @@ struct PrintBenchmarkBitmaskSimple: Equatable {
 // Complex bitmask with multiple fields
 @ParseBitmask
 struct PrintBenchmarkBitmaskComplex: Equatable {
+    typealias RawBitsInteger = UInt32
+
     @mask(bitCount: 1)
     var flag1: UInt8
 
@@ -98,6 +102,8 @@ struct PrintBenchmarkBitmaskComplex: Equatable {
 
 @ParseBitmask
 struct NonByteAlignedPrintBitmask: Equatable {
+    typealias RawBitsInteger = UInt16
+
     @mask(bitCount: 3)
     var first: UInt8
 

@@ -23,25 +23,36 @@ public enum BitmaskParsableError: Error, Sendable {
 /// Types conforming to this protocol can be constructed from raw bits,
 /// enabling bit-level parsing within binary data structures.
 ///
+/// The `RawBitsInteger` associated type specifies the integer type used
+/// to receive the extracted bits. The bits passed to `init(bits:)` are:
+/// - **MSB-first extracted**: The first bits in the source become the most significant bits
+/// - **Right-aligned**: The extracted bits are positioned at the LSB of the integer
+/// - **Excess bits masked to 0**: Only the extracted bits are set; higher bits are zero
+///
+/// For example, extracting 3 bits `0b011` from input `[0b0110_0000]` yields
+/// `bits = 0b0000_0011` (value 3) when `RawBitsInteger` is `UInt8`.
+///
 /// Example:
 /// ```swift
 /// struct Priority: ExpressibleByRawBits {
+///     typealias RawBitsInteger = UInt8
 ///     let value: UInt8
 ///
-///     init(bits: RawBits) throws {
-///         guard bits.size <= 8 else {
-///             throw BitmaskParsableError.unsupportedBitCount
-///         }
-///         self.value = UInt8(bits.extractBits(from: 0, count: bits.size))
+///     init(bits: RawBitsInteger) throws {
+///         self.value = UInt8(bits)
 ///     }
 /// }
 /// ```
 public protocol ExpressibleByRawBits {
-    /// Creates an instance from a bit sequence.
+    /// The integer type used to receive raw bits during parsing.
+    associatedtype RawBitsInteger: FixedWidthInteger
+
+    /// Creates an instance from extracted bits.
     ///
-    /// - Parameter bits: The raw bits to parse
+    /// - Parameter bits: The extracted bits, right-aligned in the integer with
+    ///   excess bits masked to 0. The bits are MSB-first extracted from the source.
     /// - Throws: An error if the bits cannot be converted to this type
-    init(bits: RawBits) throws
+    init(bits: RawBitsInteger) throws
 }
 
 /// A protocol for types that declare their bit width.

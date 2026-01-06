@@ -19,6 +19,7 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A simple flag type that conforms to BitmaskParsable with 1 bit.
     struct Flag: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
+        typealias RawBitsInteger = UInt8
         static var bitCount: Int { 1 }
         let value: Bool
 
@@ -26,11 +27,8 @@ extension ParsingTests.StructMaskParsingTest {
             self.value = value
         }
 
-        init(bits: RawBits) throws {
-            guard bits.size >= 1 else {
-                throw BitmaskParsableError.insufficientBits
-            }
-            value = bits.bit(at: 0)
+        init(bits: RawBitsInteger) throws {
+            value = bits & 1 == 1
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {
@@ -40,6 +38,7 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A 4-bit nibble type that conforms to BitmaskParsable.
     struct Nibble: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
+        typealias RawBitsInteger = UInt8
         static var bitCount: Int { 4 }
         let value: UInt8
 
@@ -48,11 +47,8 @@ extension ParsingTests.StructMaskParsingTest {
             self.value = value
         }
 
-        init(bits: RawBits) throws {
-            guard bits.size <= 4 else {
-                throw BitmaskParsableError.unsupportedBitCount
-            }
-            value = UInt8(bits.extractBits(from: 0, count: bits.size))
+        init(bits: RawBitsInteger) throws {
+            value = bits
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {
@@ -62,6 +58,7 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A 3-bit value type for testing.
     struct ThreeBit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
+        typealias RawBitsInteger = UInt8
         static var bitCount: Int { 3 }
         let value: UInt8
 
@@ -70,11 +67,8 @@ extension ParsingTests.StructMaskParsingTest {
             self.value = value
         }
 
-        init(bits: RawBits) throws {
-            guard bits.size <= 3 else {
-                throw BitmaskParsableError.unsupportedBitCount
-            }
-            value = UInt8(bits.extractBits(from: 0, count: bits.size))
+        init(bits: RawBitsInteger) throws {
+            value = bits
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {

@@ -37,6 +37,6 @@ import Testing
         if: !shouldRunMacroTest,
         "macros are not supported and cannot be imported for testing",
     ),
-    .macros(testMacros),
+    .macros(testMacros, record: .failed),
 )
 struct BinaryParseKitMacroTests {}
