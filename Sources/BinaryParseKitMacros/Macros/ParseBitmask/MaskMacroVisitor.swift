@@ -35,6 +35,10 @@ class MaskMacroVisitor: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
+    override func visit(_: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
+    }
+
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
         // Skip static declarations
         guard !node.isStaticDecl else {

@@ -28,6 +28,10 @@ class ParseEnumCase: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
+    override func visit(_: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
+    }
+
     override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
         guard workEnum == nil else {
             return .skipChildren
