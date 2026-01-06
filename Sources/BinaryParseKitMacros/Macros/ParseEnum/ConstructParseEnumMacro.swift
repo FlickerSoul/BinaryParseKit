@@ -29,9 +29,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
             in: context,
         )
 
-        let visitor = ParseEnumCase(context: context)
-        visitor.walk(enumDeclaration)
-        try visitor.validate()
+        let visitor = try ParseEnumCase(context: context).scrape(enumDeclaration)
 
         guard let parseInfo = visitor.parsedInfo else {
             throw ParseEnumMacroError.unexpectedError(description: "Macro analysis finished without info")

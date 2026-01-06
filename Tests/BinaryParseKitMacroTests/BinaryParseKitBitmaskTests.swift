@@ -558,7 +558,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func `negative mask bit count`() async throws {
+        func `negative mask bit count`() {
             assertMacro {
                 """
                 @ParseBitmask
@@ -583,7 +583,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func `zero mask bit count`() async throws {
+        func `zero mask bit count`() {
             assertMacro {
                 """
                 @ParseBitmask
@@ -602,6 +602,135 @@ extension BinaryParseKitMacroTests {
                     ┬─────────────────
                     ╰─ 🛑 The bitCount argument must be a positive integer.
                     var flag: Int
+                }
+                """
+            }
+        }
+
+        @Test
+        func `complex structure test`() {
+            assertMacro {
+                """
+                @ParseBitmask
+                struct ComplexTest {
+                    @mask
+                    let a: Flag
+
+                    var b: Flag {
+                        get {
+                            a
+                        }
+                        set {
+                            a = newValue
+                        }
+                    }
+
+                    func a() -> Flag {
+                        let value = 1
+                        return b
+                    }
+
+                    static func b() -> Flag {
+                        var value = Flag()
+                        value.change()
+                        return value
+                    }
+
+                    struct Flag {
+                        let value: Int
+                    }
+
+                    enum EnumFlag {
+                        case flag
+                    }
+
+                    class ClassFlag {
+                        @Observed
+                        var value: Int = 1
+                    }
+
+                    actor ActorFlag {
+                        var value = 1
+                    }
+                }
+                """
+            } expansion: {
+                """
+                struct ComplexTest {
+                    let a: Flag
+
+                    var b: Flag {
+                        get {
+                            a
+                        }
+                        set {
+                            a = newValue
+                        }
+                    }
+
+                    func a() -> Flag {
+                        let value = 1
+                        return b
+                    }
+
+                    static func b() -> Flag {
+                        var value = Flag()
+                        value.change()
+                        return value
+                    }
+
+                    struct Flag {
+                        let value: Int
+                    }
+
+                    enum EnumFlag {
+                        case flag
+                    }
+
+                    class ClassFlag {
+                        @Observed
+                        var value: Int = 1
+                    }
+
+                    actor ActorFlag {
+                        var value = 1
+                    }
+                }
+
+                extension ComplexTest: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
+                    internal static var bitCount: Int {
+                        (Flag).bitCount
+                    }
+                    internal init(bits: RawBitsInteger) throws {
+                        var bitPosition = 0
+                        // Parse `a` of type `Flag` with inferred bit count
+                        BinaryParseKit.__assertBitmaskParsable((Flag).self)
+                        do {
+                            let fieldBitCount = (Flag).bitCount
+                            let shift = RawBitsInteger.bitWidth - bitPosition - fieldBitCount
+                            let mask = RawBitsInteger((1 << fieldBitCount) - 1)
+                            let fieldBits = (Flag).RawBitsInteger(truncatingIfNeeded: (bits >> shift) & mask)
+                            self.a = try .init(bits: fieldBits)
+                            bitPosition += fieldBitCount
+                        }
+                    }
+                }
+
+                extension ComplexTest: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        // Convert `a` of type `Flag` with inferred bit count
+                        BinaryParseKit.__assertRawBitsConvertible((Flag).self)
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.a, bitCount: (Flag).bitCount))
+                        return result
+                    }
+                }
+
+                extension ComplexTest: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
+                    }
                 }
                 """
             }

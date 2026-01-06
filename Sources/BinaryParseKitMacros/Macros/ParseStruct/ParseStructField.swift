@@ -39,6 +39,17 @@ class ParseStructField: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
+    @discardableResult
+    func scrape(_ structSyntax: StructDeclSyntax) throws -> Self {
+        walk(structSyntax.memberBlock.members)
+        try validate(for: structSyntax)
+        return self
+    }
+
+    override func visit(_: MemberBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
+    }
+
     override func visit(_: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
         .skipChildren
     }

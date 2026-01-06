@@ -1068,6 +1068,132 @@ extension BinaryParseKitMacroTests {
                 """
             }
         }
+
+        @Test
+        func `complex structure test`() {
+            assertMacro {
+                """
+                @ParseStruct
+                struct ComplexTest {
+                    @mask
+                    let a: Flag
+
+                    @parse
+                    var b: Flag
+
+                    var c: Flag {
+                        get {
+                            a
+                        }
+                        set {
+                            a = newValue
+                        }
+                    }
+
+                    func a() -> Flag {
+                        let value = 1
+                        return b
+                    }
+
+                    static func b() -> Flag {
+                        var value = Flag()
+                        value.change()
+                        return value
+                    }
+
+                    struct Flag {
+                        let value: Int
+                    }
+
+                    enum EnumFlag {
+                        case flag
+                    }
+
+                    class ClassFlag {
+                        @Observed
+                        var value: Int = 1
+                    }
+
+                    actor ActorFlag {
+                        var value = 1
+                    }
+                }
+                """
+            } expansion: {
+                """
+                struct ComplexTest {
+                    let a: Flag
+                    var b: Flag
+
+                    var c: Flag {
+                        get {
+                            a
+                        }
+                        set {
+                            a = newValue
+                        }
+                    }
+
+                    func a() -> Flag {
+                        let value = 1
+                        return b
+                    }
+
+                    static func b() -> Flag {
+                        var value = Flag()
+                        value.change()
+                        return value
+                    }
+
+                    struct Flag {
+                        let value: Int
+                    }
+
+                    enum EnumFlag {
+                        case flag
+                    }
+
+                    class ClassFlag {
+                        @Observed
+                        var value: Int = 1
+                    }
+
+                    actor ActorFlag {
+                        var value = 1
+                    }
+                }
+
+                extension ComplexTest: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        // Parse bitmask fields
+                        let __macro_local_19__bitmask_totalBitsfMu_ = (Flag).bitCount
+                        let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
+                        var __macro_local_16__bitmask_offsetfMu_ = 0
+                        // Parse `a` of type Flag from bits
+                        BinaryParseKit.__assertBitmaskParsable((Flag).self)
+                        self.a = try .init(bits: BinaryParseKit.__extractBitsAsInteger((Flag).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: (Flag).bitCount))
+                        __macro_local_16__bitmask_offsetfMu_ += (Flag).bitCount
+                        // Parse `b` of type Flag
+                        BinaryParseKit.__assertParsable((Flag).self)
+                        self.b = try Flag(parsing: &span)
+                    }
+                }
+
+                extension ComplexTest: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        // bits from a
+                        let __macro_local_10__maskBitsfMu_ = try BinaryParseKit.__toRawBits(a, bitCount: (Flag).bitCount)
+                        return .struct(
+                            .init(
+                                fields: [.init(byteCount: nil, endianness: nil, intel: .bitmask(.init(bits: __macro_local_10__maskBitsfMu_))), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(b))]
+                            )
+                        )
+                    }
+                }
+                """
+            }
+        }
     }
 }
 

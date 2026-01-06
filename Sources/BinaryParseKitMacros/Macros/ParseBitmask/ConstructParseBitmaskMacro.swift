@@ -31,9 +31,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
         )
 
         // Extract mask field info
-        let fieldVisitor = MaskMacroVisitor(context: context)
-        fieldVisitor.walk(structDeclaration)
-        try fieldVisitor.validate()
+        let fieldVisitor = try MaskMacroVisitor(context: context).scrape(structDeclaration)
 
         // Build bitCount expression as sum of all field bit counts
         let bitCountExprs = fieldVisitor.fields.values.map { fieldInfo -> ExprSyntax in

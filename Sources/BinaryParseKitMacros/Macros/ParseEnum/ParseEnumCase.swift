@@ -1,5 +1,5 @@
 //
-//  ParseEnumField.swift
+//  ParseEnumCase.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 7/26/25.
@@ -11,7 +11,6 @@ import SwiftSyntaxMacros
 class ParseEnumCase: SyntaxVisitor {
     private let context: any MacroExpansionContext
 
-    private var workEnum: EnumDeclSyntax?
     private var currentParseMacroVisitor: MacroAttributeCollector?
     private var currentCaseElements: EnumCaseElementListSyntax?
     private var caseParseInfo: [EnumCaseParseInfo] = []
@@ -28,17 +27,20 @@ class ParseEnumCase: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
-    override func visit(_: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
+    @discardableResult
+    func scrape(_ enumSyntax: EnumDeclSyntax) throws -> Self {
+        walk(enumSyntax.memberBlock.members)
+
+        try validate(for: enumSyntax)
+        return self
+    }
+
+    override func visit(_: MemberBlockSyntax) -> SyntaxVisitorContinueKind {
         .skipChildren
     }
 
-    override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        guard workEnum == nil else {
-            return .skipChildren
-        }
-
-        workEnum = node
-        return .visitChildren
+    override func visit(_: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
     }
 
     override func visit(_ node: AttributeListSyntax) -> SyntaxVisitorContinueKind {
@@ -55,16 +57,6 @@ class ParseEnumCase: SyntaxVisitor {
     }
 
     override func visitPost(_ node: EnumCaseDeclSyntax) {
-        guard let workEnum else {
-            errors.append(.init(
-                node: node,
-                message: ParseEnumMacroError.unexpectedError(description: "No enum to parse"),
-            ))
-            return
-        }
-        guard node.belongsTo(workEnum) else {
-            return
-        }
         guard let currentCaseElements, !currentCaseElements.isEmpty else {
             errors.append(.init(
                 node: node,
@@ -155,18 +147,12 @@ class ParseEnumCase: SyntaxVisitor {
         }
     }
 
-    override func visitPost(_ node: EnumDeclSyntax) {
-        guard workEnum == node else {
-            return
-        }
-
+    func validate(for node: EnumDeclSyntax) throws {
         parsedInfo = .init(
             type: node.name,
             caseParseInfo: caseParseInfo,
         )
-    }
 
-    func validate() throws {
         if !errors.isEmpty {
             for error in errors {
                 context.diagnose(error)
@@ -174,22 +160,6 @@ class ParseEnumCase: SyntaxVisitor {
 
             throw ParseEnumMacroError.unexpectedError(description: "Enum macro parsing encountered errors")
         }
-    }
-}
-
-private extension EnumCaseDeclSyntax {
-    func belongsTo(_ enumToCheck: EnumDeclSyntax) -> Bool {
-        var pointer: Syntax? = Syntax(self)
-
-        while let unwrappedPointer = pointer {
-            if let pointerEnum = unwrappedPointer.as(EnumDeclSyntax.self) {
-                return enumToCheck == pointerEnum
-            }
-
-            pointer = unwrappedPointer.parent
-        }
-
-        return false
     }
 }
 

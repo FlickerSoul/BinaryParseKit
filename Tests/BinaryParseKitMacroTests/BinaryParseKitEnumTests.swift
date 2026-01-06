@@ -1374,6 +1374,175 @@ extension BinaryParseKitMacroTests {
                 """
             }
         }
+
+        @Test
+        func `complex structure test`() {
+            assertMacro {
+                """
+                @ParseEnum
+                enum TestEnum {
+                    @match(byte: 0x01)
+                    @mask
+                    case a(Flag)
+
+                    @match(byte: 0x02)
+                    @parse
+                    @skip(byteCount: 2, reason: "skip")
+                    @mask
+                    case b(Flag, Flag)
+
+                    var c: Flag {
+                        get {
+                            a
+                        }
+                        set {
+                            a = newValue
+                        }
+                    }
+
+                    func a() -> Flag {
+                        let value = 1
+                        return b
+                    }
+
+                    static func b() -> Flag {
+                        var value = Flag()
+                        value.change()
+                        return value
+                    }
+
+                    struct Flag {
+                        let value: Int
+                    }
+
+                    enum EnumFlag {
+                        case flag
+                    }
+
+                    class ClassFlag {
+                        @Observed
+                        var value: Int = 1
+                    }
+
+                    actor ActorFlag {
+                        var value = 1
+                    }
+                }
+                """
+            } expansion: {
+                #"""
+                enum TestEnum {
+                    case a(Flag)
+                    case b(Flag, Flag)
+
+                    var c: Flag {
+                        get {
+                            a
+                        }
+                        set {
+                            a = newValue
+                        }
+                    }
+
+                    func a() -> Flag {
+                        let value = 1
+                        return b
+                    }
+
+                    static func b() -> Flag {
+                        var value = Flag()
+                        value.change()
+                        return value
+                    }
+
+                    struct Flag {
+                        let value: Int
+                    }
+
+                    enum EnumFlag {
+                        case flag
+                    }
+
+                    class ClassFlag {
+                        @Observed
+                        var value: Int = 1
+                    }
+
+                    actor ActorFlag {
+                        var value = 1
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        if BinaryParseKit.__match([0x01], in: &span) {
+                            // Parse bitmask fields for `a`
+                            let __macro_local_19__bitmask_totalBitsfMu_ = (Flag).bitCount
+                            let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                            let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
+                            var __macro_local_16__bitmask_offsetfMu_ = 0
+                            // Parse `__macro_local_15__mask_0th_arg_fMu_` of type Flag from bits
+                            BinaryParseKit.__assertBitmaskParsable((Flag).self)
+                            let __macro_local_15__mask_0th_arg_fMu_ = try (Flag).init(bits: BinaryParseKit.__extractBitsAsInteger((Flag).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu_, offset: __macro_local_16__bitmask_offsetfMu_, count: (Flag).bitCount))
+                            __macro_local_16__bitmask_offsetfMu_ += (Flag).bitCount
+                            // construct `a` with above associated values
+                            self = .a(__macro_local_15__mask_0th_arg_fMu_)
+                            return
+                        }
+                        if BinaryParseKit.__match([0x02], in: &span) {
+                            // Parse `__macro_local_16__parse_0th_arg_fMu_` of type Flag
+                            BinaryParseKit.__assertParsable((Flag).self)
+                            let __macro_local_16__parse_0th_arg_fMu_ = try Flag(parsing: &span)
+                            // Skip 2 because of "skip", before parsing `b`
+                            try span.seek(toRelativeOffset: 2)
+                            // Parse bitmask fields for `b`
+                            let __macro_local_19__bitmask_totalBitsfMu0_ = (Flag).bitCount
+                            let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
+                            let __macro_local_14__bitmask_spanfMu0_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_)
+                            var __macro_local_16__bitmask_offsetfMu0_ = 0
+                            // Parse `__macro_local_15__mask_1th_arg_fMu_` of type Flag from bits
+                            BinaryParseKit.__assertBitmaskParsable((Flag).self)
+                            let __macro_local_15__mask_1th_arg_fMu_ = try (Flag).init(bits: BinaryParseKit.__extractBitsAsInteger((Flag).RawBitsInteger.self, from: __macro_local_14__bitmask_spanfMu0_, offset: __macro_local_16__bitmask_offsetfMu0_, count: (Flag).bitCount))
+                            __macro_local_16__bitmask_offsetfMu0_ += (Flag).bitCount
+                            // construct `b` with above associated values
+                            self = .b(__macro_local_16__parse_0th_arg_fMu_, __macro_local_15__mask_1th_arg_fMu_)
+                            return
+                        }
+                        throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for TestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension TestEnum: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        switch self {
+                        case let .a(__macro_local_15__mask_0th_arg_fMu0_):
+                            let __macro_local_22__bytesTakenInMatchingfMu_: [UInt8] = [0x01]
+                            // bits from __macro_local_15__mask_0th_arg_fMu0_
+                            let __macro_local_10__maskBitsfMu_ = try BinaryParseKit.__toRawBits(__macro_local_15__mask_0th_arg_fMu0_, bitCount: (Flag).bitCount)
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_22__bytesTakenInMatchingfMu_,
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: .bitmask(.init(bits: __macro_local_10__maskBitsfMu_)))],
+                                )
+                            )
+                        case let .b(__macro_local_16__parse_0th_arg_fMu0_, __macro_local_15__mask_1th_arg_fMu0_):
+                            let __macro_local_22__bytesTakenInMatchingfMu0_: [UInt8] = [0x02]
+                            // bits from __macro_local_15__mask_1th_arg_fMu0_
+                            let __macro_local_10__maskBitsfMu0_ = try BinaryParseKit.__toRawBits(__macro_local_15__mask_1th_arg_fMu0_, bitCount: (Flag).bitCount)
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_22__bytesTakenInMatchingfMu0_,
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(__macro_local_16__parse_0th_arg_fMu0_)), .init(byteCount: Swift.Int(2), endianness: nil, intel: .skip(.init(byteCount: Swift.Int(2)))), .init(byteCount: nil, endianness: nil, intel: .bitmask(.init(bits: __macro_local_10__maskBitsfMu0_)))],
+                                )
+                            )
+                        }
+                    }
+                }
+                """#
+            }
+        }
     }
 }
 

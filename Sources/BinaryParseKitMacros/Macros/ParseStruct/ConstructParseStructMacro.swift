@@ -27,9 +27,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
             in: context,
         )
 
-        let structFieldInfo = ParseStructField(context: context)
-        structFieldInfo.walk(structDeclaration)
-        try structFieldInfo.validate(for: structDeclaration)
+        let structFieldInfo = try ParseStructField(context: context).scrape(structDeclaration)
 
         let type = TypeSyntax(type)
 
