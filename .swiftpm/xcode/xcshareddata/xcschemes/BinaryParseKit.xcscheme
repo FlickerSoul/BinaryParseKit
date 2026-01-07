@@ -39,6 +39,9 @@
          <TestPlanReference
             reference = "container:TestPlans/Macro.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/BenchmarkTypes.xctestplan">
+         </TestPlanReference>
       </TestPlans>
    </TestAction>
    <LaunchAction

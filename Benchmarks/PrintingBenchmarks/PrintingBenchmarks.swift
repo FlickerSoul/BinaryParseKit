@@ -7,6 +7,7 @@
 // swiftlint:disable force_try
 
 import Benchmark
+import BenchmarkTypes
 import BinaryParseKit
 import Foundation
 
@@ -22,8 +23,8 @@ let benchmarks: @Sendable () -> Void = {
 
     // MARK: - Enum Printing Benchmarks
 
-    let simpleEnum = PrintBenchmarkEnumSimple.first
-    let complexEnum = PrintBenchmarkEnumComplex.withTwoValues(0x1234, 0x5678)
+    let simpleEnum = BenchmarkEnumSimple.first
+    let complexEnum = BenchmarkEnumComplex.withTwoValues(0x1234, 0x5678)
 
     Benchmark("Print Simple Enum") { benchmark in
         for _ in benchmark.scaledIterations {
@@ -51,8 +52,8 @@ let benchmarks: @Sendable () -> Void = {
 
     // MARK: - Struct Printing Benchmarks
 
-    let simpleStruct = PrintBenchmarkStructSimple(value: 0x1234_5678)
-    let complexStruct = PrintBenchmarkStructComplex(
+    let simpleStruct = BenchmarkStructSimple(value: 0x1234_5678)
+    let complexStruct = BenchmarkStructComplex(
         magic: 0x8950_4E47,
         version: 0x0001,
         timestamp: 0x0000_0000_5F5E_1000,
@@ -85,8 +86,8 @@ let benchmarks: @Sendable () -> Void = {
 
     // MARK: - Bitmask Printing Benchmarks
 
-    let simpleBitmask = PrintBenchmarkBitmaskSimple(flag: 1, value: 0x23)
-    let complexBitmask = PrintBenchmarkBitmaskComplex(
+    let simpleBitmask = BenchmarkBitmaskSimple(flag: 1, value: 0x23)
+    let complexBitmask = BenchmarkBitmaskComplex(
         flag1: 1,
         priority: 5,
         nibble: 11,
@@ -122,13 +123,13 @@ let benchmarks: @Sendable () -> Void = {
 
     Benchmark("toRawBits - Simple Bitmask") { benchmark in
         for _ in benchmark.scaledIterations {
-            blackHole(try! simpleBitmask.toRawBits(bitCount: PrintBenchmarkBitmaskSimple.bitCount))
+            blackHole(try! simpleBitmask.toRawBits(bitCount: BenchmarkBitmaskSimple.bitCount))
         }
     }
 
     Benchmark("toRawBits - Complex Bitmask") { benchmark in
         for _ in benchmark.scaledIterations {
-            blackHole(try! complexBitmask.toRawBits(bitCount: PrintBenchmarkBitmaskComplex.bitCount))
+            blackHole(try! complexBitmask.toRawBits(bitCount: BenchmarkBitmaskComplex.bitCount))
         }
     }
 
@@ -140,28 +141,28 @@ let benchmarks: @Sendable () -> Void = {
 
     Benchmark("Round-Trip Enum (Parse + Print)") { benchmark in
         for _ in benchmark.scaledIterations {
-            let parsed = try! PrintBenchmarkEnumComplex(parsing: roundTripEnumData)
+            let parsed = try! BenchmarkEnumComplex(parsing: roundTripEnumData)
             blackHole(try! parsed.printParsed(printer: .data))
         }
     }
 
     Benchmark("Round-Trip Struct (Parse + Print)") { benchmark in
         for _ in benchmark.scaledIterations {
-            let parsed = try! PrintBenchmarkStructSimple(parsing: roundTripStructData)
+            let parsed = try! BenchmarkStructSimple(parsing: roundTripStructData)
             blackHole(try! parsed.printParsed(printer: .data))
         }
     }
 
     Benchmark("Round-Trip Bitmask (Parse + Print)") { benchmark in
         for _ in benchmark.scaledIterations {
-            let parsed = try! PrintBenchmarkBitmaskSimple(bits: roundTripBitmaskBits)
+            let parsed = try! BenchmarkBitmaskSimple(bits: roundTripBitmaskBits)
             blackHole(try! parsed.printParsed(printer: .data))
         }
     }
 
     // MARK: - Non-Byte-Aligned Bitmask Printing
 
-    let nonAlignedBitmask = NonByteAlignedPrintBitmask(first: 5, second: 12, third: 3)
+    let nonAlignedBitmask = NonByteAlignedBitmask(first: 5, second: 12, third: 3)
 
     Benchmark("Print Non-Byte-Aligned Bitmask (10 bits)") { benchmark in
         for _ in benchmark.scaledIterations {
@@ -171,7 +172,7 @@ let benchmarks: @Sendable () -> Void = {
 
     Benchmark("toRawBits - Non-Byte-Aligned Bitmask") { benchmark in
         for _ in benchmark.scaledIterations {
-            blackHole(try! nonAlignedBitmask.toRawBits(bitCount: NonByteAlignedPrintBitmask.bitCount))
+            blackHole(try! nonAlignedBitmask.toRawBits(bitCount: NonByteAlignedBitmask.bitCount))
         }
     }
 }

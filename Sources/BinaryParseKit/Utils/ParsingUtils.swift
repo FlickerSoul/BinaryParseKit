@@ -179,13 +179,12 @@ func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
     let typeBitCount = T.bitCount
     if fieldRequestedBitCount < typeBitCount {
         throw BitmaskParsableError.insufficientBitsAvailable
-    }
-    // When fieldBitCount > typeBitCount, take MSB typeBitCount bits
-    if fieldRequestedBitCount > typeBitCount {
+    } else if fieldRequestedBitCount > typeBitCount {
         let adjustedBits = fieldBits >> (fieldRequestedBitCount - typeBitCount)
         return try T(bits: T.RawBitsInteger(truncatingIfNeeded: adjustedBits))
+    } else {
+        return try T(bits: T.RawBitsInteger(truncatingIfNeeded: fieldBits))
     }
-    return try T(bits: T.RawBitsInteger(truncatingIfNeeded: fieldBits))
 }
 
 /// Fallback overload for types that only conform to ExpressibleByRawBits.
@@ -201,13 +200,13 @@ func __createFromBits<T: ExpressibleByRawBits>(
 @inlinable
 public func __maskParsing<Parent: ExpressibleByRawBits, Field: ExpressibleByRawBits>(
     from bits: Parent.RawBitsInteger,
-    parentType: Parent.Type,
+    parentType _: Parent.Type,
     fieldType: Field.Type,
     fieldRequestedBitCount: Int,
     at bitPosition: Int,
 ) throws -> Field {
-    let shift = parentType.RawBitsInteger.bitWidth - bitPosition - fieldRequestedBitCount
-    let mask: Parent.RawBitsInteger = (1 << fieldRequestedBitCount) - 1
+    let shift = Parent.RawBitsInteger.bitWidth - bitPosition - fieldRequestedBitCount
+    let mask: Parent.RawBitsInteger = (1 << fieldRequestedBitCount) &- 1
     let fieldBits: Parent.RawBitsInteger = (bits >> shift) & mask
 
     return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)

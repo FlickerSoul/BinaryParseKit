@@ -7,6 +7,7 @@
 // swiftlint:disable force_try
 
 import Benchmark
+import BenchmarkTypes
 import BinaryParseKit
 import Foundation
 

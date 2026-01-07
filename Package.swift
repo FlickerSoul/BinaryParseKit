@@ -87,11 +87,18 @@ let package = Package(
             ],
         ),
         .target(
-            name: "BenchmarkCommons",
+            name: "BenchmarkTypes",
             dependencies: [
                 "BinaryParseKit",
             ],
-            path: "Benchmarks/BenchmarkCommons",
+            path: "Benchmarks/BenchmarkTypes",
+        ),
+        .testTarget(
+            name: "BenchmarkTypesTests",
+            dependencies: [
+                "BenchmarkTypes",
+            ],
+            path: "Benchmarks/BenchmarkTypesTests",
         ),
         .executableTarget(
             name: "ParsingBenchmarks",
@@ -99,7 +106,7 @@ let package = Package(
                 .product(name: "Benchmark", package: "package-benchmark"),
                 .product(name: "BenchmarkPlugin", package: "package-benchmark"),
                 "BinaryParseKit",
-                "BenchmarkCommons",
+                "BenchmarkTypes",
             ],
             path: "Benchmarks/ParsingBenchmarks",
         ),
@@ -109,7 +116,7 @@ let package = Package(
                 .product(name: "Benchmark", package: "package-benchmark"),
                 .product(name: "BenchmarkPlugin", package: "package-benchmark"),
                 "BinaryParseKit",
-                "BenchmarkCommons",
+                "BenchmarkTypes",
             ],
             path: "Benchmarks/PrintingBenchmarks",
         ),

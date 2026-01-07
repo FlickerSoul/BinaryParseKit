@@ -15,6 +15,13 @@
     {
       "target" : {
         "containerPath" : "container:",
+        "identifier" : "BinaryParseKitMacroTests",
+        "name" : "BinaryParseKitMacroTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:",
         "identifier" : "BinaryParseKitTests",
         "name" : "BinaryParseKitTests"
       }
@@ -22,8 +29,8 @@
     {
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "BinaryParseKitMacroTests",
-        "name" : "BinaryParseKitMacroTests"
+        "identifier" : "BenchmarkTypesTests",
+        "name" : "BenchmarkTypesTests"
       }
     }
   ],
