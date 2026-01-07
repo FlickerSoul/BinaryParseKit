@@ -1,5 +1,5 @@
 {
-  "originHash" : "6d18ca9c5ba30fe743537d4a596c616b9aec6211ce225c2a2727f212c4825a6d",
+  "originHash" : "2baa1566b6b5f040e5369e52c3b1d6ee79a9bb7348a57aa8f333cf7e4e1f8feb",
   "pins" : [
     {
       "identity" : "hdrhistogram-swift",
@@ -49,10 +49,10 @@
     {
       "identity" : "swift-binary-parsing",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/FlickerSoul/swift-binary-parsing",
+      "location" : "https://github.com/apple/swift-binary-parsing.git",
       "state" : {
         "branch" : "main",
-        "revision" : "ca80b3e940cb0cbcadf13ddc2f7a2a3aaef33a82"
+        "revision" : "3954d6fa395881629ad2ca4f42928766ededc1cc"
       }
     },
     {
