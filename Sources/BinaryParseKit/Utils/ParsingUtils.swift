@@ -197,6 +197,23 @@ func __createFromBits<T: ExpressibleByRawBits>(
     try T(bits: T.RawBitsInteger(truncatingIfNeeded: fieldBits))
 }
 
+/// Specialized overload for fields that also conform to BitCountProviding - enables bit count validation.
+@inlinable
+public func __maskParsing<Parent: ExpressibleByRawBits, Field: ExpressibleByRawBits & BitCountProviding>(
+    from bits: Parent.RawBitsInteger,
+    parentType _: Parent.Type,
+    fieldType: Field.Type,
+    fieldRequestedBitCount: Int,
+    at bitPosition: Int,
+) throws -> Field {
+    let shift = Parent.RawBitsInteger.bitWidth - bitPosition - fieldRequestedBitCount
+    let mask: Parent.RawBitsInteger = (1 << fieldRequestedBitCount) &- 1
+    let fieldBits: Parent.RawBitsInteger = (bits >> shift) & mask
+
+    return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
+}
+
+/// Fallback overload for fields that only conform to ExpressibleByRawBits.
 @inlinable
 public func __maskParsing<Parent: ExpressibleByRawBits, Field: ExpressibleByRawBits>(
     from bits: Parent.RawBitsInteger,
@@ -212,6 +229,24 @@ public func __maskParsing<Parent: ExpressibleByRawBits, Field: ExpressibleByRawB
     return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
 }
 
+/// Specialized overload for fields that also conform to BitCountProviding - enables bit count validation.
+@inlinable
+public func __maskParsing<Field: ExpressibleByRawBits & BitCountProviding>(
+    from span: borrowing BinaryParsing.ParserSpan,
+    fieldType: Field.Type,
+    fieldRequestedBitCount: Int,
+    at bitOffset: Int,
+) throws -> Field {
+    let fieldBits = try __extractBitsAsInteger(
+        UInt64.self,
+        from: span,
+        offset: bitOffset,
+        count: fieldRequestedBitCount,
+    )
+    return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
+}
+
+/// Fallback overload for fields that only conform to ExpressibleByRawBits.
 @inlinable
 public func __maskParsing<Field: ExpressibleByRawBits>(
     from span: borrowing BinaryParsing.ParserSpan,
