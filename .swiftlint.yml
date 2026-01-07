@@ -33,7 +33,9 @@ identifier_name:
     - j
     - x
     - y
-  allowed_symbols: ["_"]
+  allowed_symbols: ["_", " "]
 cyclomatic_complexity:
   warning: 20
   error: 25
+type_name:
+  allowed_symbols: [" "]

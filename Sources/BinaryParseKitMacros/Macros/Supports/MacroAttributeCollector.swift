@@ -25,6 +25,7 @@ class MacroAttributeCollector: SyntaxVisitor {
     private(set) var hasParseRest: Bool = false
     private(set) var hasParse: Bool = false
     private(set) var hasSkip: Bool = false
+    private(set) var hasMask: Bool = false
     private(set) var caseMatchAction: CaseMatchAction?
 
     private var errors: [Diagnostic] = []
@@ -62,6 +63,12 @@ class MacroAttributeCollector: SyntaxVisitor {
             } catch {
                 errors.append(.init(node: attribute, message: error))
             }
+        } else if identifierToken == "mask" {
+            // Parse @mask attribute - field name and type will be filled in later
+            let maskInfo = MaskMacroInfo.parse(from: attribute)
+            parseActions.append(.mask(maskInfo))
+            hasMask = true
+            maskInfo.validate(in: &errors)
         } else if identifierToken == "match" {
             ensureMatchFirst(at: attribute)
             do {
@@ -85,7 +92,7 @@ class MacroAttributeCollector: SyntaxVisitor {
     }
 
     private func ensureMatchFirst(at attribute: AttributeSyntax) {
-        if hasParse || hasSkip {
+        if hasParse || hasSkip || hasMask {
             errors.append(
                 .init(
                     node: attribute,

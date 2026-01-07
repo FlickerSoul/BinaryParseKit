@@ -6,6 +6,7 @@
 //
 import SwiftSyntax
 import SwiftSyntaxBuilder
+import SwiftSyntaxMacros
 
 @CodeBlockItemListBuilder
 func generateParseBlock(
@@ -93,7 +94,13 @@ func generateSkipBlock(variableName: TokenSyntax, skipInfo: SkipMacroInfo) -> Co
 }
 
 struct PrintableFieldInfo {
-    let binding: TokenSyntax?
+    enum Content {
+        case binding(fieldName: TokenSyntax)
+        case skip
+        case bits(variableName: TokenSyntax)
+    }
+
+    let content: Content
     let byteCount: ExprSyntax?
     let endianness: ExprSyntax?
 }
@@ -113,22 +120,209 @@ func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListS
                     expression: info.endianness ?? ExprSyntax("nil"),
                 )
 
-                if let binding = info.binding {
+                switch info.content {
+                case let .binding(binding):
                     LabeledExprSyntax(
                         label: "intel",
                         expression: ExprSyntax(
                             "try \(raw: Constants.UtilityFunctions.getPrintIntel)(\(binding))",
                         ),
                     )
-                } else {
+                case .skip:
                     LabeledExprSyntax(
                         label: "intel",
                         expression: ExprSyntax(
                             ".skip(.init(byteCount: \(info.byteCount)))",
                         ),
                     )
+                case let .bits(variableName):
+                    LabeledExprSyntax(
+                        label: "intel",
+                        expression: ExprSyntax(
+                            ".bitmask(.init(bits: \(variableName)))",
+                        ),
+                    )
                 }
             },
         )
+    }
+}
+
+// MARK: - Bitmask Parsing
+
+/// Generates code to parse a group of consecutive @mask fields for structs
+func generateMaskGroupBlock(
+    maskActions: [ParseActionGroup.MaskGroupAction],
+    context: some MacroExpansionContext,
+) throws -> CodeBlockItemListSyntax {
+    guard !maskActions.isEmpty else {
+        return CodeBlockItemListSyntax {}
+    }
+
+    // Calculate total bits needed
+    // For each field, we use either the explicit bitCount or the type's bitCount
+    let bitsVarName = context.makeUniqueName("__bitmask_totalBits")
+    let bytesVarName = context.makeUniqueName("__bitmask_byteCount")
+    let spanVarName = context.makeUniqueName("__bitmask_span")
+    let offsetVarName = context.makeUniqueName("__bitmask_offset")
+
+    // Calculate total bits
+    let bitCountExprs = maskActions.map { maskAction in
+        maskAction.maskInfo.bitCount.expr(of: maskAction.variableType)
+    }
+    let firstBitExpr = bitCountExprs.first
+    let remainingBitExprs = bitCountExprs.dropFirst()
+    let totalBitsExpr: ExprSyntax = if let firstBitExpr {
+        remainingBitExprs.reduce(firstBitExpr) { partialResult, next in
+            "\(partialResult) + \(next)"
+        }
+    } else {
+        throw ParseStructMacroError.fatalError(message: "Failed to calculate total bits.")
+    }
+
+    return CodeBlockItemListSyntax {
+        """
+        // Parse bitmask fields
+        let \(bitsVarName) = \(totalBitsExpr)
+        """
+
+        // Calculate byte count: (totalBits + 7) / 8
+        "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
+
+        // Get a sliced span for bitmask bytes
+        "let \(spanVarName) = try span.sliceSpan(byteCount: \(bytesVarName))"
+
+        // Track offset for each field
+        "var \(offsetVarName) = 0"
+
+        // Parse each field
+        for action in maskActions {
+            let variableName = action.variableName
+            let fieldType = action.variableType
+
+            switch action.maskInfo.bitCount {
+            case let .specified(count):
+                // Assert ExpressibleByRawBits for explicit bit count
+                let countExpr = count.expr
+                """
+                // Parse `\(variableName)` of type \(fieldType) from bits
+                \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
+                """
+                """
+                self.\(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
+                "\(offsetVarName) += \(countExpr)"
+            case .inferred:
+                // Assert BitmaskParsable for inferred bit count
+                let countExpr: ExprSyntax = "(\(fieldType.trimmed)).bitCount"
+                """
+                // Parse `\(variableName)` of type \(fieldType) from bits
+                \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
+                """
+                """
+                self.\(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
+                "\(offsetVarName) += \(countExpr)"
+            }
+        }
+    }
+}
+
+/// Generates code to parse a group of consecutive @mask fields for enum associated values
+func generateEnumMaskGroupBlock(
+    maskActions: [ParseActionGroup.MaskGroupAction],
+    caseElementName: TokenSyntax,
+    context: some MacroExpansionContext,
+) throws -> CodeBlockItemListSyntax {
+    guard !maskActions.isEmpty else {
+        return CodeBlockItemListSyntax {}
+    }
+
+    // Calculate total bits needed
+    let bitsVarName = context.makeUniqueName("__bitmask_totalBits")
+    let bytesVarName = context.makeUniqueName("__bitmask_byteCount")
+    let spanVarName = context.makeUniqueName("__bitmask_span")
+    let offsetVarName = context.makeUniqueName("__bitmask_offset")
+
+    // Calculate total bits
+    let bitCountExprs = maskActions.map { maskAction in
+        maskAction.maskInfo.bitCount.expr(of: maskAction.variableType)
+    }
+    let firstBitCountExpr = bitCountExprs.first
+    let remainingBitCountExprs = bitCountExprs.dropFirst()
+    let totalBitsExpr: ExprSyntax = if let firstBitCountExpr {
+        remainingBitCountExprs.reduce(firstBitCountExpr) { partialResult, next in
+            "\(partialResult) + \(next)"
+        }
+    } else {
+        throw ParseEnumMacroError
+            .unexpectedError(description: "Failed to calculate total bits for enum case \(caseElementName.text).")
+    }
+
+    return CodeBlockItemListSyntax {
+        """
+        // Parse bitmask fields for `\(caseElementName)`
+        let \(bitsVarName) = \(totalBitsExpr)
+        """
+
+        // Calculate byte count: (totalBits + 7) / 8
+        "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
+
+        // Get a sliced span for bitmask bytes
+        "let \(spanVarName) = try span.sliceSpan(byteCount: \(bytesVarName))"
+
+        // Track offset for each field
+        "var \(offsetVarName) = 0"
+
+        // Parse each field
+        for maskAction in maskActions {
+            let variableName = maskAction.variableName
+            let fieldType = maskAction.variableType
+
+            switch maskAction.maskInfo.bitCount {
+            case let .specified(count):
+                // Assert ExpressibleByRawBits for explicit bit count
+                let countExpr = count.expr
+                """
+                // Parse `\(variableName)` of type \(fieldType) from bits
+                \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
+                """
+                """
+                let \(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
+                "\(offsetVarName) += \(count.expr)"
+            case .inferred:
+                // Assert BitmaskParsable for inferred bit count
+                let countExpr: ExprSyntax = "(\(fieldType.trimmed)).bitCount"
+                """
+                // Parse `\(variableName)` of type \(fieldType) from bits
+                \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
+                """
+                """
+                let \(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
+                    from: \(spanVarName),
+                    fieldType: (\(fieldType)).self,
+                    fieldRequestedBitCount: \(countExpr),
+                    at: \(offsetVarName),
+                )
+                """
+                "\(offsetVarName) += \(countExpr)"
+            }
+        }
     }
 }

@@ -1,0 +1,33 @@
+name: Benchmark
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macOS-26
+    env:
+      DEVELOPER_DIR: "/Applications/Xcode_26.0.app/Contents/Developer"
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Swift Version
+        run: xcrun swift --version
+      - name: Install jemalloc
+        run: |
+          echo "/opt/homebrew/bin:/usr/local/bin" >> $GITHUB_PATH
+          brew install jemalloc
+      - name: Run Parsing Benchmarks
+        run: |
+          xcrun swift package benchmark --format markdown >> $GITHUB_STEP_SUMMARY

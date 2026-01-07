@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "5FBD3537-1250-49A2-B83C-E278B9C283B3",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "BenchmarkTypesTests",
+        "name" : "BenchmarkTypesTests"
+      }
+    }
+  ],
+  "version" : 1
+}

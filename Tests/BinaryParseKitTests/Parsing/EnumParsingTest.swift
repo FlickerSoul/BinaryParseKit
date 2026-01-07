@@ -1,5 +1,5 @@
 //
-//  TestEnumParsing.swift
+//  EnumParsingTest.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 11/8/25.
@@ -9,8 +9,9 @@ import BinaryParsing
 import Foundation
 import Testing
 
-@Suite
-struct EnumParsingTest {
+extension ParsingTests { @Suite struct EnumParsingTest {} }
+
+extension ParsingTests.EnumParsingTest {
     // MARK: - Basic Enum Matching Tests
 
     @ParseEnum
@@ -448,19 +449,11 @@ struct EnumParsingTest {
     }
 }
 
-extension Matchable where Self: RawRepresentable, Self.RawValue == UInt16 {
-    func bytesToMatch() -> [UInt8] {
-        [
-            UInt8((rawValue & 0xFF00) >> 8),
-            UInt8(rawValue & 0x00FF),
-        ]
-    }
-}
-
 // MARK: - Length-Based Matching Tests
 
-@Suite
-struct LengthMatchingTest {
+extension ParsingTests { @Suite struct LengthMatchingTest {} }
+
+extension ParsingTests.LengthMatchingTest {
     @ParseEnum
     enum VariableSizePayload: Equatable {
         @match(length: 4)

@@ -7,5 +7,6 @@ struct BinaryParseKitPlugin: CompilerPlugin {
         EmptyPeerMacro.self,
         ConstructStructParseMacro.self,
         ConstructEnumParseMacro.self,
+        ConstructParseBitmaskMacro.self,
     ]
 }

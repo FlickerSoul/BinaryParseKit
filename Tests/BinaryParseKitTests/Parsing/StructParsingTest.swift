@@ -1,5 +1,5 @@
 //
-//  TestStructParsing.swift
+//  StructParsingTest.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 7/17/25.
@@ -10,8 +10,9 @@ import BinaryParsing
 import Foundation
 import Testing
 
-@Suite
-struct StructParsingTest {
+extension ParsingTests { @Suite struct StructParsingTest {} }
+
+extension ParsingTests.StructParsingTest {
     @ParseStruct
     struct DataLargerParseBE {
         @parse(byteCount: 4, endianness: .big)
@@ -558,22 +559,5 @@ struct StructParsingTest {
 
         #expect(parsed.count == 0x0C)
         #expect(parsed.words == "hello world!")
-    }
-}
-
-extension String: SizedParsable {
-    public init(parsing input: inout BinaryParsing.ParserSpan, byteCount: Int) throws {
-        try self.init(parsingUTF8: &input, count: byteCount)
-    }
-}
-
-extension String: Printable {
-    public func printerIntel() -> PrinterIntel {
-        .builtIn(
-            .init(
-                bytes: .init(data(using: .utf8) ?? Data()),
-                fixedEndianness: true,
-            ),
-        )
     }
 }

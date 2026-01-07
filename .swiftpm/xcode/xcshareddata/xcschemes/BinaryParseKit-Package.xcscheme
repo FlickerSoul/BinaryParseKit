@@ -35,6 +35,34 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "ParsingBenchmarks"
+               BuildableName = "ParsingBenchmarks"
+               BlueprintName = "ParsingBenchmarks"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "PrintingBenchmarks"
+               BuildableName = "PrintingBenchmarks"
+               BlueprintName = "PrintingBenchmarks"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -44,14 +72,17 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
+            reference = "container:TestPlans/All.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+         <TestPlanReference
             reference = "container:TestPlans/Product.xctestplan">
          </TestPlanReference>
          <TestPlanReference
             reference = "container:TestPlans/Macro.xctestplan">
          </TestPlanReference>
          <TestPlanReference
-            reference = "container:TestPlans/All.xctestplan"
-            default = "YES">
+            reference = "container:TestPlans/BenchmarkTypes.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>
@@ -75,6 +106,26 @@
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BenchmarkCommonsTests"
+               BuildableName = "BenchmarkCommonsTests"
+               BlueprintName = "BenchmarkCommonsTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BenchmarkTypesTests"
+               BuildableName = "BenchmarkTypesTests"
+               BlueprintName = "BenchmarkTypesTests"
+               ReferencedContainer = "container:">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -87,6 +138,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "PrintingBenchmarks"
+            BuildableName = "PrintingBenchmarks"
+            BlueprintName = "PrintingBenchmarks"
+            ReferencedContainer = "container:">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -103,15 +164,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BinaryParseKitClient"
-            BuildableName = "BinaryParseKitClient"
-            BlueprintName = "BinaryParseKitClient"
+            BlueprintIdentifier = "PrintingBenchmarks"
+            BuildableName = "PrintingBenchmarks"
+            BlueprintName = "PrintingBenchmarks"
             ReferencedContainer = "container:">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

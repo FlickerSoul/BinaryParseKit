@@ -35,6 +35,9 @@ extension Constants {
         static let expressibleByParsingProtocol = PackageMember(name: "ExpressibleByParsing")
         static let matchableProtocol = PackageMember(name: "Matchable")
         static let printableProtocol = PackageMember(name: "Printable")
+        static let expressibleByRawBitsProtocol = PackageMember(name: "ExpressibleByRawBits")
+        static let bitCountProvidingProtocol = PackageMember(name: "BitCountProviding")
+        static let rawBitsConvertibleProtocol = PackageMember(name: "RawBitsConvertible")
     }
 }
 
@@ -47,12 +50,24 @@ extension Constants {
         static let assertEndianParsable = PackageMember(name: "__assertEndianParsable")
         static let assertEndianSizedParsable = PackageMember(name: "__assertEndianSizedParsable")
         static let getPrintIntel = PackageMember(name: "__getPrinterIntel")
+        static let assertBitmaskParsable = PackageMember(name: "__assertBitmaskParsable")
+        static let assertExpressibleByRawBits = PackageMember(name: "__assertExpressibleByRawBits")
+        static let assertRawBitsConvertible = PackageMember(name: "__assertRawBitsConvertible")
+        static let toRawBits = PackageMember(name: "__toRawBits")
+        static let maskParsing = PackageMember(name: "__maskParsing")
+        static let maskParsingFromSpan = PackageMember(name: "__maskParsing")
     }
 }
 
 extension Constants {
     enum BinaryParserKitError {
         static let failedToParse = PackageMember(name: "BinaryParserKitError.failedToParse")
+    }
+}
+
+extension Constants {
+    enum BitmaskParsableError {
+        static let failedToParse = PackageMember(name: "BitmaskParsableError.rawBitsIntegerNotWideEnough")
     }
 }
 

@@ -20,10 +20,6 @@ extension PatternBindingListSyntax.Element {
         accessorBlock != nil
     }
 
-    var hasTypeAnnotation: Bool {
-        typeAnnotation != nil
-    }
-
     var identifierName: TokenSyntax? {
         pattern.as(IdentifierPatternSyntax.self)?.identifier
     }

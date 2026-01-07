@@ -1,5 +1,5 @@
 //
-//  ParseEnumField.swift
+//  ParseEnumCase.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 7/26/25.
@@ -11,7 +11,6 @@ import SwiftSyntaxMacros
 class ParseEnumCase: SyntaxVisitor {
     private let context: any MacroExpansionContext
 
-    private var workEnum: EnumDeclSyntax?
     private var currentParseMacroVisitor: MacroAttributeCollector?
     private var currentCaseElements: EnumCaseElementListSyntax?
     private var caseParseInfo: [EnumCaseParseInfo] = []
@@ -28,13 +27,20 @@ class ParseEnumCase: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
-    override func visit(_ node: EnumDeclSyntax) -> SyntaxVisitorContinueKind {
-        guard workEnum == nil else {
-            return .skipChildren
-        }
+    @discardableResult
+    func scrape(_ enumSyntax: EnumDeclSyntax) throws -> Self {
+        walk(enumSyntax.memberBlock.members)
 
-        workEnum = node
-        return .visitChildren
+        try validate(for: enumSyntax)
+        return self
+    }
+
+    override func visit(_: MemberBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
+    }
+
+    override func visit(_: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
     }
 
     override func visit(_ node: AttributeListSyntax) -> SyntaxVisitorContinueKind {
@@ -51,16 +57,6 @@ class ParseEnumCase: SyntaxVisitor {
     }
 
     override func visitPost(_ node: EnumCaseDeclSyntax) {
-        guard let workEnum else {
-            errors.append(.init(
-                node: node,
-                message: ParseEnumMacroError.unexpectedError(description: "No enum to parse"),
-            ))
-            return
-        }
-        guard node.belongsTo(workEnum) else {
-            return
-        }
         guard let currentCaseElements, !currentCaseElements.isEmpty else {
             errors.append(.init(
                 node: node,
@@ -151,18 +147,12 @@ class ParseEnumCase: SyntaxVisitor {
         }
     }
 
-    override func visitPost(_ node: EnumDeclSyntax) {
-        guard workEnum == node else {
-            return
-        }
-
+    func validate(for node: EnumDeclSyntax) throws {
         parsedInfo = .init(
             type: node.name,
             caseParseInfo: caseParseInfo,
         )
-    }
 
-    func validate() throws {
         if !errors.isEmpty {
             for error in errors {
                 context.diagnose(error)
@@ -170,22 +160,6 @@ class ParseEnumCase: SyntaxVisitor {
 
             throw ParseEnumMacroError.unexpectedError(description: "Enum macro parsing encountered errors")
         }
-    }
-}
-
-private extension EnumCaseDeclSyntax {
-    func belongsTo(_ enumToCheck: EnumDeclSyntax) -> Bool {
-        var pointer: Syntax? = Syntax(self)
-
-        while let unwrappedPointer = pointer {
-            if let pointerEnum = unwrappedPointer.as(EnumDeclSyntax.self) {
-                return enumToCheck == pointerEnum
-            }
-
-            pointer = unwrappedPointer.parent
-        }
-
-        return false
     }
 }
 
@@ -219,19 +193,30 @@ private extension [StructParseAction] {
                 break
             }
 
-            guard case let .parse(parseInfo) = self[parseActionIndex] else {
-                fatalError("countered skip action")
-            }
-
-            addAction(
-                .parse(
-                    .init(
-                        parseInfo: parseInfo,
-                        firstName: argument.firstName,
-                        type: argument.type,
+            switch self[parseActionIndex] {
+            case let .parse(parseInfo):
+                addAction(
+                    .parse(
+                        .init(
+                            parseInfo: parseInfo,
+                            firstName: argument.firstName,
+                            type: argument.type,
+                        ),
                     ),
-                ),
-            )
+                )
+            case let .mask(maskInfo):
+                addAction(
+                    .mask(
+                        .init(
+                            maskInfo: maskInfo,
+                            firstName: argument.firstName,
+                            type: argument.type,
+                        ),
+                    ),
+                )
+            case .skip:
+                fatalError("encountered skip action unexpectedly")
+            }
         }
 
         if parseActionIndex != count {

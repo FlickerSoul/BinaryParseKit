@@ -9,10 +9,12 @@
 import BinaryParsing
 import Testing
 
-extension Endianness: @unchecked @retroactive Sendable {}
+extension DefaultProtocolConformanceTests {
+    @Suite("BinaryFloatingPoint")
+    struct TestBinaryFloatingPoint {}
+}
 
-@Suite("BinaryFloatingPoint")
-struct TestBinaryFloatingPoint {
+extension DefaultProtocolConformanceTests.TestBinaryFloatingPoint {
     @Test
     func parsingFromByteArray() throws {
         try testingParsingImpl(

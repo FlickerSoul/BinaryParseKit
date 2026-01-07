@@ -39,6 +39,21 @@ class ParseStructField: SyntaxVisitor {
         super.init(viewMode: .sourceAccurate)
     }
 
+    @discardableResult
+    func scrape(_ structSyntax: StructDeclSyntax) throws -> Self {
+        walk(structSyntax.memberBlock.members)
+        try validate(for: structSyntax)
+        return self
+    }
+
+    override func visit(_: MemberBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
+    }
+
+    override func visit(_: CodeBlockSyntax) -> SyntaxVisitorContinueKind {
+        .skipChildren
+    }
+
     override func visit(_ node: VariableDeclSyntax) -> SyntaxVisitorContinueKind {
         // Skip static declarations
         guard !node.isStaticDecl else {
@@ -47,7 +62,7 @@ class ParseStructField: SyntaxVisitor {
 
         let structFieldVisitor = MacroAttributeCollector(context: context)
         structFieldVisitor.walk(node.attributes)
-        hasParse = structFieldVisitor.hasParse
+        hasParse = structFieldVisitor.hasParse || structFieldVisitor.hasMask
 
         do {
             try structFieldVisitor.validate()
@@ -95,19 +110,15 @@ class ParseStructField: SyntaxVisitor {
             existParseRestContent = true
         }
 
-        guard binding.hasTypeAnnotation else {
-            throw .variableDeclNoTypeAnnotation
-        }
-
-        guard let variableName = binding.identifierName else {
+        guard let variableName = binding.identifierName?.trimmed else {
             throw .notIdentifierDef
         }
 
         guard let typeName = binding.typeName else {
-            throw .invalidTypeAnnotation
+            throw .variableDeclNoTypeAnnotation
         }
 
-        variables[variableName.trimmed] = .init(type: typeName, parseActions: structFieldVisitor.parseActions)
+        variables[variableName] = .init(type: typeName, parseActions: structFieldVisitor.parseActions)
     }
 
     func validate(for node: some SwiftSyntax.SyntaxProtocol) throws(ParseStructMacroError) {
