@@ -26,7 +26,6 @@ public protocol EndianParsable {
     ///   - input: A mutable parser span containing the binary data to parse
     ///   - endianness: The byte order to use when parsing multi-byte values
     /// - Throws: `ThrownParsingError` if parsing fails
-    @_lifetime(&input)
     init(parsing input: inout ParserSpan, endianness: Endianness) throws(ThrownParsingError)
 }
 
@@ -71,7 +70,6 @@ public protocol EndianSizedParsable {
     ///   - endianness: The byte order to use when parsing multi-byte values
     ///   - byteCount: The number of bytes to read from the input
     /// - Throws: `ThrownParsingError` if parsing fails
-    @_lifetime(&input)
     init(parsing input: inout ParserSpan, endianness: Endianness, byteCount: Int) throws(ThrownParsingError)
 }
 
@@ -116,7 +114,6 @@ public protocol SizedParsable {
     ///   - input: A mutable parser span containing the binary data to parse
     ///   - byteCount: The number of bytes to read from the input
     /// - Throws: `ThrownParsingError` if parsing fails
-    @_lifetime(&input)
     init(parsing input: inout ParserSpan, byteCount: Int) throws(ThrownParsingError)
 }
 
