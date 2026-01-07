@@ -328,7 +328,7 @@ Roadmap:
 
 - [x] Parsers as printer
 - [x] Porting to prior iOS 18/macOS 15. ~Because `Span` is introduced only in iOS 18/macOS 15, port of using `withUnsafePointer` can be provided to prior versions of OSes for better compatibility.~ Since `Span` is backported to prior OS versions and we lowered the platform versions in the forked `swift-binary-parsing`, this is done.
-- [ ] Length matching in enums: Allow matching based on length of data instead of exact byte patterns
+- [x] Length matching in enums: Allow matching based on length of data instead of exact byte patterns
 - [ ] Bitmask support
 - [ ] Advanced validation: Runtime validation of parsing constraints, such as require minimal byte size checking in front instead of at each parsing
 - [ ] Performance optimizations: Further optimization of generated parsing code, such as linear time enum matching for constant bytes provided (`O( max(n, m) )` instead of `O(n * m)`, where `n` is the number of cases and `m` is the max number of bytes provided for each case)
