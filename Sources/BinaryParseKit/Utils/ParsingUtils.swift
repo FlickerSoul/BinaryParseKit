@@ -81,6 +81,7 @@ public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 /// - MSB-first extraction: bits 0, 1, 2 → values 0, 1, 1
 /// - Right-aligned result: 0b0000_0011 = 3
 /// - Warning: This function is used by bitmask macros and should not be used directly.
+/// - Important: `input` but have at least `(offset + count + 7) / 8` bytes available.
 @inline(__always)
 func __extractBitsAsInteger<I: FixedWidthInteger>(
     _: I.Type,
