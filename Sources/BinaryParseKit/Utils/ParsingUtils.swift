@@ -8,7 +8,7 @@ import BinaryParsing
 
 /// Matches the given bytes in the input parser span.
 /// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __match(_ bytes: borrowing [UInt8], in input: borrowing BinaryParsing.ParserSpan) -> Bool {
     if bytes.isEmpty { return true }
 
@@ -18,51 +18,52 @@ public func __match(_ bytes: borrowing [UInt8], in input: borrowing BinaryParsin
         return false
     }
 
-    for (index, byte) in bytes.enumerated()
-        where unsafe input.bytes.unsafeLoad(fromByteOffset: index, as: UInt8.self) != byte {
-        return false
-    }
+    // O(1)
+    let slicedInput = input.bytes.extracting(first: bytes.count)
 
-    return true
+    // O(n)
+    return unsafe slicedInput.withUnsafeBytes { span in
+        unsafe span.elementsEqual(bytes)
+    }
 }
 
 /// Matches when the remaining bytes in the input parser span equals the specified length.
 /// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __match(length: Int, in input: borrowing BinaryParsing.ParserSpan) -> Bool {
     input.count == length
 }
 
 /// Asserts that the given type conforms to `Parsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __assertParsable(_: (some Parsable).Type) {}
 
 /// Asserts that the given type conforms to `SizedParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __assertSizedParsable(_: (some SizedParsable).Type) {}
 
 /// Asserts that the given type conforms to `EndianParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __assertEndianParsable(_: (some EndianParsable).Type) {}
 
 /// Asserts that the given type conforms to `EndianSizedParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __assertEndianSizedParsable(_: (some EndianSizedParsable).Type) {}
 
 // MARK: - Bitmask Parsing Utilities
 
 /// Asserts that the given type conforms to `BitmaskParsable`.
 /// - Warning: This function is used by `@mask()` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __assertBitmaskParsable(_: (some ExpressibleByRawBits & BitCountProviding).Type) {}
 
 /// Asserts that the given type conforms to `ExpressibleByRawBits`.
 /// - Warning: This function is used by `@mask(bitCount:)` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 
 /// Extracts bits from a ParserSpan and returns them as a right-aligned FixedWidthInteger.
@@ -82,7 +83,7 @@ public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 /// - Right-aligned result: 0b0000_0011 = 3
 /// - Warning: This function is used by bitmask macros and should not be used directly.
 /// - Important: `input` but have at least `(offset + count + 7) / 8` bytes available.
-@inline(__always)
+@inlinable
 func __extractBitsAsInteger<I: FixedWidthInteger>(
     _: I.Type,
     from input: borrowing BinaryParsing.ParserSpan,
@@ -148,7 +149,7 @@ func __extractBitsAsInteger<I: FixedWidthInteger>(
 
 /// Asserts that the given type conforms to `RawBitsConvertible` and `BitCountProviding`.
 /// - Warning: This function is used by `@ParseBitmask` macro and should not be used directly.
-@inline(__always)
+@inlinable
 public func __assertRawBitsConvertible(_: (some RawBitsConvertible & BitCountProviding).Type) {}
 
 /// Converts a value to RawBits with the specified bit count.
@@ -158,7 +159,7 @@ public func __assertRawBitsConvertible(_: (some RawBitsConvertible & BitCountPro
 ///   - bitCount: The number of bits to produce
 /// - Returns: The raw bits representation
 /// - Throws: An error if the conversion cannot be performed
-@inline(__always)
+@inlinable
 public func __toRawBits(
     _ value: some RawBitsConvertible,
     bitCount: Int,
@@ -169,7 +170,7 @@ public func __toRawBits(
 // MARK: - Bit Adjustment Utilities for @mask(bitCount:)
 
 /// Overload for types that also conform to BitCountProviding - handles bit count validation and adjustment.
-@inline(__always)
+@inlinable
 func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
     _: T.Type,
     fieldBits: some FixedWidthInteger,
@@ -188,7 +189,7 @@ func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
 }
 
 /// Fallback overload for types that only conform to ExpressibleByRawBits.
-@inline(__always)
+@inlinable
 func __createFromBits<T: ExpressibleByRawBits>(
     _: T.Type,
     fieldBits: some FixedWidthInteger,
@@ -197,7 +198,7 @@ func __createFromBits<T: ExpressibleByRawBits>(
     try T(bits: T.RawBitsInteger(truncatingIfNeeded: fieldBits))
 }
 
-@inline(__always)
+@inlinable
 public func __maskParsing<Parent: ExpressibleByRawBits, Field: ExpressibleByRawBits>(
     from bits: Parent.RawBitsInteger,
     parentType: Parent.Type,
@@ -206,13 +207,13 @@ public func __maskParsing<Parent: ExpressibleByRawBits, Field: ExpressibleByRawB
     at bitPosition: Int,
 ) throws -> Field {
     let shift = parentType.RawBitsInteger.bitWidth - bitPosition - fieldRequestedBitCount
-    let mask = parentType.RawBitsInteger((1 << fieldRequestedBitCount) - 1)
-    let fieldBits = (bits >> shift) & mask
+    let mask: Parent.RawBitsInteger = (1 << fieldRequestedBitCount) - 1
+    let fieldBits: Parent.RawBitsInteger = (bits >> shift) & mask
 
     return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
 }
 
-@inline(__always)
+@inlinable
 public func __maskParsing<Field: ExpressibleByRawBits>(
     from span: borrowing BinaryParsing.ParserSpan,
     fieldType: Field.Type,
