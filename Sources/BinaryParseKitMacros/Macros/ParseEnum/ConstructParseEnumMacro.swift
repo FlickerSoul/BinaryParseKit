@@ -72,7 +72,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                             )
                         } else if let toBeMatched = caseParseInfo.bytesToMatch(of: type) {
                             // Byte-array-based matching: use __matchBytes with inout span
-                            ExprSyntax("\(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: &span)")
+                            ExprSyntax("\(raw: Constants.UtilityFunctions.matchBytes)(\(toBeMatched), in: span)")
                         } else if caseParseInfo.matchAction.target.isDefaultMatch {
                             // Default matching: always true
                             ExprSyntax("true")

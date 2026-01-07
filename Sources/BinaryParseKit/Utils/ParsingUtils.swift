@@ -9,7 +9,7 @@ import BinaryParsing
 /// Matches the given bytes in the input parser span.
 /// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
 @inline(__always)
-public func __match(_ bytes: borrowing [UInt8], in input: inout BinaryParsing.ParserSpan) -> Bool {
+public func __match(_ bytes: borrowing [UInt8], in input: borrowing BinaryParsing.ParserSpan) -> Bool {
     if bytes.isEmpty { return true }
 
     do {

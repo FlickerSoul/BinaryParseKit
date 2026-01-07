@@ -36,11 +36,11 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     public init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x08], in: &span) {
+                        if BinaryParseKit.__match([0x08], in: span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match([0x01, 0x02], in: &span) {
+                        if BinaryParseKit.__match([0x01, 0x02], in: span) {
                             self = .b
                             return
                         }
@@ -98,11 +98,11 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x02, 0x03], in: &span) {
+                        if BinaryParseKit.__match([0x02, 0x03], in: span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match([0x01], in: &span) {
+                        if BinaryParseKit.__match([0x01], in: span) {
                             self = .b
                             return
                         }
@@ -161,11 +161,11 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match((TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(), in: span) {
                             self = .b
                             return
                         }
@@ -233,7 +233,7 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x08], in: &span) {
+                        if BinaryParseKit.__match([0x08], in: span) {
                             // Parse `__macro_local_16__parse_0th_arg_fMu_` of type SomeType with byte count
                             BinaryParseKit.__assertSizedParsable((SomeType).self)
                             let __macro_local_16__parse_0th_arg_fMu_ = try SomeType(parsing: &span, byteCount: 1)
@@ -241,7 +241,7 @@ extension BinaryParseKitMacroTests {
                             self = .a(__macro_local_16__parse_0th_arg_fMu_)
                             return
                         }
-                        if BinaryParseKit.__match([0x01, 0x02], in: &span) {
+                        if BinaryParseKit.__match([0x01, 0x02], in: span) {
                             // Parse `__macro_local_16__parse_0th_arg_fMu0_` of type Int
                             BinaryParseKit.__assertParsable((Int).self)
                             let __macro_local_16__parse_0th_arg_fMu0_ = try Int(parsing: &span)
@@ -252,7 +252,7 @@ extension BinaryParseKitMacroTests {
                             self = .b(__macro_local_16__parse_0th_arg_fMu0_, value: value)
                             return
                         }
-                        if BinaryParseKit.__match([0x09], in: &span) {
+                        if BinaryParseKit.__match([0x09], in: span) {
                             // Parse `code` of type UInt8 with endianness
                             BinaryParseKit.__assertEndianParsable((UInt8).self)
                             let code = try UInt8(parsing: &span, endianness: .little)
@@ -327,12 +327,12 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x01], in: &span) {
+                        if BinaryParseKit.__match([0x01], in: span) {
                             try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match([0x02, 0x03], in: &span) {
+                        if BinaryParseKit.__match([0x02, 0x03], in: span) {
                             self = .b
                             return
                         }
@@ -392,12 +392,12 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x01], in: &span) {
+                        if BinaryParseKit.__match([0x01], in: span) {
                             try span.seek(toRelativeOffset: [0x01].count)
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match([0x02, 0x03], in: &span) {
+                        if BinaryParseKit.__match([0x02, 0x03], in: span) {
                             self = .b
                             return
                         }
@@ -757,7 +757,7 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.a as any BinaryParseKit.Matchable).bytesToMatch(), in: span) {
                             // Parse `value` of type Int
                             BinaryParseKit.__assertParsable((Int).self)
                             let value = try Int(parsing: &span)
@@ -765,7 +765,7 @@ extension BinaryParseKitMacroTests {
                             self = .a(value: value)
                             return
                         }
-                        if BinaryParseKit.__match((TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.b as any BinaryParseKit.Matchable).bytesToMatch(), in: span) {
                             // Parse `value` of type Int
                             BinaryParseKit.__assertParsable((Int).self)
                             let value = try Int(parsing: &span)
@@ -773,7 +773,7 @@ extension BinaryParseKitMacroTests {
                             self = .b(value: value)
                             return
                         }
-                        if BinaryParseKit.__match((TestEnum.c as any BinaryParseKit.Matchable).bytesToMatch(), in: &span) {
+                        if BinaryParseKit.__match((TestEnum.c as any BinaryParseKit.Matchable).bytesToMatch(), in: span) {
                             // Parse `__macro_local_16__parse_0th_arg_fMu_` of type Int
                             BinaryParseKit.__assertParsable((Int).self)
                             let __macro_local_16__parse_0th_arg_fMu_ = try Int(parsing: &span)
@@ -901,11 +901,11 @@ extension BinaryParseKitMacroTests {
                 extension TestEnum: BinaryParseKit.Parsable {
                     \#(testCase.parsingAccessor
                     .description) init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x01], in: &span) {
+                        if BinaryParseKit.__match([0x01], in: span) {
                             self = .a
                             return
                         }
-                        if BinaryParseKit.__match([0x02], in: &span) {
+                        if BinaryParseKit.__match([0x02], in: span) {
                             self = .b
                             return
                         }
@@ -1151,7 +1151,7 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x01], in: &span) {
+                        if BinaryParseKit.__match([0x01], in: span) {
                             // Parse bitmask fields for `flags`
                             let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
                             let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
@@ -1179,7 +1179,7 @@ extension BinaryParseKitMacroTests {
                             self = .flags(__macro_local_15__mask_0th_arg_fMu_, __macro_local_15__mask_1th_arg_fMu_)
                             return
                         }
-                        if BinaryParseKit.__match([0x02], in: &span) {
+                        if BinaryParseKit.__match([0x02], in: span) {
                             // Parse `__macro_local_16__parse_0th_arg_fMu_` of type UInt16
                             BinaryParseKit.__assertParsable((UInt16).self)
                             let __macro_local_16__parse_0th_arg_fMu_ = try UInt16(parsing: &span)
@@ -1279,7 +1279,7 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x01], in: &span) {
+                        if BinaryParseKit.__match([0x01], in: span) {
                             // Parse bitmask fields for `flags`
                             let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 2
                             let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
@@ -1520,7 +1520,7 @@ extension BinaryParseKitMacroTests {
 
                 extension TestEnum: BinaryParseKit.Parsable {
                     internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
-                        if BinaryParseKit.__match([0x01], in: &span) {
+                        if BinaryParseKit.__match([0x01], in: span) {
                             // Parse bitmask fields for `a`
                             let __macro_local_19__bitmask_totalBitsfMu_ = (Flag).bitCount
                             let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
@@ -1539,7 +1539,7 @@ extension BinaryParseKitMacroTests {
                             self = .a(__macro_local_15__mask_0th_arg_fMu_)
                             return
                         }
-                        if BinaryParseKit.__match([0x02], in: &span) {
+                        if BinaryParseKit.__match([0x02], in: span) {
                             // Parse `__macro_local_16__parse_0th_arg_fMu_` of type Flag
                             BinaryParseKit.__assertParsable((Flag).self)
                             let __macro_local_16__parse_0th_arg_fMu_ = try Flag(parsing: &span)
