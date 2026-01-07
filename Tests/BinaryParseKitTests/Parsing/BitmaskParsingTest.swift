@@ -261,7 +261,7 @@ extension ParsingTests.BitmaskParsingTest {
 
     // MARK: - Logic Tests (Insufficient & Excess Bits)
 
-    struct Strict8Bit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
+    struct Strict6Bit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
         typealias RawBitsInteger = UInt8
         static let bitCount = 6
         let value: UInt8
@@ -279,7 +279,7 @@ extension ParsingTests.BitmaskParsingTest {
     struct InsufficientBitsStruct {
         typealias RawBitsInteger = UInt8
         @mask(bitCount: 5)
-        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+        var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
 
     @Test("Throws error when bitCount < Type.bitCount")
@@ -293,7 +293,7 @@ extension ParsingTests.BitmaskParsingTest {
     struct SameBitCountBitsStruct {
         typealias RawBitsInteger = UInt16
         @mask(bitCount: 6)
-        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+        var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
 
     @Test("Exact bitCount equal to Type.bitCount")
@@ -307,7 +307,7 @@ extension ParsingTests.BitmaskParsingTest {
     struct SufficientBitsStruct {
         typealias RawBitsInteger = UInt16
         @mask(bitCount: 7)
-        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+        var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
 
     @Test("Exact bitCount equal to Type.bitCount")
@@ -321,7 +321,7 @@ extension ParsingTests.BitmaskParsingTest {
     struct ExcessBitsStruct {
         typealias RawBitsInteger = UInt16
         @mask(bitCount: 15)
-        var field: ParsingTests.BitmaskParsingTest.Strict8Bit
+        var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
 
     @Test("Takes MSB when bitCount > Type.bitCount")

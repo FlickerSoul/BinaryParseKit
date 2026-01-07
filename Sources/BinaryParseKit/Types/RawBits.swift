@@ -178,14 +178,6 @@ public extension RawBits {
 
         return RawBits(data: resultData, size: totalSize)
     }
-
-    /// Concatenates multiple RawBits instances into one.
-    ///
-    /// - Parameter bits: The RawBits instances to concatenate
-    /// - Returns: A new RawBits containing all bit sequences in order
-    static func concatenate(_ bits: [RawBits]) -> RawBits {
-        bits.reduce(RawBits()) { $0.appending($1) }
-    }
 }
 
 // MARK: - Slicing
