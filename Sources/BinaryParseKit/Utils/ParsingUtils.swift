@@ -168,25 +168,33 @@ public func __toRawBits(
 
 // MARK: - Bit Adjustment Utilities for @mask(bitCount:)
 
+/// Overload for types that also conform to BitCountProviding - handles bit count validation and adjustment.
 @inline(__always)
-func __createFromBits<T: ExpressibleByRawBits>(
+func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
     _: T.Type,
     fieldBits: some FixedWidthInteger,
     fieldRequestedBitCount: Int,
 ) throws -> T {
-    // Check if T conforms to BitCountProviding at runtime
-    if let bitCountType = T.self as? any BitCountProviding.Type {
-        let typeBitCount = bitCountType.bitCount
-        if fieldRequestedBitCount < typeBitCount {
-            throw BitmaskParsableError.insufficientBitsAvailable
-        }
-        // When fieldBitCount > typeBitCount, take MSB typeBitCount bits
-        if fieldRequestedBitCount > typeBitCount {
-            let adjustedBits = fieldBits >> (fieldRequestedBitCount - typeBitCount)
-            return try T(bits: T.RawBitsInteger(truncatingIfNeeded: adjustedBits))
-        }
+    let typeBitCount = T.bitCount
+    if fieldRequestedBitCount < typeBitCount {
+        throw BitmaskParsableError.insufficientBitsAvailable
+    }
+    // When fieldBitCount > typeBitCount, take MSB typeBitCount bits
+    if fieldRequestedBitCount > typeBitCount {
+        let adjustedBits = fieldBits >> (fieldRequestedBitCount - typeBitCount)
+        return try T(bits: T.RawBitsInteger(truncatingIfNeeded: adjustedBits))
     }
     return try T(bits: T.RawBitsInteger(truncatingIfNeeded: fieldBits))
+}
+
+/// Fallback overload for types that only conform to ExpressibleByRawBits.
+@inline(__always)
+func __createFromBits<T: ExpressibleByRawBits>(
+    _: T.Type,
+    fieldBits: some FixedWidthInteger,
+    fieldRequestedBitCount _: Int,
+) throws -> T {
+    try T(bits: T.RawBitsInteger(truncatingIfNeeded: fieldBits))
 }
 
 @inline(__always)
