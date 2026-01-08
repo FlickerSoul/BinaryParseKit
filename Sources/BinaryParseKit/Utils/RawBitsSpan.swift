@@ -21,14 +21,12 @@
 /// }
 /// ```
 public struct RawBitsSpan: ~Escapable, ~Copyable {
+    public typealias SpanType = Span<UInt8>
     /// The underlying byte span containing the raw bits.
     @usableFromInline
-    private(set) var _bytes: RawSpan
+    private(set) var _bytes: SpanType
 
     /// The bit offset within the first byte where the bit sequence starts.
-    ///
-    /// This value indicates how many bits to skip from the MSB of the first byte
-    /// before the actual bit sequence begins. Valid range: 0-7.
     @usableFromInline
     private(set) var _bitOffset: Int
 
@@ -44,13 +42,26 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     /// This value is always between 0 and 7 (inclusive), representing the offset from the beginning of the first byte.
     @inlinable
     public var bitStartIndex: Int {
-        _bitOffset
+        _bitOffset % 8
     }
 
     /// The bit index where this RawBitsSpan ends (exclusive)
+    ///
+    /// Equals to `bitStartIndex + bitCount`.
     @inlinable
-    public var endBitIndex: Int {
-        _bitOffset + _bitCount
+    public var bitEndIndex: Int {
+        bitStartIndex + _bitCount
+    }
+
+    /// Public accessor for underlying bytes.
+    ///
+    /// The bits are from ``bitStartIndex`` or ``bitEndIndex``
+    public var bytes: SpanType {
+        @inlinable
+        @_lifetime(copy self)
+        borrowing get {
+            unsafe _bytes.extracting(unchecked: _bitOffset / 8 ..< (_bitOffset + _bitCount + 7) / 8)
+        }
     }
 
     /// Public accessor for bit count.
@@ -59,10 +70,16 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
         _bitCount
     }
 
-    /// The number of bytes needed to contain all bits from bitOffset to the end of the bit sequence.
+    /// The number of bytes spanned by the bits
     @inlinable
     public var byteCount: Int {
-        (_bitOffset + _bitCount + 7) / 8
+        (_bitCount + 7) / 8
+    }
+
+    /// The number of bytes spanned in the buffer
+    @inlinable
+    public var bufferByteCount: Int {
+        (_bitCount + 7) / 8 + (bitStartIndex == 0 ? 0 : 1)
     }
 
     /// Creates a new raw bits span with a bit offset.
@@ -91,17 +108,14 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     @inlinable
     @_lifetime(copy bytes)
     init(unchecked _: Void, _ bytes: RawSpan, bitOffset: Int, bitCount: Int) {
-        // Normalize: if bitOffset >= 8, adjust the byte span and bitOffset
-        let byteSkip = bitOffset / 8
-        let normalizedBitOffset = bitOffset % 8
+        self = .init(unchecked: (), SpanType(_bytes: bytes), bitOffset: bitOffset, bitCount: bitCount)
+    }
 
-        if byteSkip > 0 {
-            let adjustedBytes = bytes.extracting(byteSkip ..< bytes.byteCount)
-            _bytes = adjustedBytes
-        } else {
-            _bytes = bytes
-        }
-        _bitOffset = normalizedBitOffset
+    @inlinable
+    @_lifetime(copy bytes)
+    init(unchecked _: Void, _ bytes: SpanType, bitOffset: Int, bitCount: Int) {
+        _bytes = bytes
+        _bitOffset = bitOffset
         _bitCount = bitCount
     }
 
@@ -146,50 +160,66 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
         return loadUnsafe(as: T.self, bitCount: effectiveBitCount)
     }
 
+    /// Loads bits as a fixed-width integer without bounds checking.
+    ///
+    /// This extracts bits starting from `_bitOffset` (which can be >= 8) in MSB-first order.
+    ///
+    /// - Parameters:
+    ///   - type: The integer type to convert to (optional, can be inferred)
+    ///   - bitCount: The number of bits to extract (optional, defaults to `self.bitCount`)
+    /// - Returns: The extracted bits as a right-aligned integer
     @inlinable
-    public borrowing func loadUnsafe<T: FixedWidthInteger>(as _: T.Type = T.self, bitCount: Int? = nil) -> T {
-        // This loads first n bits in MSB manner (first n bits). Need to change for LSB in the future
-        let effectiveBitCount = Swift.min(bitCount ?? _bitCount, T.bitWidth)
+    public borrowing func loadUnsafe<I: FixedWidthInteger>(as _: I.Type, bitCount: Int? = nil) -> I {
+        let count = Swift.min(bitCount ?? _bitCount, I.bitWidth)
+        precondition(count >= 0, "Count has to be grater than 0")
+
+        guard count > 0 else { return 0 }
+
+        let startByte = _bitOffset / 8
+        let bitOffset = _bitOffset % 8
+        let dataSpan = _bytes
 
         // For small extractions (up to 8 bits), use optimized single/double byte path
-        if effectiveBitCount <= 8 {
+        if count <= 8 {
             var value: UInt8
-            if _bitOffset + effectiveBitCount <= 8 {
+            if bitOffset + count <= 8 {
                 // Single byte extraction
-                value = unsafe _bytes.unsafeLoad(fromByteOffset: 0, as: UInt8.self)
-                value <<= _bitOffset
-                value >>= (8 - effectiveBitCount)
+                value = dataSpan[startByte]
+                value <<= bitOffset
+                value >>= (8 - count)
             } else {
                 // Two byte extraction
-                let highByte = unsafe _bytes.unsafeLoad(fromByteOffset: 0, as: UInt8.self)
-                let lowByte = unsafe _bytes.unsafeLoad(fromByteOffset: 1, as: UInt8.self)
+                let highByte = dataSpan[startByte]
+                let lowByte = dataSpan[startByte + 1]
                 let combined = (UInt16(highByte) << 8) | UInt16(lowByte)
-                value = UInt8((combined << _bitOffset) >> (16 - effectiveBitCount))
+                value = UInt8((combined << bitOffset) >> (16 - count))
             }
-            return T(value)
+            return I(value)
         }
 
         // For larger extractions, build the integer using << and | for speed
-        var result: T = 0
-        var bitsRemaining = effectiveBitCount
-        var currentByteIndex = 0
-        var currentBitOffset = _bitOffset
+        var result: I = 0
+        var bitsRemaining = count
+        var currentByteIndex = startByte
+        var currentBitOffset = bitOffset
 
         while bitsRemaining > 0 {
             let bitsInCurrentByte = min(8 - currentBitOffset, bitsRemaining)
-            let byte = unsafe _bytes.unsafeLoad(fromByteOffset: currentByteIndex, as: UInt8.self)
+            let byte = dataSpan[currentByteIndex]
 
             // Extract bits from this byte: shift left to clear leading bits, shift right to position
-            let extracted = (byte << currentBitOffset) >> (8 - bitsInCurrentByte)
+            // Keep operations in UInt8 space to ensure proper bit masking, then convert to I
+            let extracted = I((byte << currentBitOffset) >> (8 - bitsInCurrentByte))
 
             // Add to result
-            result = (result << bitsInCurrentByte) | T(extracted)
+            result = (result << bitsInCurrentByte) | extracted
 
             bitsRemaining -= bitsInCurrentByte
             currentByteIndex += 1
             currentBitOffset = 0
         }
 
+        // The result is already right-aligned and masked by construction
         return result
     }
 
@@ -257,7 +287,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     /// - Returns: A new `RawBitsSpan` containing the sliced (first `count`) bits
     @inlinable
     @_lifetime(copy self)
-    mutating func slicing(unchecked _: Void, first count: Int) -> RawBitsSpan {
+    public mutating func slicing(unchecked _: Void, first count: Int) -> RawBitsSpan {
         let sliced = RawBitsSpan(unchecked: (), _bytes, bitOffset: _bitOffset, bitCount: count)
         _bitOffset += count
         _bitCount -= count
@@ -273,7 +303,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     /// - Returns: A new `RawBitsSpan` containing the sliced (last `count`) bits
     @inlinable
     @_lifetime(copy self)
-    mutating func slicing(unchecked _: Void, last count: Int) -> RawBitsSpan {
+    public mutating func slicing(unchecked _: Void, last count: Int) -> RawBitsSpan {
         let newBitOffset = _bitOffset + (_bitCount - count)
         let sliced = RawBitsSpan(unchecked: (), _bytes, bitOffset: newBitOffset, bitCount: count)
         _bitCount -= count

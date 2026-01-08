@@ -206,7 +206,7 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
                 """
                 """
                 self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
@@ -223,7 +223,7 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
                 """
                 """
                 self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
@@ -294,7 +294,7 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
                 """
                 """
                 let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
@@ -311,7 +311,7 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
                 """
                 """
                 let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(

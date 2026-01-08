@@ -108,11 +108,7 @@ public func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
         // Need to adjust the bit count in the span to match what the type expects
         // The extra bits are at the end (LSB side), so we just update bitCount
         let adjustedBitCount = typeBitCount
-        let adjustedSpan = RawBitsSpan(
-            fieldBits._bytes,
-            bitOffset: fieldBits.bitStartIndex,
-            bitCount: adjustedBitCount,
-        )
+        let adjustedSpan = fieldBits.extracting(unchecked: (), first: adjustedBitCount)
         return try T(bits: adjustedSpan)
     } else {
         return try T(bits: fieldBits)

@@ -94,7 +94,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                         """
                         do {
                             let \(bitCount) = \(bitCountExpr)
-                            let \(subSpan) = \(bitsSpan).slicing(first: \(bitCount))
+                            let \(subSpan) = \(bitsSpan).slicing(unchecked: (), first: \(bitCount))
                             self.\(fieldName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
                                 (\(fieldType)).self,
                                 fieldBits: \(subSpan),
