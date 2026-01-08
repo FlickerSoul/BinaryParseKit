@@ -55,7 +55,7 @@ extension Constants {
         static let assertRawBitsConvertible = PackageMember(name: "__assertRawBitsConvertible")
         static let toRawBits = PackageMember(name: "__toRawBits")
         static let maskParsing = PackageMember(name: "__maskParsing")
-        static let maskParsingFromSpan = PackageMember(name: "__maskParsing")
+        static let createFromBits = PackageMember(name: "__createFromBits")
     }
 }
 

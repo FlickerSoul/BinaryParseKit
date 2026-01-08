@@ -816,35 +816,31 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 3 + (Bool).bitCount
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
-                        var __macro_local_16__bitmask_offsetfMu_ = 0
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `flag1` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.flag1 = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (Bool).self,
+                        let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(first: 1)
+                        self.flag1 = try BinaryParseKit.__createFromBits(
+                            (Bool).self,
+                            fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: 1,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += 1
                         // Parse `value` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.value = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (UInt8).self,
+                        let __macro_local_9__subSpanfMu0_ = __macro_local_14__bitmask_spanfMu_.slicing(first: 3)
+                        self.value = try BinaryParseKit.__createFromBits(
+                            (UInt8).self,
+                            fieldBits: __macro_local_9__subSpanfMu0_,
                             fieldRequestedBitCount: 3,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += 3
                         // Parse `flag2` of type Bool from bits
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
-                        self.flag2 = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (Bool).self,
+                        let __macro_local_9__subSpanfMu1_ = __macro_local_14__bitmask_spanfMu_.slicing(first: (Bool).bitCount)
+                        self.flag2 = try BinaryParseKit.__createFromBits(
+                            (Bool).self,
+                            fieldBits: __macro_local_9__subSpanfMu1_,
                             fieldRequestedBitCount: (Bool).bitCount,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += (Bool).bitCount
                     }
                 }
 
@@ -899,26 +895,23 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
-                        var __macro_local_16__bitmask_offsetfMu_ = 0
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `flag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.flag = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (Bool).self,
+                        let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(first: 1)
+                        self.flag = try BinaryParseKit.__createFromBits(
+                            (Bool).self,
+                            fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: 1,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += 1
                         // Parse `data` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.data = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (UInt8).self,
+                        let __macro_local_9__subSpanfMu0_ = __macro_local_14__bitmask_spanfMu_.slicing(first: 7)
+                        self.data = try BinaryParseKit.__createFromBits(
+                            (UInt8).self,
+                            fieldBits: __macro_local_9__subSpanfMu0_,
                             fieldRequestedBitCount: 7,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += 7
                         // Parse `footer` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
                         self.footer = try UInt16(parsing: &span)
@@ -992,61 +985,54 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 4
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
-                        var __macro_local_16__bitmask_offsetfMu_ = 0
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `topFlag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.topFlag = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (Bool).self,
+                        let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(first: 1)
+                        self.topFlag = try BinaryParseKit.__createFromBits(
+                            (Bool).self,
+                            fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: 1,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += 1
                         // Parse `topData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.topData = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (UInt8).self,
+                        let __macro_local_9__subSpanfMu0_ = __macro_local_14__bitmask_spanfMu_.slicing(first: 4)
+                        self.topData = try BinaryParseKit.__createFromBits(
+                            (UInt8).self,
+                            fieldBits: __macro_local_9__subSpanfMu0_,
                             fieldRequestedBitCount: 4,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += 4
                         // Parse `divider` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
                         self.divider = try UInt16(parsing: &span)
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu0_ = 1 + 4 + 2
                         let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
-                        let __macro_local_14__bitmask_spanfMu0_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_)
-                        var __macro_local_16__bitmask_offsetfMu0_ = 0
+                        var __macro_local_14__bitmask_spanfMu0_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu0_)
                         // Parse `bottomFlag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
-                        self.bottomFlag = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu0_,
-                            fieldType: (Bool).self,
+                        let __macro_local_9__subSpanfMu1_ = __macro_local_14__bitmask_spanfMu0_.slicing(first: 1)
+                        self.bottomFlag = try BinaryParseKit.__createFromBits(
+                            (Bool).self,
+                            fieldBits: __macro_local_9__subSpanfMu1_,
                             fieldRequestedBitCount: 1,
-                            at: __macro_local_16__bitmask_offsetfMu0_,
                         )
-                        __macro_local_16__bitmask_offsetfMu0_ += 1
                         // Parse `bottomData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.bottomData = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu0_,
-                            fieldType: (UInt8).self,
+                        let __macro_local_9__subSpanfMu2_ = __macro_local_14__bitmask_spanfMu0_.slicing(first: 4)
+                        self.bottomData = try BinaryParseKit.__createFromBits(
+                            (UInt8).self,
+                            fieldBits: __macro_local_9__subSpanfMu2_,
                             fieldRequestedBitCount: 4,
-                            at: __macro_local_16__bitmask_offsetfMu0_,
                         )
-                        __macro_local_16__bitmask_offsetfMu0_ += 4
                         // Parse `bottomAdditionalData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
-                        self.bottomAdditionalData = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu0_,
-                            fieldType: (UInt8).self,
+                        let __macro_local_9__subSpanfMu3_ = __macro_local_14__bitmask_spanfMu0_.slicing(first: 2)
+                        self.bottomAdditionalData = try BinaryParseKit.__createFromBits(
+                            (UInt8).self,
+                            fieldBits: __macro_local_9__subSpanfMu3_,
                             fieldRequestedBitCount: 2,
-                            at: __macro_local_16__bitmask_offsetfMu0_,
                         )
-                        __macro_local_16__bitmask_offsetfMu0_ += 2
                         // Parse `footer` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
                         self.footer = try UInt16(parsing: &span)
@@ -1218,17 +1204,15 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = (Flag).bitCount
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        let __macro_local_14__bitmask_spanfMu_ = try span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_)
-                        var __macro_local_16__bitmask_offsetfMu_ = 0
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `a` of type Flag from bits
                         BinaryParseKit.__assertBitmaskParsable((Flag).self)
-                        self.a = try BinaryParseKit.__maskParsing(
-                            from: __macro_local_14__bitmask_spanfMu_,
-                            fieldType: (Flag).self,
+                        let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(first: (Flag).bitCount)
+                        self.a = try BinaryParseKit.__createFromBits(
+                            (Flag).self,
+                            fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: (Flag).bitCount,
-                            at: __macro_local_16__bitmask_offsetfMu_,
                         )
-                        __macro_local_16__bitmask_offsetfMu_ += (Flag).bitCount
                         // Parse `b` of type Flag
                         BinaryParseKit.__assertParsable((Flag).self)
                         self.b = try Flag(parsing: &span)

@@ -66,43 +66,6 @@ public func __assertBitmaskParsable(_: (some ExpressibleByRawBits & BitCountProv
 @inlinable
 public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 
-/// Extracts bits from a ParserSpan and creates a RawBitsSpan view.
-///
-/// The bits are extracted in MSB-first order starting from the specified offset.
-/// The returned RawBitsSpan provides a view into the source data with additional
-/// metadata about bit offset and count.
-///
-/// - Parameters:
-///   - input: The source ParserSpan
-///   - offset: Bit offset to start extraction
-///   - count: Number of bits to extract
-/// - Returns: A RawBitsSpan containing a view of the extracted bits
-///
-/// Example: Input `[0b0110_1101]` extracting 3 bits at offset 0:
-/// - MSB-first extraction: bits 0, 1, 2 → values 0, 1, 1
-/// - Result: RawBitsSpan with view into source bytes and `bitCount = 3`
-/// - Warning: This function is used by bitmask macros and should not be used directly.
-/// - Important: `input` __must__ have at least `(offset + count + 7) / 8` bytes available.
-@inlinable
-@_lifetime(borrow input)
-func __extractBitsAsSpan(
-    from input: borrowing BinaryParsing.ParserSpan,
-    offset: Int,
-    count: Int,
-) -> RawBitsSpan {
-    precondition(count >= 0, "Count has to be greater than 0")
-
-    let startByte = offset / 8
-    let bitOffset = offset % 8
-    let bytesNeeded = (bitOffset + count + 7) / 8
-
-    // Extract a slice starting from the byte that contains our first bit
-    let slice = input.bytes.extracting(startByte ..< startByte + bytesNeeded)
-
-    // Create a RawBitsSpan that knows about the bit offset and count
-    return RawBitsSpan(slice, bitOffset: bitOffset, bitCount: count)
-}
-
 // MARK: - RawBits Conversion Utilities
 
 /// Asserts that the given type conforms to `RawBitsConvertible` and `BitCountProviding`.
@@ -129,7 +92,7 @@ public func __toRawBits(
 
 /// Overload for types that also conform to BitCountProviding - handles bit count validation and adjustment.
 @inlinable
-func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
+public func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
     _: T.Type,
     fieldBits: borrowing RawBitsSpan,
     fieldRequestedBitCount: Int,
@@ -154,7 +117,7 @@ func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
 
 /// Fallback overload for types that only conform to ExpressibleByRawBits.
 @inlinable
-func __createFromBits<T: ExpressibleByRawBits>(
+public func __createFromBits<T: ExpressibleByRawBits>(
     _: T.Type,
     fieldBits: borrowing RawBitsSpan,
     fieldRequestedBitCount _: Int,
@@ -194,36 +157,4 @@ public func __maskParsing<Field: ExpressibleByRawBits>(
         bitCount: fieldRequestedBitCount,
     )
     return try __createFromBits(fieldType, fieldBits: fieldSpan, fieldRequestedBitCount: fieldRequestedBitCount)
-}
-
-/// Specialized overload for fields that also conform to BitCountProviding - enables bit count validation.
-@inlinable
-public func __maskParsing<Field: ExpressibleByRawBits & BitCountProviding>(
-    from span: borrowing BinaryParsing.ParserSpan,
-    fieldType: Field.Type,
-    fieldRequestedBitCount: Int,
-    at bitOffset: Int,
-) throws -> Field {
-    let fieldBits = __extractBitsAsSpan(
-        from: span,
-        offset: bitOffset,
-        count: fieldRequestedBitCount,
-    )
-    return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
-}
-
-/// Fallback overload for fields that only conform to ExpressibleByRawBits.
-@inlinable
-public func __maskParsing<Field: ExpressibleByRawBits>(
-    from span: borrowing BinaryParsing.ParserSpan,
-    fieldType: Field.Type,
-    fieldRequestedBitCount: Int,
-    at bitOffset: Int,
-) throws -> Field {
-    let fieldBits = __extractBitsAsSpan(
-        from: span,
-        offset: bitOffset,
-        count: fieldRequestedBitCount,
-    )
-    return try __createFromBits(fieldType, fieldBits: fieldBits, fieldRequestedBitCount: fieldRequestedBitCount)
 }

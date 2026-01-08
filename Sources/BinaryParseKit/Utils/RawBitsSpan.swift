@@ -77,7 +77,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     /// - Precondition: The total bits (bitOffset + bitCount) must not exceed available bits in `bytes`
     @inlinable
     @_lifetime(copy bytes)
-    public init(_ bytes: RawSpan, bitOffset: Int, bitCount: Int) {
+    public init(_ bytes: RawSpan, bitOffset: Int = 0, bitCount: Int) {
         precondition(bitOffset >= 0, "bitOffset must be non-negative")
         precondition(bitCount >= 0, "bitCount must be non-negative")
         precondition(
