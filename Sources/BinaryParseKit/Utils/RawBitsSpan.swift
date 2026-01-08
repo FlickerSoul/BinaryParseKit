@@ -107,7 +107,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
 
     @inlinable
     @_lifetime(copy other)
-    init(copying other: borrowing RawBitsSpan) {
+    public init(copying other: borrowing RawBitsSpan) {
         _bytes = other._bytes
         _bitOffset = other._bitOffset
         _bitCount = other._bitCount

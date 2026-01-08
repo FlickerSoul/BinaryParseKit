@@ -124,37 +124,3 @@ public func __createFromBits<T: ExpressibleByRawBits>(
 ) throws -> T {
     try T(bits: fieldBits)
 }
-
-/// Specialized overload for fields that also conform to BitCountProviding - enables bit count validation.
-@inlinable
-public func __maskParsing<Field: ExpressibleByRawBits & BitCountProviding>(
-    from bits: borrowing RawBitsSpan,
-    fieldType: Field.Type,
-    fieldRequestedBitCount: Int,
-    at bitPosition: Int,
-) throws -> Field {
-    // Extract the field bits from the parent span
-    let fieldSpan = RawBitsSpan(
-        bits._bytes,
-        bitOffset: bits.bitStartIndex + bitPosition,
-        bitCount: fieldRequestedBitCount,
-    )
-    return try __createFromBits(fieldType, fieldBits: fieldSpan, fieldRequestedBitCount: fieldRequestedBitCount)
-}
-
-/// Fallback overload for fields that only conform to ExpressibleByRawBits.
-@inlinable
-public func __maskParsing<Field: ExpressibleByRawBits>(
-    from bits: borrowing RawBitsSpan,
-    fieldType: Field.Type,
-    fieldRequestedBitCount: Int,
-    at bitPosition: Int,
-) throws -> Field {
-    // Extract the field bits from the parent span
-    let fieldSpan = RawBitsSpan(
-        bits._bytes,
-        bitOffset: bits.bitStartIndex + bitPosition,
-        bitCount: fieldRequestedBitCount,
-    )
-    return try __createFromBits(fieldType, fieldBits: fieldSpan, fieldRequestedBitCount: fieldRequestedBitCount)
-}
