@@ -8,10 +8,8 @@ import BinaryParseKit
 import Foundation
 
 extension UInt16: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt16
-
-    public init(bits: RawBitsInteger) throws {
-        self = bits
+    public init(bits: borrowing RawBitsSpan) throws {
+        self = try bits.load(as: Self.self)
     }
 }
 

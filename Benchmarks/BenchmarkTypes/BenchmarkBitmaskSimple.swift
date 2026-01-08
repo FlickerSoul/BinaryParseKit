@@ -11,8 +11,6 @@ import Foundation
 
 @ParseBitmask
 public struct BenchmarkBitmaskSimple: Equatable, Sendable, BaselineParsable {
-    public typealias RawBitsInteger = UInt8
-
     @mask(bitCount: 1)
     public var flag: UInt8
 

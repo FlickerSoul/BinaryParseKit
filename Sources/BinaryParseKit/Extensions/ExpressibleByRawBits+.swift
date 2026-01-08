@@ -10,11 +10,13 @@ import Foundation
 // MARK: - Bool Conformance
 
 extension Bool: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt8
-
-    public init(bits: RawBitsInteger) throws {
-        // bits is right-aligned, check LSB
-        self = (bits & 0x01) != 0
+    public init(bits: borrowing RawBitsSpan) throws {
+        // Extract the first bit from the span
+        precondition(bits.bitCount >= 1, "Bool requires at least 1 bit")
+        let firstByte = unsafe bits._bytes.unsafeLoad(fromByteOffset: 0, as: UInt8.self)
+        // Check the bit at bitOffset position (MSB-first)
+        let mask: UInt8 = 0x80 >> bits.bitStartIndex
+        self = (firstByte & mask) != 0
     }
 }
 
@@ -30,10 +32,27 @@ extension Bool: RawBitsConvertible {
 // MARK: - Integer Conformances
 
 extension UInt8: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt8
+    public init(bits: borrowing RawBitsSpan) throws {
+        // Extract up to 8 bits from the span and convert to UInt8
+        precondition(bits.bitCount <= 8, "UInt8 can hold at most 8 bits")
 
-    public init(bits: RawBitsInteger) throws {
-        self = bits
+        if bits.bitCount == 0 {
+            self = 0
+            return
+        }
+
+        if bits.bitStartIndex + bits.bitCount <= 8 {
+            // Single byte extraction
+            let byte = unsafe bits._bytes.unsafeLoad(fromByteOffset: 0, as: UInt8.self)
+            let shifted = byte << bits.bitStartIndex
+            self = shifted >> (8 - bits.bitCount)
+        } else {
+            // Two byte extraction
+            let highByte = unsafe bits._bytes.unsafeLoad(fromByteOffset: 0, as: UInt8.self)
+            let lowByte = unsafe bits._bytes.unsafeLoad(fromByteOffset: 1, as: UInt8.self)
+            let combined = (UInt16(highByte) << 8) | UInt16(lowByte)
+            self = UInt8((combined << bits.bitStartIndex) >> (16 - bits.bitCount))
+        }
     }
 }
 
@@ -48,10 +67,10 @@ extension UInt8: RawBitsConvertible {
 }
 
 extension Int8: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt8
-
-    public init(bits: RawBitsInteger) throws {
-        self = Int8(bitPattern: bits)
+    public init(bits: borrowing RawBitsSpan) throws {
+        // Extract up to 8 bits from the span and convert to Int8
+        let unsigned = try UInt8(bits: bits)
+        self = Int8(bitPattern: unsigned)
     }
 }
 

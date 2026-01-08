@@ -59,7 +59,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
 
                 // init(bits:) initializer
                 try InitializerDeclSyntax(
-                    "\(accessorInfo.parsingAccessor) init(bits: RawBitsInteger) throws",
+                    "\(accessorInfo.parsingAccessor) init(bits: borrowing BinaryParseKit.RawBitsSpan) throws",
                 ) {
                     "var bitPosition = 0"
 
@@ -85,14 +85,12 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                             """
                         }
 
-                        // Extract field bits from the integer: shift right and mask
-                        // bits >> (RawBitsInteger.bitWidth - bitPosition - fieldBitCount) & mask
+                        // Extract field bits from the span
                         """
                         do {
                             let fieldBitCount = \(bitCountExpr)
                             self.\(fieldInfo.name) = try \(raw: Constants.UtilityFunctions.maskParsing)(
                                 from: bits,
-                                parentType: Self.self,
                                 fieldType: (\(fieldInfo.type)).self,
                                 fieldRequestedBitCount: fieldBitCount,
                                 at: bitPosition

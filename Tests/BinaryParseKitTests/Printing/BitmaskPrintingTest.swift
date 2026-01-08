@@ -19,8 +19,6 @@ extension PrintingTests.BitmaskPrintingTest {
 
     @ParseBitmask
     struct BasicFlags {
-        typealias RawBitsInteger = UInt8
-
         @mask(bitCount: 1)
         var flag1: UInt8
 
@@ -35,7 +33,10 @@ extension PrintingTests.BitmaskPrintingTest {
     func basicBitmaskRoundTrip() throws {
         // Binary: 1 010 0011 = 0xA3
         let originalBytes = Data([0b1010_0011])
-        let flags = try BasicFlags(bits: 0b1010_0011)
+        let flags = try originalBytes.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try BasicFlags(bits: rawBits)
+        }
 
         // Print back to bytes
         let printedBytes = try flags.printParsed(printer: .data)
@@ -45,7 +46,10 @@ extension PrintingTests.BitmaskPrintingTest {
     @Test("Basic bitmask round-trip: all zeros")
     func basicBitmaskRoundTripAllZeros() throws {
         let originalBytes = Data([0b0000_0000])
-        let flags = try BasicFlags(bits: 0b0000_0000)
+        let flags = try originalBytes.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try BasicFlags(bits: rawBits)
+        }
 
         let printedBytes = try flags.printParsed(printer: .data)
         #expect(printedBytes == originalBytes)
@@ -54,7 +58,10 @@ extension PrintingTests.BitmaskPrintingTest {
     @Test("Basic bitmask round-trip: all ones")
     func basicBitmaskRoundTripAllOnes() throws {
         let originalBytes = Data([0b1111_1111])
-        let flags = try BasicFlags(bits: 0b1111_1111)
+        let flags = try originalBytes.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try BasicFlags(bits: rawBits)
+        }
 
         let printedBytes = try flags.printParsed(printer: .data)
         #expect(printedBytes == originalBytes)
@@ -64,8 +71,6 @@ extension PrintingTests.BitmaskPrintingTest {
 
     @ParseBitmask
     struct WideBitmask {
-        typealias RawBitsInteger = UInt16
-
         @mask(bitCount: 4)
         var high: UInt8
 
@@ -80,7 +85,10 @@ extension PrintingTests.BitmaskPrintingTest {
     func multiByteBitmaskRoundTrip() throws {
         // Binary: 1010 10110011 0100 = 0xAB34
         let originalBytes = Data([0b1010_1011, 0b0011_0100])
-        let wide = try WideBitmask(bits: 0b1010_1011_0011_0100)
+        let wide = try originalBytes.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try WideBitmask(bits: rawBits)
+        }
 
         let printedBytes = try wide.printParsed(printer: .data)
         #expect(printedBytes == originalBytes)
@@ -90,8 +98,6 @@ extension PrintingTests.BitmaskPrintingTest {
 
     @ParseBitmask
     struct NonByteAligned: Equatable {
-        typealias RawBitsInteger = UInt16
-
         @mask(bitCount: 3)
         var first: UInt8
 
@@ -107,7 +113,10 @@ extension PrintingTests.BitmaskPrintingTest {
         // Binary: 101 01100 11 = 10 bits
         // Byte representation: 10101100 11000000 = 0xACC0 (MSB-aligned in 16-bit)
         let originalData = Data([0b1010_1100, 0b1100_0000])
-        let bitmask = try NonByteAligned(bits: 0b1010_1100_1100_0000)
+        let bitmask = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 10)
+            return try NonByteAligned(bits: rawBits)
+        }
 
         let printedBytes = try bitmask.printParsed(printer: .data)
         // Should output 2 bytes with the 10 bits at MSB
@@ -139,7 +148,11 @@ extension PrintingTests.BitmaskPrintingTest {
 
     @Test("printerIntel returns bitmask intel")
     func printerIntelReturnsBitmask() throws {
-        let flags = try BasicFlags(bits: 0b1010_0011)
+        let data = Data([0b1010_0011])
+        let flags = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try BasicFlags(bits: rawBits)
+        }
 
         let intel = try flags.printerIntel()
         guard case let .bitmask(bitmaskIntel) = intel else {
@@ -156,8 +169,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// 13-bit bitmask (not byte-aligned)
     @ParseBitmask
     struct ThirteenBitMask: Equatable {
-        typealias RawBitsInteger = UInt16
-
         @mask(bitCount: 5)
         var highBits: UInt8
 
@@ -173,7 +184,10 @@ extension PrintingTests.BitmaskPrintingTest {
         // 10101 1100 0011 000 (padded to 16 bits) -> highBits=21, middleBits=12, lowBits=3
         // Bytes: 10101110 00011000 = 0xAE18 (MSB-aligned in 16-bit)
         let originalData = Data([0b1010_1110, 0b0001_1000])
-        let parsed = try ThirteenBitMask(bits: 0b1010_1110_0001_1000)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 13)
+            return try ThirteenBitMask(bits: rawBits)
+        }
         #expect(parsed == ThirteenBitMask(highBits: 0b10101, middleBits: 0b1100, lowBits: 0b0011))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -182,8 +196,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// Eight single-bit fields
     @ParseBitmask
     struct EightSingleBits: Equatable {
-        typealias RawBitsInteger = UInt8
-
         @mask(bitCount: 1)
         var bit0: UInt8
 
@@ -213,7 +225,10 @@ extension PrintingTests.BitmaskPrintingTest {
     func eightSingleBitsRoundTrip() throws {
         // 10101010 -> bit0=1, bit1=0, bit2=1, bit3=0, bit4=1, bit5=0, bit6=1, bit7=0
         let originalData = Data([0b1010_1010])
-        let parsed = try EightSingleBits(bits: 0b1010_1010)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try EightSingleBits(bits: rawBits)
+        }
         #expect(parsed == EightSingleBits(bit0: 1, bit1: 0, bit2: 1, bit3: 0, bit4: 1, bit5: 0, bit6: 1, bit7: 0))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -222,7 +237,10 @@ extension PrintingTests.BitmaskPrintingTest {
     @Test("Eight single-bit fields all ones round-trip")
     func eightSingleBitsAllOnesRoundTrip() throws {
         let originalData = Data([0b1111_1111])
-        let parsed = try EightSingleBits(bits: 0b1111_1111)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try EightSingleBits(bits: rawBits)
+        }
         #expect(parsed == EightSingleBits(bit0: 1, bit1: 1, bit2: 1, bit3: 1, bit4: 1, bit5: 1, bit6: 1, bit7: 1))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -231,7 +249,10 @@ extension PrintingTests.BitmaskPrintingTest {
     @Test("Eight single-bit fields all zeros round-trip")
     func eightSingleBitsAllZerosRoundTrip() throws {
         let originalData = Data([0b0000_0000])
-        let parsed = try EightSingleBits(bits: 0b0000_0000)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try EightSingleBits(bits: rawBits)
+        }
         #expect(parsed == EightSingleBits(bit0: 0, bit1: 0, bit2: 0, bit3: 0, bit4: 0, bit5: 0, bit6: 0, bit7: 0))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -240,8 +261,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// Large bitmask spanning 32 bits
     @ParseBitmask
     struct LargeBitmask: Equatable {
-        typealias RawBitsInteger = UInt32
-
         @mask(bitCount: 20)
         var largePart: UInt32
 
@@ -253,7 +272,10 @@ extension PrintingTests.BitmaskPrintingTest {
     func largeBitmaskRoundTrip() throws {
         // 20 bits + 12 bits = 32 bits total
         let originalData = Data([0x12, 0x34, 0x56, 0x78])
-        let parsed = try LargeBitmask(bits: 0x1234_5678)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
+            return try LargeBitmask(bits: rawBits)
+        }
         // 0x12345678 -> first 20 bits = 0x12345 (= 74565), last 12 bits = 0x678 (= 1656)
         #expect(parsed == LargeBitmask(largePart: 0x12345, smallPart: 0x678))
         let printedBytes = try parsed.printParsed(printer: .data)
@@ -263,8 +285,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// Asymmetric bit widths (1, 2, 3, 4, 5, 6, 7 bits = 28 bits total)
     @ParseBitmask
     struct AsymmetricBitWidths: Equatable {
-        typealias RawBitsInteger = UInt32
-
         @mask(bitCount: 1)
         var oneBit: UInt8
 
@@ -293,7 +313,10 @@ extension PrintingTests.BitmaskPrintingTest {
         // 1 11 101 0110 01111 010101 0101010 0000
         // Bytes: 11110101 10011110 10101010 10100000 = 0xF59EAAA0 (MSB-aligned in 32-bit)
         let originalData = Data([0b1111_0101, 0b1001_1110, 0b1010_1010, 0b1010_0000])
-        let parsed = try AsymmetricBitWidths(bits: 0b1111_0101_1001_1110_1010_1010_1010_0000)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 28)
+            return try AsymmetricBitWidths(bits: rawBits)
+        }
         #expect(parsed == AsymmetricBitWidths(
             oneBit: 1,
             twoBits: 0b11,
@@ -310,8 +333,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// Two equal 16-bit halves
     @ParseBitmask
     struct TwoHalves: Equatable {
-        typealias RawBitsInteger = UInt32
-
         @mask(bitCount: 16)
         var upperHalf: UInt16
 
@@ -322,7 +343,10 @@ extension PrintingTests.BitmaskPrintingTest {
     @Test("Two 16-bit halves round-trip")
     func twoHalvesRoundTrip() throws {
         let originalData = Data([0x12, 0x34, 0x56, 0x78])
-        let parsed = try TwoHalves(bits: 0x1234_5678)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
+            return try TwoHalves(bits: rawBits)
+        }
         #expect(parsed == TwoHalves(upperHalf: 0x1234, lowerHalf: 0x5678))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -331,8 +355,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// Single 3-bit field (minimal non-byte-aligned)
     @ParseBitmask
     struct ThreeBitField: Equatable {
-        typealias RawBitsInteger = UInt8
-
         @mask(bitCount: 3)
         var value: UInt8
     }
@@ -341,7 +363,10 @@ extension PrintingTests.BitmaskPrintingTest {
     func threeBitFieldRoundTrip() throws {
         // 101 00000 = 0xA0 (MSB-aligned in 8-bit)
         let originalData = Data([0b1010_0000])
-        let parsed = try ThreeBitField(bits: 0b1010_0000)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 3)
+            return try ThreeBitField(bits: rawBits)
+        }
         #expect(parsed == ThreeBitField(value: 0b101))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -355,8 +380,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// 24-bit bitmask (3 bytes exactly)
     @ParseBitmask
     struct TwentyFourBits: Equatable {
-        typealias RawBitsInteger = UInt32
-
         @mask(bitCount: 8)
         var firstByte: UInt8
 
@@ -370,7 +393,10 @@ extension PrintingTests.BitmaskPrintingTest {
     @Test("24-bit (3 bytes) bitmask round-trip")
     func twentyFourBitsRoundTrip() throws {
         let originalData = Data([0xAB, 0xCD, 0xEF])
-        let parsed = try TwentyFourBits(bits: 0xABCD_EF00)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 24)
+            return try TwentyFourBits(bits: rawBits)
+        }
         #expect(parsed == TwentyFourBits(firstByte: 0xAB, secondByte: 0xCD, thirdByte: 0xEF))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -384,8 +410,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// 7-bit bitmask (one bit less than a byte)
     @ParseBitmask
     struct SevenBits: Equatable {
-        typealias RawBitsInteger = UInt8
-
         @mask(bitCount: 3)
         var high: UInt8
 
@@ -397,7 +421,10 @@ extension PrintingTests.BitmaskPrintingTest {
     func sevenBitsRoundTrip() throws {
         // 101 0110 0 = 0xAC (MSB-aligned in 8-bit, with trailing 0 padding)
         let originalData = Data([0b1010_1100])
-        let parsed = try SevenBits(bits: 0b1010_1100)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 7)
+            return try SevenBits(bits: rawBits)
+        }
         #expect(parsed == SevenBits(high: 0b101, low: 0b0110))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -411,8 +438,6 @@ extension PrintingTests.BitmaskPrintingTest {
     /// 9-bit bitmask (one bit more than a byte)
     @ParseBitmask
     struct NineBits: Equatable {
-        typealias RawBitsInteger = UInt16
-
         @mask(bitCount: 4)
         var high: UInt8
 
@@ -424,7 +449,10 @@ extension PrintingTests.BitmaskPrintingTest {
     func nineBitsRoundTrip() throws {
         // 1010 10110 0000000 = 0xAB00 (MSB-aligned in 16-bit, with trailing padding)
         let originalData = Data([0b1010_1011, 0b0000_0000])
-        let parsed = try NineBits(bits: 0b1010_1011_0000_0000)
+        let parsed = try originalData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 9)
+            return try NineBits(bits: rawBits)
+        }
         #expect(parsed == NineBits(high: 0b1010, low: 0b10110))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
@@ -442,7 +470,11 @@ extension PrintingTests.BitmaskPrintingTest {
         // 10 bits: 101 01100 11
         // MSB-aligned in 16-bit: 10101100 11000000 = 0xACC0
         // Output: 10101100 11000000 (padding bits are 0s)
-        let parsed = try NonByteAligned(bits: 0b1010_1100_1100_0000)
+        let data = Data([0b1010_1100, 0b1100_0000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 10)
+            return try NonByteAligned(bits: rawBits)
+        }
         #expect(parsed == NonByteAligned(first: 0b101, second: 0b01100, third: 0b11))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == Data([0b1010_1100, 0b1100_0000]))
@@ -453,7 +485,11 @@ extension PrintingTests.BitmaskPrintingTest {
         // 13 bits: 10101 1100 0011
         // MSB-aligned in 16-bit: 10101110 00011000 = 0xAE18
         // Output: 10101110 00011000 (padding: 000)
-        let parsed = try ThirteenBitMask(bits: 0b1010_1110_0001_1000)
+        let data = Data([0b1010_1110, 0b0001_1000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 13)
+            return try ThirteenBitMask(bits: rawBits)
+        }
         #expect(parsed == ThirteenBitMask(highBits: 0b10101, middleBits: 0b1100, lowBits: 0b0011))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == Data([0b1010_1110, 0b0001_1000]))
@@ -464,7 +500,11 @@ extension PrintingTests.BitmaskPrintingTest {
         // 3 bits: 101
         // MSB-aligned in 8-bit: 10100000
         // Output: 10100000
-        let parsed = try ThreeBitField(bits: 0b1010_0000)
+        let data = Data([0b1010_0000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 3)
+            return try ThreeBitField(bits: rawBits)
+        }
         #expect(parsed == ThreeBitField(value: 0b101))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == Data([0b1010_0000]))
@@ -475,7 +515,11 @@ extension PrintingTests.BitmaskPrintingTest {
         // 7 bits: 101 0110
         // MSB-aligned in 8-bit: 10101100
         // Output: 10101100
-        let parsed = try SevenBits(bits: 0b1010_1100)
+        let data = Data([0b1010_1100])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 7)
+            return try SevenBits(bits: rawBits)
+        }
         #expect(parsed == SevenBits(high: 0b101, low: 0b0110))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == Data([0b1010_1100]))
@@ -486,7 +530,11 @@ extension PrintingTests.BitmaskPrintingTest {
         // 9 bits: 1010 10110
         // MSB-aligned in 16-bit: 10101011 00000000 = 0xAB00
         // Output: 10101011 00000000
-        let parsed = try NineBits(bits: 0b1010_1011_0000_0000)
+        let data = Data([0b1010_1011, 0b0000_0000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 9)
+            return try NineBits(bits: rawBits)
+        }
         #expect(parsed == NineBits(high: 0b1010, low: 0b10110))
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == Data([0b1010_1011, 0b0000_0000]))
@@ -497,7 +545,11 @@ extension PrintingTests.BitmaskPrintingTest {
         // 28 bits with 4 padding bits
         // MSB-aligned in 32-bit: 11110101 10011110 10101010 10100000 = 0xF59EAAA0
         // Output should have padding bits = 0000
-        let parsed = try AsymmetricBitWidths(bits: 0b1111_0101_1001_1110_1010_1010_1010_0000)
+        let data = Data([0b1111_0101, 0b1001_1110, 0b1010_1010, 0b1010_0000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 28)
+            return try AsymmetricBitWidths(bits: rawBits)
+        }
         #expect(parsed == AsymmetricBitWidths(
             oneBit: 1,
             twoBits: 0b11,

@@ -169,12 +169,15 @@ extension ParsingTests.EnumMaskParsingTest {
 
     /// A type with bitCount = 6 and RawBitsInteger = UInt8 for testing bit count logic.
     struct Strict6Bit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        typealias RawBitsInteger = UInt8
         static let bitCount = 6
         let value: UInt8
 
-        init(bits: UInt8) {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            value = try bits.load(as: UInt8.self)
+        }
+
+        init(value: UInt8) {
+            self.value = value
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {
@@ -207,7 +210,7 @@ extension ParsingTests.EnumMaskParsingTest {
     func sameBitCountBits() throws {
         // Match 0x01, then input: 1011_0100 (first 6 bits: 101101 = 45)
         let value = try SameBitCountEnum(parsing: Data([0x01, 0b1011_0100]))
-        #expect(value == .test(Strict6Bit(bits: 0b101101)))
+        #expect(value == .test(Strict6Bit(value: 0b101101)))
     }
 
     @ParseEnum
@@ -222,7 +225,7 @@ extension ParsingTests.EnumMaskParsingTest {
         // Match 0x01, then input: 1011_0101 (first 7 bits: 1011010 = 90)
         // Take MSB 6 bits: 101101 = 45
         let value = try SufficientBitsEnum(parsing: Data([0x01, 0b1011_0101]))
-        #expect(value == .test(Strict6Bit(bits: 0b101101)))
+        #expect(value == .test(Strict6Bit(value: 0b101101)))
     }
 
     @ParseEnum
@@ -237,6 +240,6 @@ extension ParsingTests.EnumMaskParsingTest {
         // Match 0x01, then input: 0b1111_0000_1111_0010 (15 bits: 111100001111001)
         // Take MSB 6 bits: 111100 = 60
         let value = try ExcessBitsEnum(parsing: Data([0x01, 0b1111_0000, 0b1111_0010]))
-        #expect(value == .test(Strict6Bit(bits: 0b111100)))
+        #expect(value == .test(Strict6Bit(value: 0b111100)))
     }
 }

@@ -19,7 +19,6 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A simple flag type that conforms to BitmaskParsable with 1 bit.
     struct Flag: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        typealias RawBitsInteger = UInt8
         static var bitCount: Int { 1 }
         let value: Bool
 
@@ -27,8 +26,9 @@ extension ParsingTests.StructMaskParsingTest {
             self.value = value
         }
 
-        init(bits: RawBitsInteger) throws {
-            value = bits & 1 == 1
+        init(bits: borrowing RawBitsSpan) throws {
+            let intValue: UInt8 = try bits.load()
+            value = intValue & 1 == 1
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {
@@ -38,7 +38,6 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A 4-bit nibble type that conforms to BitmaskParsable.
     struct Nibble: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        typealias RawBitsInteger = UInt8
         static var bitCount: Int { 4 }
         let value: UInt8
 
@@ -47,8 +46,8 @@ extension ParsingTests.StructMaskParsingTest {
             self.value = value
         }
 
-        init(bits: RawBitsInteger) throws {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            value = try bits.load()
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {
@@ -58,7 +57,6 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A 3-bit value type for testing.
     struct ThreeBit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        typealias RawBitsInteger = UInt8
         static var bitCount: Int { 3 }
         let value: UInt8
 
@@ -67,8 +65,8 @@ extension ParsingTests.StructMaskParsingTest {
             self.value = value
         }
 
-        init(bits: RawBitsInteger) throws {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            value = try bits.load()
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {
@@ -303,12 +301,11 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A type with bitCount = 6 and RawBitsInteger = UInt8 for testing bit count logic.
     struct Strict6Bit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        typealias RawBitsInteger = UInt8
         static let bitCount = 6
         let value: UInt8
 
-        init(bits: UInt8) {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            value = try bits.load()
         }
 
         func toRawBits(bitCount: Int) throws -> RawBits {

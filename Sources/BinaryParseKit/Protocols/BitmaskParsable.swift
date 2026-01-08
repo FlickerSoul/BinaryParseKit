@@ -10,8 +10,6 @@ import BinaryParsing
 public enum BitmaskParsableError: Error, Sendable {
     /// The bit count is not supported for the target type.
     case unsupportedBitCount
-    /// The raw bits integer type is not wide enough to hold the extracted bits.
-    case rawBitsIntegerNotWideEnough
     /// The specified bit count is less than what the type requires (Type.bitCount).
     case insufficientBitsAvailable
 }
@@ -23,39 +21,36 @@ public enum BitmaskParsableError: Error, Sendable {
 /// Types conforming to this protocol can be constructed from raw bits,
 /// enabling bit-level parsing within binary data structures.
 ///
-/// The `RawBitsInteger` associated type specifies the integer type used
-/// to receive the extracted bits. The bits passed to `init(bits:)` are:
+/// The bits passed to `init(bits:)` are represented as a `RawBitsSpan`,
+/// which provides a view into a contiguous sequence of bytes. The bits are:
 /// - **MSB-first extracted**: The first bits in the source become the most significant bits
-/// - **Right-aligned**: The extracted bits are positioned at the LSB of the integer
-/// - **Excess bits masked to 0**: Only the extracted bits are set; higher bits are zero
+/// - **Starting at index 0**: The bits start from the beginning of the underlying byte span
+/// - **Limited by bitCount**: Only `bitCount` bits from the span are considered valid
 ///
 /// For example, extracting 3 bits `0b011` from input `[0b0110_0000]` yields
-/// `bits = 0b0000_0011` (value 3) when `RawBitsInteger` is `UInt8`.
+/// a `RawBitsSpan` where `_bytes` contains `[0b0110_0000]` and `bitCount = 3`.
 ///
 /// - Note: Callee assumes that `bits` contain sufficient bits for the type. For instance,
-/// if the type requires 5 bits, the caller must ensure that `bits` contains at least 5 bits extracted
+/// if the type requires 5 bits, the caller must ensure that `bits.bitCount >= 5`.
 ///
 /// Example:
 /// ```swift
 /// struct Priority: ExpressibleByRawBits {
-///     typealias RawBitsInteger = UInt8
 ///     let value: UInt8
 ///
-///     init(bits: RawBitsInteger) throws {
-///         self.value = UInt8(bits)
+///     init(bits: borrowing RawBitsSpan) throws {
+///         // Extract the value from the bits
+///         self.value = bits._bytes.unsafeLoad(fromByteOffset: 0, as: UInt8.self) >> (8 - bits.bitCount)
 ///     }
 /// }
 /// ```
 public protocol ExpressibleByRawBits {
-    /// The integer type used to receive raw bits during parsing.
-    associatedtype RawBitsInteger: FixedWidthInteger
-
     /// Creates an instance from extracted bits.
     ///
-    /// - Parameter bits: The extracted bits, right-aligned in the integer with
-    ///   excess bits masked to 0. The bits are MSB-first extracted from the source.
+    /// - Parameter bits: The extracted bits as a span, with bits in MSB-first order
+    ///   starting from index 0, and `bitCount` indicating the number of valid bits.
     /// - Throws: An error if the bits cannot be converted to this type
-    init(bits: RawBitsInteger) throws
+    init(bits: borrowing RawBitsSpan) throws
 }
 
 /// A protocol for types that declare their bit width.

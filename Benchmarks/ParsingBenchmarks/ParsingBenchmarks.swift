@@ -88,13 +88,14 @@ let benchmarks: @Sendable () -> Void = {
     // MARK: - Bitmask Parsing Benchmarks
 
     let simpleBitmaskData = Data([0xA3])
-    let simpleBitmaskBits: UInt8 = 0b1010_0011
     let complexBitmaskData = Data([0xAB, 0xCD, 0xEF, 0x12])
-    let complexBitmaskBits: UInt32 = 0xABCD_EF12
 
     Benchmark("Parse Simple Bitmask") { benchmark in
-        for _ in benchmark.scaledIterations {
-            blackHole(try! BenchmarkBitmaskSimple(bits: simpleBitmaskBits))
+        simpleBitmaskData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            for _ in benchmark.scaledIterations {
+                blackHole(try! BenchmarkBitmaskSimple(bits: rawBits))
+            }
         }
     }
 
@@ -105,8 +106,11 @@ let benchmarks: @Sendable () -> Void = {
     }
 
     Benchmark("Parse Complex Bitmask") { benchmark in
-        for _ in benchmark.scaledIterations {
-            blackHole(try! BenchmarkBitmaskComplex(bits: complexBitmaskBits))
+        complexBitmaskData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
+            for _ in benchmark.scaledIterations {
+                blackHole(try! BenchmarkBitmaskComplex(bits: rawBits))
+            }
         }
     }
 
@@ -165,11 +169,13 @@ let benchmarks: @Sendable () -> Void = {
     // MARK: - Non-Byte-Aligned Bitmask Benchmarks
 
     let nonAlignedData = Data([0xAC, 0xC0])
-    let nonAlignedBits: UInt16 = 0b1010_1100_1100_0000
 
     Benchmark("Parse Non-Byte-Aligned Bitmask (10 bits)") { benchmark in
-        for _ in benchmark.scaledIterations {
-            blackHole(try! NonByteAlignedBitmask(bits: nonAlignedBits))
+        nonAlignedData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 10)
+            for _ in benchmark.scaledIterations {
+                blackHole(try! NonByteAlignedBitmask(bits: rawBits))
+            }
         }
     }
 

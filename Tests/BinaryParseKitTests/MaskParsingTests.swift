@@ -15,43 +15,40 @@ struct MaskParsingUtilityTests {
 
     /// A type that only conforms to ExpressibleByRawBits (no BitCountProviding)
     private struct SimpleRawBitsType: ExpressibleByRawBits, Equatable {
-        typealias RawBitsInteger = UInt8
         let value: UInt8
 
-        init(bits: UInt8) {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            value = try bits.load(as: UInt8.self)
         }
     }
 
     /// A type that conforms to both ExpressibleByRawBits and BitCountProviding
     private struct Strict6BitType: ExpressibleByRawBits, BitCountProviding, Equatable {
-        typealias RawBitsInteger = UInt8
         static let bitCount = 6
         let value: UInt8
 
-        init(bits: UInt8) {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            value = try bits.load(as: UInt8.self)
         }
     }
 
     /// A type with 1-bit width for edge case testing
     private struct Strict1BitType: ExpressibleByRawBits, BitCountProviding, Equatable {
-        typealias RawBitsInteger = UInt8
         static let bitCount = 1
         let value: UInt8
 
-        init(bits: UInt8) {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            let intValue: UInt8 = try bits.load()
+            value = (intValue & 1) == 1 ? 1 : 0
         }
     }
 
     /// A parent type for testing __maskParsing from bits
     private struct Parent16Bit: ExpressibleByRawBits {
-        typealias RawBitsInteger = UInt16
         let value: UInt16
 
-        init(bits: UInt16) {
-            value = bits
+        init(bits: borrowing RawBitsSpan) throws {
+            value = try bits.load(as: UInt16.self)
         }
     }
 
@@ -78,14 +75,16 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsWithBitCountTests {
     func extractFieldAtPosition0() throws {
         // Binary: 1011_0100_0000_0000 = 0xB400
         // Extract 6 bits at position 0: 101101 = 45
-        let bits: UInt16 = 0b1011_0100_0000_0000
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1011_0100_0000_0000
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 0,
+            )
+        }
         #expect(result.value == 0b101101)
     }
 
@@ -93,14 +92,16 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsWithBitCountTests {
     func extractFieldAtMiddlePosition() throws {
         // Binary: 0000_1011_0100_0000 = 0x0B40
         // Extract 6 bits at position 4: 101101 = 45
-        let bits: UInt16 = 0b0000_1011_0100_0000
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 4,
-        )
+        let bitsInteger: UInt16 = 0b0000_1011_0100_0000
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 4,
+            )
+        }
         #expect(result.value == 0b101101)
     }
 
@@ -108,29 +109,33 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsWithBitCountTests {
     func extractFieldAtEndPosition() throws {
         // Binary: 0000_0000_0010_1101 = 0x002D
         // Extract 6 bits at position 10: 101101 = 45
-        let bits: UInt16 = 0b0000_0000_0010_1101
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 10,
-        )
+        let bitsInteger: UInt16 = 0b0000_0000_0010_1101
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 10,
+            )
+        }
         #expect(result.value == 0b101101)
     }
 
     @Test("Throws error when bitCount < Field.bitCount")
     func throwsWhenInsufficientBits() {
         // Try to extract 5 bits into a 6-bit type
-        let bits: UInt16 = 0xFFFF
+        let bitsInteger: UInt16 = 0xFFFF
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
-            let _: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-                from: bits,
-                parentType: MaskParsingUtilityTests.Parent16Bit.self,
-                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-                fieldRequestedBitCount: 5,
-                at: 0,
-            )
+            let _: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+                let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+                return try __maskParsing(
+                    from: rawBits,
+                    fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                    fieldRequestedBitCount: 5,
+                    at: 0,
+                )
+            }
         }
     }
 
@@ -139,66 +144,76 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsWithBitCountTests {
         // Binary: 1011_0111_1100_0000 = 0xB7C0
         // Extract 10 bits at position 0: 1011011111
         // Type only takes 6 MSB bits: 101101 = 45
-        let bits: UInt16 = 0b1011_0111_1100_0000
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 10,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1011_0111_1100_0000
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 10,
+                at: 0,
+            )
+        }
         #expect(result.value == 0b101101)
     }
 
     @Test("Single bit extraction")
     func singleBitExtraction() throws {
         // Extract 1 bit at position 0: should be 1
-        let bits: UInt16 = 0b1000_0000_0000_0000
-        let result: MaskParsingUtilityTests.Strict1BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict1BitType.self,
-            fieldRequestedBitCount: 1,
-            at: 0,
-        )
+        let bitsInteger1: UInt16 = 0b1000_0000_0000_0000
+        let result: MaskParsingUtilityTests.Strict1BitType = try bitsInteger1.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict1BitType.self,
+                fieldRequestedBitCount: 1,
+                at: 0,
+            )
+        }
         #expect(result.value == 1)
 
         // Extract 1 bit at position 0: should be 0
-        let bits2: UInt16 = 0b0111_1111_1111_1111
-        let result2: MaskParsingUtilityTests.Strict1BitType = try __maskParsing(
-            from: bits2,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict1BitType.self,
-            fieldRequestedBitCount: 1,
-            at: 0,
-        )
+        let bitsInteger2: UInt16 = 0b0111_1111_1111_1111
+        let result2: MaskParsingUtilityTests.Strict1BitType = try bitsInteger2.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict1BitType.self,
+                fieldRequestedBitCount: 1,
+                at: 0,
+            )
+        }
         #expect(result2.value == 0)
     }
 
     @Test("All zeros extraction")
     func allZerosExtraction() throws {
-        let bits: UInt16 = 0x0000
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0x0000
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 0,
+            )
+        }
         #expect(result.value == 0)
     }
 
     @Test("All ones extraction")
     func allOnesExtraction() throws {
         // Extract 6 bits of all 1s: 111111 = 63
-        let bits: UInt16 = 0b1111_1100_0000_0000
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1111_1100_0000_0000
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 0,
+            )
+        }
         #expect(result.value == 0b111111)
     }
 }
@@ -210,14 +225,16 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsNoBitCountTests {
     func extractFieldAtPosition0() throws {
         // Binary: 1010_1100_0000_0000 = 0xAC00
         // Extract 8 bits at position 0: 10101100 = 172
-        let bits: UInt16 = 0b1010_1100_0000_0000
-        let result: MaskParsingUtilityTests.SimpleRawBitsType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 8,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1010_1100_0000_0000
+        let result: MaskParsingUtilityTests.SimpleRawBitsType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 8,
+                at: 0,
+            )
+        }
         #expect(result.value == 0b1010_1100)
     }
 
@@ -225,14 +242,16 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsNoBitCountTests {
     func extractFieldAtMiddlePosition() throws {
         // Binary: 0000_1010_1100_0000 = 0x0AC0
         // Extract 8 bits at position 4: 10101100 = 172
-        let bits: UInt16 = 0b0000_1010_1100_0000
-        let result: MaskParsingUtilityTests.SimpleRawBitsType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 8,
-            at: 4,
-        )
+        let bitsInteger: UInt16 = 0b0000_1010_1100_0000
+        let result: MaskParsingUtilityTests.SimpleRawBitsType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 8,
+                at: 4,
+            )
+        }
         #expect(result.value == 0b1010_1100)
     }
 
@@ -240,14 +259,16 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsNoBitCountTests {
     func noBitCountValidation() throws {
         // SimpleRawBitsType doesn't conform to BitCountProviding,
         // so no validation should occur even with small bitCount
-        let bits: UInt16 = 0b1110_0000_0000_0000
-        let result: MaskParsingUtilityTests.SimpleRawBitsType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 3,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1110_0000_0000_0000
+        let result: MaskParsingUtilityTests.SimpleRawBitsType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 3,
+                at: 0,
+            )
+        }
         // Just truncates to fit RawBitsInteger
         #expect(result.value == 0b111)
     }
@@ -257,54 +278,62 @@ extension MaskParsingUtilityTests.MaskParsingFromBitsNoBitCountTests {
         // Binary: 1011_0111_1100_0000 = 0xB7C0
         // Extract 10 bits at position 0: 1011011111
         // SimpleRawBitsType takes all bits (truncated to UInt8): 0b10111111 = 0xBF
-        let bits: UInt16 = 0b1011_0111_1100_0000
-        let result: MaskParsingUtilityTests.SimpleRawBitsType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 10,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1011_0111_1100_0000
+        let result: MaskParsingUtilityTests.SimpleRawBitsType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 10,
+                at: 0,
+            )
+        }
         // 1011011111 truncated to UInt8 = 0b10111111 = 191
-        #expect(result.value == 0b10_1101_1111 & 0xFF)
+        #expect(result.value == 0b1011_0111)
     }
 
     @Test("Single bit extraction")
     func singleBitExtraction() throws {
-        let bits: UInt16 = 0b1000_0000_0000_0000
-        let result: MaskParsingUtilityTests.SimpleRawBitsType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 1,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1000_0000_0000_0000
+        let result: MaskParsingUtilityTests.SimpleRawBitsType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 1,
+                at: 0,
+            )
+        }
         #expect(result.value == 1)
     }
 
     @Test("All zeros extraction")
     func allZerosExtraction() throws {
-        let bits: UInt16 = 0x0000
-        let result: MaskParsingUtilityTests.SimpleRawBitsType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 8,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0x0000
+        let result: MaskParsingUtilityTests.SimpleRawBitsType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 8,
+                at: 0,
+            )
+        }
         #expect(result.value == 0)
     }
 
     @Test("All ones extraction")
     func allOnesExtraction() throws {
-        let bits: UInt16 = 0xFFFF
-        let result: MaskParsingUtilityTests.SimpleRawBitsType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 8,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0xFFFF
+        let result: MaskParsingUtilityTests.SimpleRawBitsType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 8,
+                at: 0,
+            )
+        }
         #expect(result.value == 0xFF)
     }
 }
@@ -529,7 +558,7 @@ extension MaskParsingUtilityTests.MaskParsingFromSpanNoBitCountTests {
             )
         }
         // 10 bits = 1011011111, truncated to 8 bits = 10111111 = 191
-        #expect(result.value == 0b10_1101_1111 & 0xFF)
+        #expect(result.value == 0b1011_0111)
     }
 
     @Test("Single bit extraction")
@@ -597,28 +626,32 @@ extension MaskParsingUtilityTests.MaskParsingEdgeCaseTests {
     @Test("Extract at last valid bit position")
     func extractAtLastValidPosition() throws {
         // 16-bit parent, extract 6 bits at position 10 (last valid position)
-        let bits: UInt16 = 0b0000_0000_0010_1101
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 10,
-        )
+        let bitsInteger: UInt16 = 0b0000_0000_0010_1101
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 10,
+            )
+        }
         #expect(result.value == 0b101101)
     }
 
     @Test("Exactly matching bit count")
     func exactlyMatchingBitCount() throws {
         // fieldRequestedBitCount == Field.bitCount (6 == 6)
-        let bits: UInt16 = 0b1011_0100_0000_0000
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1011_0100_0000_0000
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 0,
+            )
+        }
         #expect(result.value == 0b101101)
     }
 
@@ -627,55 +660,63 @@ extension MaskParsingUtilityTests.MaskParsingEdgeCaseTests {
         // Request 15 bits but type only needs 6
         // Binary: 1111_0000_1111_0010 = 0xF0F2
         // 15 bits at position 0: 111100001111001 (take 6 MSB: 111100 = 60)
-        let bits: UInt16 = 0b1111_0000_1111_0010
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 15,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1111_0000_1111_0010
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 15,
+                at: 0,
+            )
+        }
         #expect(result.value == 0b111100)
     }
 
     @Test("Single bit type with exactly 1 bit requested")
     func singleBitTypeExactMatch() throws {
-        let bits: UInt16 = 0b1000_0000_0000_0000
-        let result: MaskParsingUtilityTests.Strict1BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict1BitType.self,
-            fieldRequestedBitCount: 1,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1000_0000_0000_0000
+        let result: MaskParsingUtilityTests.Strict1BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict1BitType.self,
+                fieldRequestedBitCount: 1,
+                at: 0,
+            )
+        }
         #expect(result.value == 1)
     }
 
     @Test("Single bit type throws when requesting 0 bits")
     func singleBitTypeThrowsOnZeroBits() {
-        let bits: UInt16 = 0xFFFF
+        let bitsInteger: UInt16 = 0xFFFF
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
-            let _: MaskParsingUtilityTests.Strict1BitType = try __maskParsing(
-                from: bits,
-                parentType: MaskParsingUtilityTests.Parent16Bit.self,
-                fieldType: MaskParsingUtilityTests.Strict1BitType.self,
-                fieldRequestedBitCount: 0,
-                at: 0,
-            )
+            let _: MaskParsingUtilityTests.Strict1BitType = try bitsInteger.withParserSpan { parserSpan in
+                let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+                return try __maskParsing(
+                    from: rawBits,
+                    fieldType: MaskParsingUtilityTests.Strict1BitType.self,
+                    fieldRequestedBitCount: 0,
+                    at: 0,
+                )
+            }
         }
     }
 
     @Test("Alternating bit pattern")
     func alternatingBitPattern() throws {
         // 0b1010_1010... pattern
-        let bits: UInt16 = 0b1010_1010_1010_1010
-        let result: MaskParsingUtilityTests.Strict6BitType = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.Strict6BitType.self,
-            fieldRequestedBitCount: 6,
-            at: 0,
-        )
+        let bitsInteger: UInt16 = 0b1010_1010_1010_1010
+        let result: MaskParsingUtilityTests.Strict6BitType = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.Strict6BitType.self,
+                fieldRequestedBitCount: 6,
+                at: 0,
+            )
+        }
         #expect(result.value == 0b101010)
     }
 
@@ -714,14 +755,16 @@ extension MaskParsingUtilityTests.MaskParsingEdgeCaseTests {
     func extractFieldWithZeroBitCount() throws {
         // Binary: 0000_0000_0010_1101 = 0x002D
         // Extract 6 bits at position 10: 101101 = 45
-        let bits: UInt16 = 0b0000_0000_0010_1101
-        let result = try __maskParsing(
-            from: bits,
-            parentType: MaskParsingUtilityTests.Parent16Bit.self,
-            fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
-            fieldRequestedBitCount: 0,
-            at: 10,
-        )
+        let bitsInteger: UInt16 = 0b0000_0000_0010_1101
+        let result = try bitsInteger.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try __maskParsing(
+                from: rawBits,
+                fieldType: MaskParsingUtilityTests.SimpleRawBitsType.self,
+                fieldRequestedBitCount: 0,
+                at: 10,
+            )
+        }
         #expect(result.value == 0)
     }
 }

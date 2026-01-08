@@ -1,5 +1,6 @@
 import BinaryParseKit
 import BinaryParsing
+import Foundation
 
 extension [UInt8]: SizedParsable {
     public init(parsing input: inout ParserSpan, byteCount: Int) throws(ThrownParsingError) {
