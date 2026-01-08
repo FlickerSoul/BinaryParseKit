@@ -90,7 +90,11 @@ public func __toRawBits(
 
 // MARK: - Bit Adjustment Utilities for @mask(bitCount:)
 
-/// Overload for types that also conform to BitCountProviding - handles bit count validation and adjustment.
+/// Creates an instance of the specified type from the given raw bits span,
+///
+/// Overload for types that also conform to ``BitCountProviding``.
+///
+/// - Warning: This function is used by macro generation and should not be used directly.
 @inlinable
 public func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
     _: T.Type,
@@ -115,7 +119,11 @@ public func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
     }
 }
 
-/// Fallback overload for types that only conform to ExpressibleByRawBits.
+/// Creates an instance of the specified type from the given raw bits span,
+///
+/// Fallback overload for types that only conform to ``ExpressibleByRawBits``.
+///
+/// - Warning: This function is used by macro generation and should not be used directly.
 @inlinable
 public func __createFromBits<T: ExpressibleByRawBits>(
     _: T.Type,

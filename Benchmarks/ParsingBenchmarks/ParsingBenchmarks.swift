@@ -93,8 +93,10 @@ let benchmarks: @Sendable () -> Void = {
     Benchmark("Parse Simple Bitmask") { benchmark in
         simpleBitmaskData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
-            for _ in benchmark.scaledIterations {
-                blackHole(try! BenchmarkBitmaskSimple(bits: rawBits))
+            benchmark.context {
+                for _ in benchmark.scaledIterations {
+                    blackHole(try! BenchmarkBitmaskSimple(bits: rawBits))
+                }
             }
         }
     }
@@ -108,8 +110,10 @@ let benchmarks: @Sendable () -> Void = {
     Benchmark("Parse Complex Bitmask") { benchmark in
         complexBitmaskData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
-            for _ in benchmark.scaledIterations {
-                blackHole(try! BenchmarkBitmaskComplex(bits: rawBits))
+            benchmark.context {
+                for _ in benchmark.scaledIterations {
+                    blackHole(try! BenchmarkBitmaskComplex(bits: rawBits))
+                }
             }
         }
     }
@@ -173,8 +177,10 @@ let benchmarks: @Sendable () -> Void = {
     Benchmark("Parse Non-Byte-Aligned Bitmask (10 bits)") { benchmark in
         nonAlignedData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 10)
-            for _ in benchmark.scaledIterations {
-                blackHole(try! NonByteAlignedBitmask(bits: rawBits))
+            benchmark.context {
+                for _ in benchmark.scaledIterations {
+                    blackHole(try! NonByteAlignedBitmask(bits: rawBits))
+                }
             }
         }
     }

@@ -90,6 +90,7 @@ let package = Package(
             name: "BenchmarkTypes",
             dependencies: [
                 "BinaryParseKit",
+                .product(name: "Benchmark", package: "package-benchmark"),
             ],
             path: "Benchmarks/BenchmarkTypes",
         ),

@@ -156,9 +156,11 @@ let benchmarks: @Sendable () -> Void = {
     Benchmark("Round-Trip Bitmask (Parse + Print)") { benchmark in
         roundTripBitmaskData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
-            for _ in benchmark.scaledIterations {
-                let parsed = try! BenchmarkBitmaskSimple(bits: rawBits)
-                blackHole(try! parsed.printParsed(printer: .data))
+            benchmark.context {
+                for _ in benchmark.scaledIterations {
+                    let parsed = try! BenchmarkBitmaskSimple(bits: rawBits)
+                    blackHole(try! parsed.printParsed(printer: .data))
+                }
             }
         }
     }
