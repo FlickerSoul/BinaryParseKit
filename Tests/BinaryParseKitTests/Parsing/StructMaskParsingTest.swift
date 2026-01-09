@@ -142,7 +142,11 @@ extension ParsingTests.StructMaskParsingTest {
     @Test("All fields with inferred bit counts")
     func allInferredBitmaskParsing() throws {
         let parsed = try BitmaskAllInferred(parsing: Data([0b1101_0011]))
-        #expect(parsed == BitmaskAllInferred(first: Flag(value: true), second: Nibble(value: 0b1010), third: ThreeBit(value: 0b011)))
+        #expect(parsed == BitmaskAllInferred(
+            first: Flag(value: true),
+            second: Nibble(value: 0b1010),
+            third: ThreeBit(value: 0b011),
+        ))
     }
 
     // MARK: - Multi-Byte Bitmask
@@ -162,7 +166,7 @@ extension ParsingTests.StructMaskParsingTest {
     @Test("Multi-byte bitmask spanning 2 bytes")
     func multiBytesBitmaskParsing() throws {
         let parsed = try MultiBytesBitmask(parsing: Data([0b1010_1011, 0b0011_0100]))
-        #expect(parsed == MultiBytesBitmask(high: 0b1010, middle: 0b10110011, low: 0b0100))
+        #expect(parsed == MultiBytesBitmask(high: 0b1010, middle: 0b1011_0011, low: 0b0100))
     }
 
     // MARK: - Mixed Parse and Mask
@@ -211,7 +215,13 @@ extension ParsingTests.StructMaskParsingTest {
     @Test("Multiple separate mask groups")
     func multipleMaskGroupsParsing() throws {
         let parsed = try MultipleMaskGroups(parsing: Data([0b1010_0101, 0xFF, 0b1101_0110]))
-        #expect(parsed == MultipleMaskGroups(first: 0b1010, second: 0b0101, separator: 0xFF, third: 0b11, fourth: 0b010110))
+        #expect(parsed == MultipleMaskGroups(
+            first: 0b1010,
+            second: 0b0101,
+            separator: 0xFF,
+            third: 0b11,
+            fourth: 0b010110,
+        ))
     }
 
     // MARK: - Error Cases
@@ -258,9 +268,9 @@ extension ParsingTests.StructMaskParsingTest {
     struct Strict6Bit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
         static let bitCount = 6
         let value: UInt8
-        
+
         init(value: UInt8) {
-            self.value = value & 0b00111111
+            self.value = value & 0b0011_1111
         }
 
         init(bits: borrowing RawBitsSpan) throws {
