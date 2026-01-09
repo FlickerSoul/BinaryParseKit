@@ -21,12 +21,13 @@
 /// }
 /// ```
 public struct RawBitsSpan: ~Escapable, ~Copyable {
-    public typealias SpanType = Span<UInt8>
+    public typealias Buffer = Span<UInt8>
+
     /// The underlying byte span containing the raw bits.
     @usableFromInline
-    private(set) var _bytes: SpanType
+    private(set) var _bytes: Buffer
 
-    /// The bit offset within the first byte where the bit sequence starts.
+    /// The bit offset from the start of the buffer
     @usableFromInline
     private(set) var _bitOffset: Int
 
@@ -47,7 +48,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
 
     /// The bit index where this RawBitsSpan ends (exclusive)
     ///
-    /// Equals to `bitStartIndex + bitCount`.
+    /// Equals to ``bitStartIndex`` + ``bitCount``.
     @inlinable
     public var bitEndIndex: Int {
         bitStartIndex + _bitCount
@@ -55,8 +56,8 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
 
     /// Public accessor for underlying bytes.
     ///
-    /// The bits are from ``bitStartIndex`` or ``bitEndIndex``
-    public var bytes: SpanType {
+    /// The bits are from in the range between ``bitStartIndex`` and ``bitEndIndex``
+    public var bytes: Buffer {
         @inlinable
         @_lifetime(copy self)
         borrowing get {
@@ -70,13 +71,15 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
         _bitCount
     }
 
-    /// The number of bytes spanned by the bits
+    /// The number of bytes of ``bitCount``
+    ///
+    /// Calculated as `(bitCount + 7) / 8`
     @inlinable
     public var byteCount: Int {
         (_bitCount + 7) / 8
     }
 
-    /// The number of bytes spanned in the buffer
+    /// The number of bytes used (touched/spanned) in the buffer
     @inlinable
     public var bufferByteCount: Int {
         (_bitCount + 7) / 8 + (bitStartIndex == 0 ? 0 : 1)
@@ -108,12 +111,12 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     @inlinable
     @_lifetime(copy bytes)
     init(unchecked _: Void, _ bytes: RawSpan, bitOffset: Int, bitCount: Int) {
-        self = .init(unchecked: (), SpanType(_bytes: bytes), bitOffset: bitOffset, bitCount: bitCount)
+        self = .init(unchecked: (), Buffer(_bytes: bytes), bitOffset: bitOffset, bitCount: bitCount)
     }
 
     @inlinable
     @_lifetime(copy bytes)
-    init(unchecked _: Void, _ bytes: SpanType, bitOffset: Int, bitCount: Int) {
+    init(unchecked _: Void, _ bytes: Buffer, bitOffset: Int, bitCount: Int) {
         _bytes = bytes
         _bitOffset = bitOffset
         _bitCount = bitCount
@@ -230,7 +233,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to extract from the start of the span
     /// - Returns: A new `RawBitsSpan` containing the first `count` bits
-    @inlinable
+    @usableFromInline
     @_lifetime(borrow self)
     borrowing func extracting(unchecked _: Void, first count: Int) -> RawBitsSpan {
         RawBitsSpan(unchecked: (), _bytes, bitOffset: _bitOffset, bitCount: count)
@@ -241,7 +244,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to extract from the end of the span
     /// - Returns: A new `RawBitsSpan` containing the last `count` bits
-    @inlinable
+    @usableFromInline
     @_lifetime(borrow self)
     borrowing func extracting(unchecked _: Void, last count: Int) -> RawBitsSpan {
         let newBitOffset = _bitOffset + (_bitCount - count)
@@ -285,9 +288,9 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to slice from the start of the span
     /// - Returns: A new `RawBitsSpan` containing the sliced (first `count`) bits
-    @inlinable
+    @usableFromInline
     @_lifetime(copy self)
-    public mutating func slicing(unchecked _: Void, first count: Int) -> RawBitsSpan {
+    mutating func slicing(unchecked _: Void, first count: Int) -> RawBitsSpan {
         let sliced = RawBitsSpan(unchecked: (), _bytes, bitOffset: _bitOffset, bitCount: count)
         _bitOffset += count
         _bitCount -= count
@@ -301,9 +304,9 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to slice from the end of the span
     /// - Returns: A new `RawBitsSpan` containing the sliced (last `count`) bits
-    @inlinable
+    @usableFromInline
     @_lifetime(copy self)
-    public mutating func slicing(unchecked _: Void, last count: Int) -> RawBitsSpan {
+    mutating func slicing(unchecked _: Void, last count: Int) -> RawBitsSpan {
         let newBitOffset = _bitOffset + (_bitCount - count)
         let sliced = RawBitsSpan(unchecked: (), _bytes, bitOffset: newBitOffset, bitCount: count)
         _bitCount -= count
