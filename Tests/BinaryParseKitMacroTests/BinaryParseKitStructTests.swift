@@ -816,7 +816,7 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 3 + (Bool).bitCount
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitOffset: 0, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `flag1` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(unchecked: (), first: 1)
@@ -898,7 +898,7 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitOffset: 0, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `flag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(unchecked: (), first: 1)
@@ -990,7 +990,7 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 4
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitOffset: 0, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `topFlag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(unchecked: (), first: 1)
@@ -1015,7 +1015,7 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu0_ = 1 + 4 + 2
                         let __macro_local_19__bitmask_byteCountfMu0_ = (__macro_local_19__bitmask_totalBitsfMu0_ + 7) / 8
-                        var __macro_local_14__bitmask_spanfMu0_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu0_)
+                        var __macro_local_14__bitmask_spanfMu0_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu0_).bytes, bitOffset: 0, bitCount: __macro_local_19__bitmask_totalBitsfMu0_)
                         // Parse `bottomFlag` of type Bool from bits
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         let __macro_local_9__subSpanfMu1_ = __macro_local_14__bitmask_spanfMu0_.slicing(unchecked: (), first: 1)
@@ -1214,7 +1214,7 @@ extension BinaryParseKitMacroTests {
                         // Parse bitmask fields
                         let __macro_local_19__bitmask_totalBitsfMu_ = (Flag).bitCount
                         let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
-                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitOffset: 0, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
                         // Parse `a` of type Flag from bits
                         BinaryParseKit.__assertBitmaskParsable((Flag).self)
                         let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(unchecked: (), first: (Flag).bitCount)
@@ -1237,6 +1237,81 @@ extension BinaryParseKitMacroTests {
                         return .struct(
                             .init(
                                 fields: [.init(byteCount: nil, endianness: nil, intel: .bitmask(.init(bits: __macro_local_10__maskBitsfMu_))), .init(byteCount: nil, endianness: nil, intel: try BinaryParseKit.__getPrinterIntel(b))]
+                            )
+                        )
+                    }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `little endian mask fields in struct`() {
+            assertMacro {
+                """
+                @ParseStruct(bitEndian: .little)
+                struct LittleEndianBitFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            } expansion: {
+                """
+                struct LittleEndianBitFlags {
+                    var flag1: Bool
+                    var value: UInt8
+                    var flag2: Bool
+                }
+
+                extension LittleEndianBitFlags: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        // Parse bitmask fields
+                        let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 3 + (Bool).bitCount
+                        let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                        var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitOffset: __macro_local_19__bitmask_byteCountfMu_ * 8 - __macro_local_19__bitmask_totalBitsfMu_, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
+                        // Parse `flag1` of type Bool from bits
+                        BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                        let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.slicing(unchecked: (), last: 1)
+                        self.flag1 = try BinaryParseKit.__createFromBits(
+                            (Bool).self,
+                            fieldBits: __macro_local_9__subSpanfMu_,
+                            fieldRequestedBitCount: 1,
+                            bitEndian: .little,
+                        )
+                        // Parse `value` of type UInt8 from bits
+                        BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                        let __macro_local_9__subSpanfMu0_ = __macro_local_14__bitmask_spanfMu_.slicing(unchecked: (), last: 3)
+                        self.value = try BinaryParseKit.__createFromBits(
+                            (UInt8).self,
+                            fieldBits: __macro_local_9__subSpanfMu0_,
+                            fieldRequestedBitCount: 3,
+                            bitEndian: .little,
+                        )
+                        // Parse `flag2` of type Bool from bits
+                        BinaryParseKit.__assertBitmaskParsable((Bool).self)
+                        let __macro_local_9__subSpanfMu1_ = __macro_local_14__bitmask_spanfMu_.slicing(unchecked: (), last: (Bool).bitCount)
+                        self.flag2 = try BinaryParseKit.__createFromBits(
+                            (Bool).self,
+                            fieldBits: __macro_local_9__subSpanfMu1_,
+                            fieldRequestedBitCount: (Bool).bitCount,
+                            bitEndian: .little,
+                        )
+                    }
+                }
+
+                extension LittleEndianBitFlags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        // bits from flag1, value, flag2
+                        let __macro_local_10__maskBitsfMu_ = try BinaryParseKit.__toRawBits(flag1, bitCount: 1).appending(BinaryParseKit.__toRawBits(value, bitCount: 3)).appending(BinaryParseKit.__toRawBits(flag2, bitCount: (Bool).bitCount))
+                        return .struct(
+                            .init(
+                                fields: [.init(byteCount: nil, endianness: nil, intel: .bitmask(.init(bits: __macro_local_10__maskBitsfMu_)))]
                             )
                         )
                     }

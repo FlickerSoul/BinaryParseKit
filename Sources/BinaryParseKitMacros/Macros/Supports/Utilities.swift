@@ -193,7 +193,13 @@ func generateMaskGroupBlock(
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
         // Get a sliced span for bitmask bytes
-        "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitCount: \(bitsVarName))"
+        // Big endian: start from bit 0 (MSB-first)
+        // Little endian: start from end of padding bits (LSB-first)
+        if isBigEndian {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: 0, bitCount: \(bitsVarName))"
+        } else {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: \(bytesVarName) * 8 - \(bitsVarName), bitCount: \(bitsVarName))"
+        }
 
         // Parse each field
         for action in maskActions {
@@ -287,7 +293,13 @@ func generateEnumMaskGroupBlock(
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
         // Get a sliced span for bitmask bytes
-        "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitCount: \(bitsVarName))"
+        // Big endian: start from bit 0 (MSB-first)
+        // Little endian: start from end of padding bits (LSB-first)
+        if isBigEndian {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: 0, bitCount: \(bitsVarName))"
+        } else {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: \(bytesVarName) * 8 - \(bitsVarName), bitCount: \(bitsVarName))"
+        }
 
         // Parse each field
         for maskAction in maskActions {

@@ -18,7 +18,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Basic Bitmask Struct
 
     @ParseBitmask
-    struct BasicFlags {
+    struct BasicFlags: Equatable {
         @mask(bitCount: 1)
         var flag1: UInt8
 
@@ -37,9 +37,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
             return try BasicFlags(bits: rawBits)
         }
-        #expect(flags.flag1 == 1)
-        #expect(flags.value == 2)
-        #expect(flags.nibble == 3)
+        #expect(flags == BasicFlags(flag1: 0b1, value: 0b010, nibble: 0b0011))
     }
 
     @Test("Basic bitmask struct - all zeros")
@@ -49,9 +47,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
             return try BasicFlags(bits: rawBits)
         }
-        #expect(flags.flag1 == 0)
-        #expect(flags.value == 0)
-        #expect(flags.nibble == 0)
+        #expect(flags == BasicFlags(flag1: 0b0, value: 0b000, nibble: 0b0000))
     }
 
     @Test("Basic bitmask struct - all ones")
@@ -62,9 +58,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
             return try BasicFlags(bits: rawBits)
         }
-        #expect(flags.flag1 == 1)
-        #expect(flags.value == 7)
-        #expect(flags.nibble == 15)
+        #expect(flags == BasicFlags(flag1: 0b1, value: 0b111, nibble: 0b1111))
     }
 
     @Test("BasicFlags bitCount is correct")
@@ -75,7 +69,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Single Field Bitmask
 
     @ParseBitmask
-    struct SingleFlag {
+    struct SingleFlag: Equatable {
         @mask(bitCount: 1)
         var flag: UInt8
     }
@@ -87,14 +81,14 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 1)
             return try SingleFlag(bits: rawBits)
         }
-        #expect(flag1.flag == 1)
+        #expect(flag1 == SingleFlag(flag: 0b1))
 
         let data0 = Data([0x00])
         let flag0 = try data0.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 1)
             return try SingleFlag(bits: rawBits)
         }
-        #expect(flag0.flag == 0)
+        #expect(flag0 == SingleFlag(flag: 0b0))
     }
 
     @Test("SingleFlag bitCount is correct")
@@ -105,7 +99,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Multi-Byte Bitmask
 
     @ParseBitmask
-    struct WideBitmask {
+    struct WideBitmask: Equatable {
         @mask(bitCount: 4)
         var high: UInt8
 
@@ -125,9 +119,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
             return try WideBitmask(bits: rawBits)
         }
-        #expect(wide.high == 10) // 0b1010
-        #expect(wide.middle == 179) // 0b10110011
-        #expect(wide.low == 4) // 0b0100
+        #expect(wide == WideBitmask(high: 0b1010, middle: 0b1011_0011, low: 0b0100))
     }
 
     @Test("WideBitmask bitCount is correct")
@@ -138,7 +130,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Different Integer Types
 
     @ParseBitmask
-    struct MixedIntegerTypes {
+    struct MixedIntegerTypes: Equatable {
         @mask(bitCount: 8)
         var byte: UInt8
 
@@ -157,9 +149,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
             return try MixedIntegerTypes(bits: rawBits)
         }
-        #expect(mixed.byte == 0x12)
-        #expect(mixed.word == 0x3456)
-        #expect(mixed.signed == 0x78)
+        #expect(mixed == MixedIntegerTypes(byte: 0x12, word: 0x3456, signed: 0x78))
     }
 
     @Test("MixedIntegerTypes bitCount is correct")
@@ -170,7 +160,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Bitmask with Computed Properties (Ignored)
 
     @ParseBitmask
-    struct BitmaskWithComputed {
+    struct BitmaskWithComputed: Equatable {
         @mask(bitCount: 4)
         var value: UInt8
 
@@ -192,7 +182,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 4)
             return try BitmaskWithComputed(bits: rawBits)
         }
-        #expect(bitmask.value == 10)
+        #expect(bitmask == BitmaskWithComputed(value: 0b1010))
         #expect(bitmask.computedDouble == 20)
         #expect(bitmask.computedWithGetSet == 10)
     }
@@ -205,7 +195,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Bitmask with Static Properties (Ignored)
 
     @ParseBitmask
-    struct BitmaskWithStatic {
+    struct BitmaskWithStatic: Equatable {
         static let defaultValue: UInt8 = 0
 
         @mask(bitCount: 8)
@@ -219,7 +209,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
             return try BitmaskWithStatic(bits: rawBits)
         }
-        #expect(bitmask.value == 0x42)
+        #expect(bitmask == BitmaskWithStatic(value: 0x42))
         #expect(BitmaskWithStatic.defaultValue == 0)
     }
 
@@ -231,7 +221,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Non-Byte-Aligned Bitmask
 
     @ParseBitmask
-    struct NonByteAligned {
+    struct NonByteAligned: Equatable {
         @mask(bitCount: 3)
         var first: UInt8
 
@@ -255,9 +245,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 10)
             return try NonByteAligned(bits: rawBits)
         }
-        #expect(bitmask.first == 5) // 0b101
-        #expect(bitmask.second == 12) // 0b01100
-        #expect(bitmask.third == 3) // 0b11
+        #expect(bitmask == NonByteAligned(first: 0b101, second: 0b01100, third: 0b11))
     }
 
     @Test("NonByteAligned bitCount is correct")
@@ -268,7 +256,7 @@ extension ParsingTests.BitmaskParsingTest {
     // MARK: - Large Value Bitmask
 
     @ParseBitmask
-    struct LargeValueBitmask {
+    struct LargeValueBitmask: Equatable {
         @mask(bitCount: 32)
         var large: UInt32
     }
@@ -280,7 +268,7 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
             return try LargeValueBitmask(bits: rawBits)
         }
-        #expect(bitmask.large == 0x1234_5678)
+        #expect(bitmask == LargeValueBitmask(large: 0x1234_5678))
     }
 
     @Test("LargeValueBitmask bitCount is correct")
@@ -294,6 +282,10 @@ extension ParsingTests.BitmaskParsingTest {
         static let bitCount = 6
         let value: UInt8
 
+        init(value: UInt8) {
+            self.value = value & 0b0011_1111
+        }
+
         init(bits: borrowing RawBitsSpan) throws {
             value = try bits.load()
         }
@@ -304,7 +296,7 @@ extension ParsingTests.BitmaskParsingTest {
     }
 
     @ParseBitmask
-    struct InsufficientBitsStruct {
+    struct InsufficientBitsStruct: Equatable {
         @mask(bitCount: 5)
         var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
@@ -321,7 +313,7 @@ extension ParsingTests.BitmaskParsingTest {
     }
 
     @ParseBitmask
-    struct SameBitCountBitsStruct {
+    struct SameBitCountBitsStruct: Equatable {
         @mask(bitCount: 6)
         var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
@@ -333,11 +325,11 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 6)
             return try SameBitCountBitsStruct(bits: rawBits)
         }
-        #expect(parsed.field.value == 0b101101)
+        #expect(parsed == SameBitCountBitsStruct(field: Strict6Bit(value: 0b101101)))
     }
 
     @ParseBitmask
-    struct SufficientBitsStruct {
+    struct SufficientBitsStruct: Equatable {
         @mask(bitCount: 7)
         var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
@@ -349,11 +341,11 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 7)
             return try SufficientBitsStruct(bits: rawBits)
         }
-        #expect(parsed.field.value == 0b101101)
+        #expect(parsed == SufficientBitsStruct(field: Strict6Bit(value: 0b101101)))
     }
 
     @ParseBitmask
-    struct ExcessBitsStruct {
+    struct ExcessBitsStruct: Equatable {
         @mask(bitCount: 15)
         var field: ParsingTests.BitmaskParsingTest.Strict6Bit
     }
@@ -365,6 +357,388 @@ extension ParsingTests.BitmaskParsingTest {
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 15)
             return try ExcessBitsStruct(bits: rawBits)
         }
-        #expect(parsed.field.value == 0b111100)
+        #expect(parsed == ExcessBitsStruct(field: Strict6Bit(value: 0b111100)))
+    }
+}
+
+// MARK: - Little Endian (LSB) Bitmask Integration Tests
+
+extension ParsingTests.BitmaskParsingTest {
+    // MARK: - Basic Little Endian Bitmask
+
+    /// Tests that @ParseBitmask(bitEndian: .little) compiles and parses successfully.
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianBasicFlags: Equatable {
+        @mask(bitCount: 1)
+        var flag1: UInt8
+
+        @mask(bitCount: 3)
+        var value: UInt8
+
+        @mask(bitCount: 4)
+        var nibble: UInt8
+    }
+
+    @Test("Little endian basic bitmask parses without error")
+    func littleEndianBasicParsing() throws {
+        let data = Data([0b1010_0011])
+        let flags = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try LittleEndianBasicFlags(bits: rawBits)
+        }
+        // Verify parsing completed and values are within expected ranges
+        #expect(
+            flags == .init(
+                flag1: 0b1,
+                value: 0b001,
+                nibble: 0b1010,
+            ),
+        )
+    }
+
+    @Test("Little endian basic bitmask - all zeros")
+    func littleEndianBasicAllZeros() throws {
+        let data = Data([0x00])
+        let flags = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try LittleEndianBasicFlags(bits: rawBits)
+        }
+        #expect(flags == .init(flag1: 0b0, value: 0b000, nibble: 0b0000))
+    }
+
+    @Test("Little endian basic bitmask - all ones")
+    func littleEndianBasicAllOnes() throws {
+        let data = Data([0xFF])
+        let flags = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try LittleEndianBasicFlags(bits: rawBits)
+        }
+        #expect(flags == .init(flag1: 0b1, value: 0b111, nibble: 0b1111))
+    }
+
+    @Test("LittleEndianBasicFlags bitCount is correct")
+    func littleEndianBasicBitCount() {
+        #expect(LittleEndianBasicFlags.bitCount == 8)
+    }
+
+    // MARK: - Little Endian Multi-Byte
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianWideBitmask: Equatable {
+        @mask(bitCount: 4)
+        var low: UInt8
+
+        @mask(bitCount: 8)
+        var middle: UInt8
+
+        @mask(bitCount: 4)
+        var high: UInt8
+    }
+
+    @Test("Little endian multi-byte bitmask spanning 2 bytes")
+    func littleEndianMultiByte() throws {
+        let data = Data([0b1010_1011, 0b0011_0100])
+        let wide = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try LittleEndianWideBitmask(bits: rawBits)
+        }
+
+        // Verify parsing completed and values are within expected ranges
+        #expect(LittleEndianWideBitmask.bitCount == 16)
+        #expect(
+            wide == .init(
+                low: 0b0100,
+                middle: 0b1011_0011,
+                high: 0b1010,
+            ),
+        )
+    }
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianUnalignedWideBitmask: Equatable {
+        @mask(bitCount: 2)
+        var low: UInt8
+
+        @mask(bitCount: 3)
+        var middle: UInt8
+
+        @mask(bitCount: 5)
+        var high: UInt8
+    }
+
+    @Test("Little endian multi-byte bitmask spanning 2 bytes")
+    func littleEndianUnalignedMultiByte() throws {
+        // Input: 0b10101011 0b00110101 (16 bits, but only 10 used)
+        // Fields: low(2) + middle(3) + high(5) = 10 bits
+        // LSB mode slicing(last:) extracts from END of the 10-bit range:
+        // Actual values: low=1, middle=5, high=25
+        let data = Data([0b1010_1011, 0b0011_0101])
+        let wide = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try LittleEndianUnalignedWideBitmask(bits: rawBits)
+        }
+        #expect(LittleEndianUnalignedWideBitmask.bitCount == 10)
+        #expect(
+            wide == .init(
+                low: 0b01,
+                middle: 0b101,
+                high: 0b11001,
+            ),
+        )
+    }
+
+    // MARK: - Little Endian Single Bit Field
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianSingleBitBitmask: Equatable {
+        @mask(bitCount: 1)
+        var flag: UInt8
+    }
+
+    @Test("Little endian single bit - LSB is 1")
+    func littleEndianSingleBitOne() throws {
+        let data = Data([0b0000_0001])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try LittleEndianSingleBitBitmask(bits: rawBits)
+        }
+        #expect(parsed == .init(flag: 0b1))
+    }
+
+    @Test("Little endian single bit - LSB is 0")
+    func littleEndianSingleBitZero() throws {
+        let data = Data([0b1000_0000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try LittleEndianSingleBitBitmask(bits: rawBits)
+        }
+        #expect(parsed == .init(flag: 0b0))
+    }
+
+    // MARK: - Little Endian 3 Bytes Crossing
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianThreeByteBitmask: Equatable {
+        @mask(bitCount: 5)
+        var first: UInt8
+
+        @mask(bitCount: 10)
+        var second: UInt16
+
+        @mask(bitCount: 9)
+        var third: UInt16
+    }
+
+    @Test("Little endian bitmask spanning 3 bytes")
+    func littleEndianThreeByteCrossing() throws {
+        let data = Data([0b1101_0101, 0b1011_0011, 0b1111_0000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 24)
+            return try LittleEndianThreeByteBitmask(bits: rawBits)
+        }
+        #expect(LittleEndianThreeByteBitmask.bitCount == 24)
+        #expect(
+            parsed == .init(
+                first: 0b10000,
+                second: 0b01_1001_1111,
+                third: 0b1_1010_1011,
+            ),
+        )
+    }
+
+    // MARK: - Little Endian Different Integer Types
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianMixedTypes: Equatable {
+        @mask(bitCount: 4)
+        var small: UInt8
+
+        @mask(bitCount: 12)
+        var medium: UInt16
+
+        @mask(bitCount: 16)
+        var large: UInt16
+    }
+
+    @Test("Little endian bitmask with mixed integer types")
+    func littleEndianMixedTypes() throws {
+        let data = Data([0b1010_1111, 0b1100_1100, 0b0011_0011, 0b1111_0000])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
+            return try LittleEndianMixedTypes(bits: rawBits)
+        }
+        #expect(LittleEndianMixedTypes.bitCount == 32)
+        #expect(
+            parsed == .init(
+                small: 0b0000,
+                medium: 0b0011_0011_1111,
+                large: 0b1010_1111_1100_1100,
+            ),
+        )
+    }
+
+    // MARK: - Little Endian Alternating Pattern
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianAlternatingBitmask: Equatable {
+        @mask(bitCount: 1)
+        var b0: UInt8
+        @mask(bitCount: 1)
+        var b1: UInt8
+        @mask(bitCount: 1)
+        var b2: UInt8
+        @mask(bitCount: 1)
+        var b3: UInt8
+        @mask(bitCount: 1)
+        var b4: UInt8
+        @mask(bitCount: 1)
+        var b5: UInt8
+        @mask(bitCount: 1)
+        var b6: UInt8
+        @mask(bitCount: 1)
+        var b7: UInt8
+    }
+
+    @Test("Little endian single bit fields extract in LSB order")
+    func littleEndianAlternatingPattern() throws {
+        // Input: 0b10101010
+        let data = Data([0b1010_1010])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try LittleEndianAlternatingBitmask(bits: rawBits)
+        }
+        // LSB order: b0=bit0, b1=bit1, ..., b7=bit7
+        #expect(
+            parsed == .init(
+                b0: 0b0,
+                b1: 0b1,
+                b2: 0b0,
+                b3: 0b1,
+                b4: 0b0,
+                b5: 0b1,
+                b6: 0b0,
+                b7: 0b1,
+            ),
+        )
+    }
+
+    // MARK: - Little Endian Non-Power-of-Two Fields
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianNonPowerOfTwoBitmask: Equatable {
+        @mask(bitCount: 3)
+        var three: UInt8
+
+        @mask(bitCount: 5)
+        var five: UInt8
+
+        @mask(bitCount: 7)
+        var seven: UInt8
+
+        @mask(bitCount: 9)
+        var nine: UInt16
+    }
+
+    @Test("Little endian bitmask with non-power-of-two field sizes")
+    func littleEndianNonPowerOfTwo() throws {
+        // Input: 0b11111010 0b10010101 0b10110011
+        // Fields: three(3) + five(5) + seven(7) + nine(9) = 24 bits
+        // LSB mode slicing(last:) extracts from END:
+        // Actual values: three=3, five=22, seven=21, nine=501
+        let data = Data([0b1111_1010, 0b1001_0101, 0b1011_0011])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 24)
+            return try LittleEndianNonPowerOfTwoBitmask(bits: rawBits)
+        }
+        #expect(LittleEndianNonPowerOfTwoBitmask.bitCount == 24)
+        #expect(
+            parsed == .init(
+                three: 0b011,
+                five: 0b10110,
+                seven: 0b0010101,
+                nine: 0b1_1111_0101,
+            ),
+        )
+    }
+
+    // MARK: - Little Endian vs Big Endian Comparison
+
+    @ParseBitmask(bitEndian: .big)
+    struct BigEndianComparisonBitmask: Equatable {
+        @mask(bitCount: 3)
+        var first: UInt8
+
+        @mask(bitCount: 5)
+        var second: UInt8
+    }
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianComparisonBitmask: Equatable {
+        @mask(bitCount: 3)
+        var first: UInt8
+
+        @mask(bitCount: 5)
+        var second: UInt8
+    }
+
+    @Test("Big vs Little endian - same data produces different values")
+    func bigVsLittleEndianComparison() throws {
+        // Input: 0b10110011
+        let data = Data([0b1011_0011])
+
+        let bigParsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try BigEndianComparisonBitmask(bits: rawBits)
+        }
+        // Big endian (MSB first): first=bits[0-2]=0b101, second=bits[3-7]=0b10011
+        #expect(
+            bigParsed == .init(
+                first: 0b101,
+                second: 0b10011,
+            ),
+        )
+
+        let littleParsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            return try LittleEndianComparisonBitmask(bits: rawBits)
+        }
+        // Little endian (LSB first): first=bits[0-2]=0b011, second=bits[3-7]=0b10110
+        #expect(
+            littleParsed == .init(
+                first: 0b011,
+                second: 0b10110,
+            ),
+        )
+    }
+
+    // MARK: - Little Endian with Maximum Values
+
+    @ParseBitmask(bitEndian: .little)
+    struct LittleEndianMaxValuesBitmask: Equatable {
+        @mask(bitCount: 3)
+        var three: UInt8
+
+        @mask(bitCount: 6)
+        var six: UInt8
+
+        @mask(bitCount: 7)
+        var seven: UInt8
+    }
+
+    @Test("Little endian bitmask maximum values")
+    func littleEndianMaxValues() throws {
+        // All ones: 0b11111111 0b11111111
+        let data = Data([0b1111_1111, 0b1111_1111])
+        let parsed = try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 16)
+            return try LittleEndianMaxValuesBitmask(bits: rawBits)
+        }
+        #expect(
+            parsed == .init(
+                three: 0b111,
+                six: 0b111111,
+                seven: 0b1111111,
+            ),
+        )
     }
 }
