@@ -216,7 +216,7 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
@@ -234,7 +234,7 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
@@ -316,7 +316,7 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
@@ -334,7 +334,7 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(

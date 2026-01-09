@@ -113,9 +113,9 @@ public func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
         let adjustedSpan: RawBitsSpan
         switch bitEndian {
         case .big:
-            adjustedSpan = fieldBits.extracting(unchecked: (), first: adjustedBitCount)
+            adjustedSpan = fieldBits.__extracting(unchecked: (), first: adjustedBitCount)
         case .little:
-            adjustedSpan = fieldBits.extracting(unchecked: (), last: adjustedBitCount)
+            adjustedSpan = fieldBits.__extracting(unchecked: (), last: adjustedBitCount)
         default:
             fatalError("Unexpected bit endianness value: \(bitEndian)")
         }

@@ -137,7 +137,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameters:
     ///   - type: The integer type to convert to (optional, can be inferred)
-    ///   - bitCount: The number of bits to extract (optional, defaults to `self.bitCount`)
+    ///   - bitCount: The number of bits to extract (optional, defaults to `T.bitCount`)
     /// - Returns: The extracted bits as a right-aligned integer
     ///
     /// Example:
@@ -169,7 +169,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameters:
     ///   - type: The integer type to convert to (optional, can be inferred)
-    ///   - bitCount: The number of bits to extract (optional, defaults to `self.bitCount`)
+    ///   - bitCount: The number of bits to extract (optional, defaults to `I.bitCount`)
     /// - Returns: The extracted bits as a right-aligned integer
     @inlinable
     public borrowing func loadUnsafe<I: FixedWidthInteger>(as _: I.Type, bitCount: Int? = nil) -> I {
@@ -233,9 +233,9 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to extract from the start of the span
     /// - Returns: A new `RawBitsSpan` containing the first `count` bits
-    @usableFromInline
+    @inlinable
     @_lifetime(borrow self)
-    borrowing func extracting(unchecked _: Void, first count: Int) -> RawBitsSpan {
+    public borrowing func __extracting(unchecked _: Void, first count: Int) -> RawBitsSpan {
         RawBitsSpan(unchecked: (), _bytes, bitOffset: _bitOffset, bitCount: count)
     }
 
@@ -244,9 +244,9 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to extract from the end of the span
     /// - Returns: A new `RawBitsSpan` containing the last `count` bits
-    @usableFromInline
+    @inlinable
     @_lifetime(borrow self)
-    borrowing func extracting(unchecked _: Void, last count: Int) -> RawBitsSpan {
+    public borrowing func __extracting(unchecked _: Void, last count: Int) -> RawBitsSpan {
         let newBitOffset = _bitOffset + (_bitCount - count)
         return RawBitsSpan(unchecked: (), _bytes, bitOffset: newBitOffset, bitCount: count)
     }
@@ -262,7 +262,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     public borrowing func extracting(first count: Int) -> RawBitsSpan {
         precondition(count >= 0, "count must be non-negative")
         precondition(count <= _bitCount, "count must not exceed available bits")
-        return extracting(unchecked: (), first: count)
+        return __extracting(unchecked: (), first: count)
     }
 
     /// Returns a new `RawBitsSpan` containing the last `count` bits from this span.
@@ -276,7 +276,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     public borrowing func extracting(last count: Int) -> RawBitsSpan {
         precondition(count >= 0, "count must be non-negative")
         precondition(count <= _bitCount, "count must not exceed available bits")
-        return extracting(unchecked: (), last: count)
+        return __extracting(unchecked: (), last: count)
     }
 
     // MARK: - Slicing (mutating)
@@ -288,9 +288,9 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to slice from the start of the span
     /// - Returns: A new `RawBitsSpan` containing the sliced (first `count`) bits
-    @usableFromInline
+    @inlinable
     @_lifetime(copy self)
-    mutating func slicing(unchecked _: Void, first count: Int) -> RawBitsSpan {
+    public mutating func __slicing(unchecked _: Void, first count: Int) -> RawBitsSpan {
         let sliced = RawBitsSpan(unchecked: (), _bytes, bitOffset: _bitOffset, bitCount: count)
         _bitOffset += count
         _bitCount -= count
@@ -304,9 +304,9 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     ///
     /// - Parameter count: The number of bits to slice from the end of the span
     /// - Returns: A new `RawBitsSpan` containing the sliced (last `count`) bits
-    @usableFromInline
+    @inlinable
     @_lifetime(copy self)
-    mutating func slicing(unchecked _: Void, last count: Int) -> RawBitsSpan {
+    public mutating func __slicing(unchecked _: Void, last count: Int) -> RawBitsSpan {
         let newBitOffset = _bitOffset + (_bitCount - count)
         let sliced = RawBitsSpan(unchecked: (), _bytes, bitOffset: newBitOffset, bitCount: count)
         _bitCount -= count
@@ -326,7 +326,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     public mutating func slicing(first count: Int) -> RawBitsSpan {
         precondition(count >= 0, "count must be non-negative")
         precondition(count <= _bitCount, "count must not exceed available bits")
-        return slicing(unchecked: (), first: count)
+        return __slicing(unchecked: (), first: count)
     }
 
     /// Removes and returns the last `count` bits from this span.
@@ -342,6 +342,6 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     public mutating func slicing(last count: Int) -> RawBitsSpan {
         precondition(count >= 0, "count must be non-negative")
         precondition(count <= _bitCount, "count must not exceed available bits")
-        return slicing(unchecked: (), last: count)
+        return __slicing(unchecked: (), last: count)
     }
 }
