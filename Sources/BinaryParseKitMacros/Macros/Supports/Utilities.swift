@@ -153,11 +153,15 @@ func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListS
 /// Generates code to parse a group of consecutive @mask fields for structs
 func generateMaskGroupBlock(
     maskActions: [ParseActionGroup.MaskGroupAction],
+    bitEndian: String,
     context: some MacroExpansionContext,
 ) throws -> CodeBlockItemListSyntax {
     guard !maskActions.isEmpty else {
         return CodeBlockItemListSyntax {}
     }
+
+    let isBigEndian = bitEndian == "big"
+    let slicingMethod = isBigEndian ? "first" : "last"
 
     // Calculate total bits needed
     // For each field, we use either the explicit bitCount or the type's bitCount
@@ -206,13 +210,14 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
                     (\(fieldType)).self,
                     fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
             case .inferred:
@@ -223,13 +228,14 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
                     (\(fieldType)).self,
                     fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
             }
@@ -241,11 +247,15 @@ func generateMaskGroupBlock(
 func generateEnumMaskGroupBlock(
     maskActions: [ParseActionGroup.MaskGroupAction],
     caseElementName: TokenSyntax,
+    bitEndian: String,
     context: some MacroExpansionContext,
 ) throws -> CodeBlockItemListSyntax {
     guard !maskActions.isEmpty else {
         return CodeBlockItemListSyntax {}
     }
+
+    let isBigEndian = bitEndian == "big"
+    let slicingMethod = isBigEndian ? "first" : "last"
 
     // Calculate total bits needed
     let bitsVarName = context.makeUniqueName("__bitmask_totalBits")
@@ -294,13 +304,14 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
                     (\(fieldType)).self,
                     fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
             case .inferred:
@@ -311,13 +322,14 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                let \(subSpan) = \(spanVarName).slicing(unchecked: (), first: \(countExpr))
+                let \(subSpan) = \(spanVarName).slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
                 """
                 """
                 let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
                     (\(fieldType)).self,
                     fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
             }

@@ -824,6 +824,7 @@ extension BinaryParseKitMacroTests {
                             (Bool).self,
                             fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: 1,
+                            bitEndian: .big,
                         )
                         // Parse `value` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -832,6 +833,7 @@ extension BinaryParseKitMacroTests {
                             (UInt8).self,
                             fieldBits: __macro_local_9__subSpanfMu0_,
                             fieldRequestedBitCount: 3,
+                            bitEndian: .big,
                         )
                         // Parse `flag2` of type Bool from bits
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
@@ -840,6 +842,7 @@ extension BinaryParseKitMacroTests {
                             (Bool).self,
                             fieldBits: __macro_local_9__subSpanfMu1_,
                             fieldRequestedBitCount: (Bool).bitCount,
+                            bitEndian: .big,
                         )
                     }
                 }
@@ -903,6 +906,7 @@ extension BinaryParseKitMacroTests {
                             (Bool).self,
                             fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: 1,
+                            bitEndian: .big,
                         )
                         // Parse `data` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -911,6 +915,7 @@ extension BinaryParseKitMacroTests {
                             (UInt8).self,
                             fieldBits: __macro_local_9__subSpanfMu0_,
                             fieldRequestedBitCount: 7,
+                            bitEndian: .big,
                         )
                         // Parse `footer` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
@@ -993,6 +998,7 @@ extension BinaryParseKitMacroTests {
                             (Bool).self,
                             fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: 1,
+                            bitEndian: .big,
                         )
                         // Parse `topData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -1001,6 +1007,7 @@ extension BinaryParseKitMacroTests {
                             (UInt8).self,
                             fieldBits: __macro_local_9__subSpanfMu0_,
                             fieldRequestedBitCount: 4,
+                            bitEndian: .big,
                         )
                         // Parse `divider` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
@@ -1016,6 +1023,7 @@ extension BinaryParseKitMacroTests {
                             (Bool).self,
                             fieldBits: __macro_local_9__subSpanfMu1_,
                             fieldRequestedBitCount: 1,
+                            bitEndian: .big,
                         )
                         // Parse `bottomData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -1024,6 +1032,7 @@ extension BinaryParseKitMacroTests {
                             (UInt8).self,
                             fieldBits: __macro_local_9__subSpanfMu2_,
                             fieldRequestedBitCount: 4,
+                            bitEndian: .big,
                         )
                         // Parse `bottomAdditionalData` of type UInt8 from bits
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -1032,6 +1041,7 @@ extension BinaryParseKitMacroTests {
                             (UInt8).self,
                             fieldBits: __macro_local_9__subSpanfMu3_,
                             fieldRequestedBitCount: 2,
+                            bitEndian: .big,
                         )
                         // Parse `footer` of type UInt16
                         BinaryParseKit.__assertParsable((UInt16).self)
@@ -1212,6 +1222,7 @@ extension BinaryParseKitMacroTests {
                             (Flag).self,
                             fieldBits: __macro_local_9__subSpanfMu_,
                             fieldRequestedBitCount: (Flag).bitCount,
+                            bitEndian: .big,
                         )
                         // Parse `b` of type Flag
                         BinaryParseKit.__assertParsable((Flag).self)

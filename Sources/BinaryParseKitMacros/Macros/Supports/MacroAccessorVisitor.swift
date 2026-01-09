@@ -14,6 +14,7 @@ enum MacroAccessorError: DiagnosticMessage, Error {
     case invalidAccessor(String)
     case moreThanOneModifier(modifiers: String)
     case unknownAccessor
+    case invalidBitEndian(String)
 
     var message: String {
         switch self {
@@ -23,6 +24,8 @@ enum MacroAccessorError: DiagnosticMessage, Error {
             "More than one modifier found: \(modifiers). Only one modifier is allowed."
         case .unknownAccessor:
             "You have used unknown accessor in `@ParseStruct` or `@ParseEnum`."
+        case let .invalidBitEndian(value):
+            #"Invalid bitEndian value: \#(value); Please use .big or .little."#
         }
     }
 
@@ -35,7 +38,7 @@ enum MacroAccessorError: DiagnosticMessage, Error {
 
     var severity: SwiftDiagnostics.DiagnosticSeverity {
         switch self {
-        case .invalidAccessor, .moreThanOneModifier, .unknownAccessor: .error
+        case .invalidAccessor, .moreThanOneModifier, .unknownAccessor, .invalidBitEndian: .error
         }
     }
 }
@@ -45,6 +48,8 @@ class MacroAccessorVisitor: SyntaxVisitor {
 
     private(set) var printingAccessor: ExtensionAccessor = MacroAccessorVisitor.defaultAccessor
     private(set) var parsingAccessor: ExtensionAccessor = MacroAccessorVisitor.defaultAccessor
+    /// The bit endian value: "big" or "little". Defaults to "big".
+    private(set) var bitEndian: String = "big"
 
     private let context: any MacroExpansionContext
 
@@ -60,10 +65,36 @@ class MacroAccessorVisitor: SyntaxVisitor {
             setACL(to: \.printingAccessor, with: node)
         case "parsingAccessor":
             setACL(to: \.parsingAccessor, with: node)
+        case "bitEndian":
+            setBitEndian(with: node)
         default:
             break
         }
         return .skipChildren
+    }
+
+    private func setBitEndian(with node: LabeledExprSyntax) {
+        let expression = node.expression
+        if let memberAccessSyntax = expression.as(MemberAccessExprSyntax.self) {
+            let value = memberAccessSyntax.declName.baseName.text
+            if value == "big" || value == "little" {
+                bitEndian = value
+            } else {
+                context.diagnose(
+                    .init(
+                        node: node,
+                        message: MacroAccessorError.invalidBitEndian(value),
+                    ),
+                )
+            }
+        } else {
+            context.diagnose(
+                .init(
+                    node: node,
+                    message: MacroAccessorError.invalidBitEndian(expression.description),
+                ),
+            )
+        }
     }
 
     private func setACL(
@@ -101,6 +132,11 @@ class MacroAccessorVisitor: SyntaxVisitor {
 struct AccessorInfo {
     let parsingAccessor: DeclModifierSyntax
     let printingAccessor: DeclModifierSyntax
+    /// The bit endian value: "big" or "little".
+    let bitEndian: String
+
+    /// Whether bit parsing should use big endian (MSB-first).
+    var isBigEndian: Bool { bitEndian == "big" }
 }
 
 private let allAccessModifiers: Set<TokenKind> = [
@@ -145,5 +181,6 @@ func extractAccessor(
         printingAccessor: .init(
             name: TokenSyntax(printingAccessor, presence: .present),
         ),
+        bitEndian: accessorVisitor.bitEndian,
     )
 }

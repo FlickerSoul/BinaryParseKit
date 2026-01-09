@@ -117,6 +117,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                 try generateEnumMaskGroupBlock(
                                     maskActions: maskActions,
                                     caseElementName: caseParseInfo.caseElementName,
+                                    bitEndian: accessorInfo.bitEndian,
                                     context: context,
                                 )
                             }

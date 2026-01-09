@@ -91,14 +91,17 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                         }
 
                         // Extract field bits from the span
+                        // Use first/last slicing based on bit endianness
+                        let slicingMethod = accessorInfo.isBigEndian ? "first" : "last"
                         """
                         do {
                             let \(bitCount) = \(bitCountExpr)
-                            let \(subSpan) = \(bitsSpan).slicing(unchecked: (), first: \(bitCount))
+                            let \(subSpan) = \(bitsSpan).slicing(unchecked: (), \(raw: slicingMethod): \(bitCount))
                             self.\(fieldName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
                                 (\(fieldType)).self,
                                 fieldBits: \(subSpan),
                                 fieldRequestedBitCount: \(bitCount),
+                                bitEndian: .\(raw: accessorInfo.bitEndian),
                             )
                         }
                         """

@@ -52,7 +52,11 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                         case let .skip(skipInfo):
                             generateSkipBlock(variableName: skipInfo.variableName, skipInfo: skipInfo.skipInfo)
                         case let .maskGroup(maskFields):
-                            try generateMaskGroupBlock(maskActions: maskFields, context: context)
+                            try generateMaskGroupBlock(
+                                maskActions: maskFields,
+                                bitEndian: accessorInfo.bitEndian,
+                                context: context,
+                            )
                         }
                     }
                 }

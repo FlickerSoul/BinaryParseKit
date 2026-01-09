@@ -1163,6 +1163,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: 1,
+                                bitEndian: .big,
                             )
                             // Parse `__macro_local_15__mask_1th_arg_fMu_` of type UInt8 from bits
                             BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -1171,6 +1172,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu0_,
                                 fieldRequestedBitCount: 7,
+                                bitEndian: .big,
                             )
                             // construct `flags` with above associated values
                             self = .flags(__macro_local_15__mask_0th_arg_fMu_, __macro_local_15__mask_1th_arg_fMu_)
@@ -1191,6 +1193,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu1_,
                                 fieldRequestedBitCount: 4,
+                                bitEndian: .big,
                             )
                             // Parse `firstFlag` of type Bool from bits
                             BinaryParseKit.__assertBitmaskParsable((Bool).self)
@@ -1199,6 +1202,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu2_,
                                 fieldRequestedBitCount: (Bool).bitCount,
+                                bitEndian: .big,
                             )
                             // Parse `secondFlag` of type Bool from bits
                             BinaryParseKit.__assertBitmaskParsable((Bool).self)
@@ -1207,6 +1211,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu3_,
                                 fieldRequestedBitCount: (Bool).bitCount,
+                                bitEndian: .big,
                             )
                             // construct `mixed` with above associated values
                             self = .mixed(__macro_local_16__parse_0th_arg_fMu_, value: value, firstFlag: firstFlag, secondFlag: secondFlag)
@@ -1284,6 +1289,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: 1,
+                                bitEndian: .big,
                             )
                             // Parse `__macro_local_15__mask_1th_arg_fMu_` of type UInt8 from bits
                             BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
@@ -1292,6 +1298,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu0_,
                                 fieldRequestedBitCount: 2,
+                                bitEndian: .big,
                             )
                             // Parse `__macro_local_16__parse_2th_arg_fMu_` of type UInt8
                             BinaryParseKit.__assertParsable((UInt8).self)
@@ -1307,6 +1314,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu1_,
                                 fieldRequestedBitCount: 7,
+                                bitEndian: .big,
                             )
                             // Skip 2 because of "skip", before parsing `flags`
                             try span.seek(toRelativeOffset: 2)
@@ -1321,6 +1329,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu2_,
                                 fieldRequestedBitCount: 4,
+                                bitEndian: .big,
                             )
                             // construct `flags` with above associated values
                             self = .flags(__macro_local_15__mask_0th_arg_fMu_, __macro_local_15__mask_1th_arg_fMu_, __macro_local_16__parse_2th_arg_fMu_, __macro_local_15__mask_3th_arg_fMu_, __macro_local_15__mask_4th_arg_fMu_)
@@ -1518,6 +1527,7 @@ extension BinaryParseKitMacroTests {
                                 (Flag).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: (Flag).bitCount,
+                                bitEndian: .big,
                             )
                             // construct `a` with above associated values
                             self = .a(__macro_local_15__mask_0th_arg_fMu_)
@@ -1540,6 +1550,7 @@ extension BinaryParseKitMacroTests {
                                 (Flag).self,
                                 fieldBits: __macro_local_9__subSpanfMu0_,
                                 fieldRequestedBitCount: (Flag).bitCount,
+                                bitEndian: .big,
                             )
                             // construct `b` with above associated values
                             self = .b(__macro_local_16__parse_0th_arg_fMu_, __macro_local_15__mask_1th_arg_fMu_)

@@ -50,6 +50,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                         // Parse `value` of type `UInt8` with specified bit count 3
@@ -61,6 +62,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu0_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu0_,
+                                bitEndian: .big,
                             )
                         }
                         // Parse `flag2` of type `Bool` with inferred bit count
@@ -72,6 +74,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu1_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu1_,
+                                bitEndian: .big,
                             )
                         }
                     }
@@ -203,6 +206,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                     }
@@ -266,6 +270,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                     }
@@ -331,6 +336,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                     }
@@ -389,6 +395,7 @@ extension BinaryParseKitMacroTests {
                                 (UInt8).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                     }
@@ -448,6 +455,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                         // Parse `flag2` of type `Bool` with inferred bit count
@@ -459,6 +467,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu0_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu0_,
+                                bitEndian: .big,
                             )
                         }
                     }
@@ -518,6 +527,7 @@ extension BinaryParseKitMacroTests {
                                 (Bool).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                     }
@@ -722,6 +732,7 @@ extension BinaryParseKitMacroTests {
                                 (Flag).self,
                                 fieldBits: __macro_local_9__subSpanfMu_,
                                 fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
                         }
                     }
