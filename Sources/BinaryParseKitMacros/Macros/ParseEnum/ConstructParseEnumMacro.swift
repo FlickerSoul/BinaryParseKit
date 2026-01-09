@@ -23,7 +23,7 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
             throw ParseEnumMacroError.onlyEnumsAreSupported
         }
 
-        let accessorInfo = try extractAccessor(
+        let configuration = try extractMacroConfiguration(
             from: attributeNode,
             attachedTo: enumDeclaration,
             in: context,
@@ -38,14 +38,14 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
         let parsingExtension = try buildParsingExtension(
             type: type,
             parseInfo: parseInfo,
-            accessorInfo: accessorInfo,
+            accessorInfo: configuration,
             context: context,
         )
 
         let printerExtension = try buildPrinterExtension(
             type: type,
             parseInfo: parseInfo,
-            accessorInfo: accessorInfo,
+            accessorInfo: configuration,
             context: context,
         )
 

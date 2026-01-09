@@ -148,7 +148,7 @@ private let allAccessModifiers: Set<TokenKind> = [
 ]
 private let defaultAccessModifier: TokenKind = .keyword(.internal)
 
-func extractAccessor(
+func extractMacroConfiguration(
     from attributeNode: AttributeSyntax,
     attachedTo declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext,

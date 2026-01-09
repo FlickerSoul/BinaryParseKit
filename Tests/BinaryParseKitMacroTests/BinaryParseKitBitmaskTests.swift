@@ -850,5 +850,133 @@ extension BinaryParseKitMacroTests {
                 """
             }
         }
+
+        @Test
+        func `explicit big endian bit parsing`() {
+            assertMacro {
+                """
+                @ParseBitmask(bitEndian: .big)
+                struct LittleEndianFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            } expansion: {
+                """
+                struct LittleEndianFlags {
+                    var flag1: Bool
+                    var value: UInt8
+                    var flag2: Bool
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
+                    internal static var bitCount: Int {
+                        1 + 3 + (Bool).bitCount
+                    }
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
+                        // Parse `flag1` of type `Bool` with specified bit count 1
+                        BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                        do {
+                            let __macro_local_10__bitCountfMu_ = 1
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.flag1 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
+                            )
+                        }
+                        // Parse `value` of type `UInt8` with specified bit count 3
+                        BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                        do {
+                            let __macro_local_10__bitCountfMu0_ = 3
+                            let __macro_local_9__subSpanfMu0_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu0_)
+                            self.value = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu0_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu0_,
+                                bitEndian: .big,
+                            )
+                        }
+                        // Parse `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertBitmaskParsable((Bool).self)
+                        do {
+                            let __macro_local_10__bitCountfMu1_ = (Bool).bitCount
+                            let __macro_local_9__subSpanfMu1_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu1_)
+                            self.flag2 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu1_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu1_,
+                                bitEndian: .big,
+                            )
+                        }
+                    }
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        // Convert `flag1` of type `Bool` with specified bit count 1
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag1, bitCount: 1))
+                        // Convert `value` of type `UInt8` with specified bit count 3
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 3))
+                        // Convert `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertRawBitsConvertible((Bool).self)
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag2, bitCount: (Bool).bitCount))
+                        return result
+                    }
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
+                    }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `non .big/.little as bitEndian should fail`() {
+            assertMacro {
+                """
+                @ParseBitmask(bitEndian: someVariable)
+                struct LittleEndianFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseBitmask(bitEndian: someVariable)
+                              ┬──────────────────────
+                              ╰─ 🛑 Invalid bitEndian value: someVariable; Please use .big or .little.
+                struct LittleEndianFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            }
+        }
     }
 }

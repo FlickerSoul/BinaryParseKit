@@ -1663,6 +1663,105 @@ extension BinaryParseKitMacroTests {
                 """#
             }
         }
+
+        @Test
+        func `explicit big endian enum with mask associated values`() {
+            assertMacro {
+                """
+                @ParseEnum(bitEndian: .big)
+                enum LittleEndianTestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: 1)
+                    @mask(bitCount: 7)
+                    case flags(Bool, UInt8)
+                }
+                """
+            } expansion: {
+                #"""
+                enum LittleEndianTestEnum {
+                    case flags(Bool, UInt8)
+                }
+
+                extension LittleEndianTestEnum: BinaryParseKit.Parsable {
+                    internal init(parsing span: inout BinaryParsing.ParserSpan) throws(BinaryParsing.ThrownParsingError) {
+                        if BinaryParseKit.__match([0x01], in: span) {
+                            // Parse bitmask fields for `flags`
+                            let __macro_local_19__bitmask_totalBitsfMu_ = 1 + 7
+                            let __macro_local_19__bitmask_byteCountfMu_ = (__macro_local_19__bitmask_totalBitsfMu_ + 7) / 8
+                            var __macro_local_14__bitmask_spanfMu_ = try RawBitsSpan(span.sliceSpan(byteCount: __macro_local_19__bitmask_byteCountfMu_).bytes, bitOffset: 0, bitCount: __macro_local_19__bitmask_totalBitsfMu_)
+                            // Parse `__macro_local_15__mask_0th_arg_fMu_` of type Bool from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                            let __macro_local_9__subSpanfMu_ = __macro_local_14__bitmask_spanfMu_.__slicing(unchecked: (), first: 1)
+                            let __macro_local_15__mask_0th_arg_fMu_ = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: 1,
+                                bitEndian: .big,
+                            )
+                            // Parse `__macro_local_15__mask_1th_arg_fMu_` of type UInt8 from bits
+                            BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                            let __macro_local_9__subSpanfMu0_ = __macro_local_14__bitmask_spanfMu_.__slicing(unchecked: (), first: 7)
+                            let __macro_local_15__mask_1th_arg_fMu_ = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu0_,
+                                fieldRequestedBitCount: 7,
+                                bitEndian: .big,
+                            )
+                            // construct `flags` with above associated values
+                            self = .flags(__macro_local_15__mask_0th_arg_fMu_, __macro_local_15__mask_1th_arg_fMu_)
+                            return
+                        }
+                        throw BinaryParseKit.BinaryParserKitError.failedToParse("Failed to find a match for LittleEndianTestEnum, at \(span.startPosition)")
+                    }
+                }
+
+                extension LittleEndianTestEnum: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        switch self {
+                        case let .flags(__macro_local_15__mask_0th_arg_fMu0_, __macro_local_15__mask_1th_arg_fMu0_):
+                            let __macro_local_22__bytesTakenInMatchingfMu_: [UInt8] = [0x01]
+                            // bits from __macro_local_15__mask_0th_arg_fMu0_, __macro_local_15__mask_1th_arg_fMu0_
+                            let __macro_local_10__maskBitsfMu_ = try BinaryParseKit.__toRawBits(__macro_local_15__mask_0th_arg_fMu0_, bitCount: 1).appending(BinaryParseKit.__toRawBits(__macro_local_15__mask_1th_arg_fMu0_, bitCount: 7))
+                            return .enum(
+                                .init(
+                                    bytes: __macro_local_22__bytesTakenInMatchingfMu_,
+                                    parseType: .match,
+                                    fields: [.init(byteCount: nil, endianness: nil, intel: .bitmask(.init(bits: __macro_local_10__maskBitsfMu_)))],
+                                )
+                            )
+                        }
+                    }
+                }
+                """#
+            }
+        }
+
+        @Test
+        func `non .big/.little as bitEndian should fail`() {
+            assertMacro {
+                """
+                @ParseEnum(bitEndian: Value.someVariable)
+                enum LittleEndianTestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: 1)
+                    @mask(bitCount: 7)
+                    case flags(Bool, UInt8)
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseEnum(bitEndian: Value.someVariable)
+                           ┬────────────────────────────
+                           ╰─ 🛑 Invalid bitEndian value: someVariable; Please use .big or .little.
+                enum LittleEndianTestEnum {
+                    @match(byte: 0x01)
+                    @mask(bitCount: 1)
+                    @mask(bitCount: 7)
+                    case flags(Bool, UInt8)
+                }
+                """
+            }
+        }
     }
 }
 

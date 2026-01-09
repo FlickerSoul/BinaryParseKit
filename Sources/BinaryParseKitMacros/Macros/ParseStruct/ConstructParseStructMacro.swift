@@ -21,7 +21,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
             throw ParseStructMacroError.onlyStructsAreSupported
         }
 
-        let accessorInfo = try extractAccessor(
+        let configuration = try extractMacroConfiguration(
             from: attributeNode,
             attachedTo: structDeclaration,
             in: context,
@@ -38,7 +38,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
         let extensionSyntax =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.parsableProtocol)") {
                 try InitializerDeclSyntax(
-                    "\(accessorInfo.parsingAccessor) init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
+                    "\(configuration.parsingAccessor) init(parsing span: inout \(raw: Constants.BinaryParsing.parserSpan)) throws(\(raw: Constants.BinaryParsing.thrownParsingError))",
                 ) {
                     for actionGroup in actionGroups {
                         switch actionGroup {
@@ -54,7 +54,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
                         case let .maskGroup(maskFields):
                             try generateMaskGroupBlock(
                                 maskActions: maskFields,
-                                bitEndian: accessorInfo.bitEndian,
+                                bitEndian: configuration.bitEndian,
                                 context: context,
                             )
                         }
@@ -64,7 +64,7 @@ public struct ConstructStructParseMacro: ExtensionMacro {
 
         let printerExtension =
             try ExtensionDeclSyntax("extension \(type): \(raw: Constants.Protocols.printableProtocol)") {
-                try FunctionDeclSyntax("\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel") {
+                try FunctionDeclSyntax("\(configuration.printingAccessor) func printerIntel() throws -> PrinterIntel") {
                     var printingInfo: [PrintableFieldInfo] = []
                     for parseAction in actionGroups {
                         switch parseAction {

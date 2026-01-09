@@ -24,7 +24,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
 
         let type = type.trimmed
 
-        let accessorInfo = try extractAccessor(
+        let configuration = try extractMacroConfiguration(
             from: node,
             attachedTo: declaration,
             in: context,
@@ -53,13 +53,13 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                 "extension \(type): \(raw: Constants.Protocols.expressibleByRawBitsProtocol), \(raw: Constants.Protocols.bitCountProvidingProtocol)",
             ) {
                 // Static bitCount property
-                try VariableDeclSyntax("\(accessorInfo.printingAccessor) static var bitCount: Int") {
+                try VariableDeclSyntax("\(configuration.printingAccessor) static var bitCount: Int") {
                     totalBitCountExpr
                 }
 
                 // init(bits:) initializer
                 try InitializerDeclSyntax(
-                    "\(accessorInfo.parsingAccessor) init(bits: borrowing BinaryParseKit.RawBitsSpan) throws",
+                    "\(configuration.parsingAccessor) init(bits: borrowing BinaryParseKit.RawBitsSpan) throws",
                 ) {
                     let bitsSpan = context.makeUniqueName("__bitsSpan")
                     "var \(bitsSpan) = RawBitsSpan(copying: bits)"
@@ -92,7 +92,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
 
                         // Extract field bits from the span
                         // Use first/last slicing based on bit endianness
-                        let slicingMethod = accessorInfo.isBigEndian ? "first" : "last"
+                        let slicingMethod = configuration.isBigEndian ? "first" : "last"
                         """
                         do {
                             let \(bitCount) = \(bitCountExpr)
@@ -101,7 +101,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                                 (\(fieldType)).self,
                                 fieldBits: \(subSpan),
                                 fieldRequestedBitCount: \(bitCount),
-                                bitEndian: .\(raw: accessorInfo.bitEndian),
+                                bitEndian: .\(raw: configuration.bitEndian),
                             )
                         }
                         """
@@ -115,7 +115,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
             ) {
                 // toRawBits(bitCount:) method
                 try FunctionDeclSyntax(
-                    "\(accessorInfo.printingAccessor) func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits",
+                    "\(configuration.printingAccessor) func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits",
                 ) {
                     "var result = BinaryParseKit.RawBits()"
 
@@ -147,7 +147,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
             ) {
                 // printerIntel() method
                 try FunctionDeclSyntax(
-                    "\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel",
+                    "\(configuration.printingAccessor) func printerIntel() throws -> PrinterIntel",
                 ) {
                     "let bits = try self.toRawBits(bitCount: Self.bitCount)"
                     "return .bitmask(.init(bits: bits))"
