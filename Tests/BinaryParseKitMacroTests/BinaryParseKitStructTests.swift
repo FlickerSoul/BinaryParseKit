@@ -1399,7 +1399,7 @@ extension BinaryParseKitMacroTests {
         func `non .big/.little as bitEndian should fail`() {
             assertMacro {
                 """
-                @ParseStruct(bitEndian: someValue)
+                @ParseStruct(bitEndian: Something.big)
                 struct LittleEndianBitFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool
@@ -1413,9 +1413,9 @@ extension BinaryParseKitMacroTests {
                 """
             } diagnostics: {
                 """
-                @ParseStruct(bitEndian: someValue)
-                             ┬───────────────────
-                             ╰─ 🛑 Invalid bitEndian value: someValue; Please use .big or .little.
+                @ParseStruct(bitEndian: Something.big)
+                             ┬───────────────────────
+                             ╰─ 🛑 Invalid bitEndian value: Something.big; Please use .big or .little.
                 struct LittleEndianBitFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool

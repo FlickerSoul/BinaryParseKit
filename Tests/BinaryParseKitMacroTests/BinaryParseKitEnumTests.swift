@@ -1752,7 +1752,7 @@ extension BinaryParseKitMacroTests {
                 """
                 @ParseEnum(bitEndian: Value.someVariable)
                            ┬────────────────────────────
-                           ╰─ 🛑 Invalid bitEndian value: someVariable; Please use .big or .little.
+                           ╰─ 🛑 Invalid bitEndian value: Value.someVariable; Please use .big or .little.
                 enum LittleEndianTestEnum {
                     @match(byte: 0x01)
                     @mask(bitCount: 1)
