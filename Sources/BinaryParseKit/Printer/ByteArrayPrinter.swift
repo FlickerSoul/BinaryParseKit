@@ -17,9 +17,9 @@ public struct ByteArrayPrinter: Printer {
     // FIXME: too many allocations
     func printInternal(_ intel: PrinterIntel, byteCount: Int?, endianness: Endianness?) -> [UInt8] {
         switch intel {
-        case let .struct(structPrintIntel):
+        case let .struct(structPrinterIntel):
             var results: [UInt8] = []
-            for field in structPrintIntel.fields {
+            for field in structPrinterIntel.fields {
                 let fieldBytes = printInternal(field.intel, byteCount: field.byteCount, endianness: field.endianness)
                 results.append(contentsOf: fieldBytes)
             }

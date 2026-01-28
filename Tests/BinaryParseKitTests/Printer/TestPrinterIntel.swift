@@ -490,7 +490,7 @@ extension PrinterTests.PrinterIntelTest {
 // MARK: - Test Convenience Extensions
 
 extension PrinterIntel {
-    var structIntel: StructPrintIntel? {
+    var structIntel: StructPrinterIntel? {
         if case let .struct(intel) = self {
             return intel
         }

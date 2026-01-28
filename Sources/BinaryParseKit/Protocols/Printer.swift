@@ -16,7 +16,7 @@ public protocol Printer {
 }
 
 public extension Printer {
-    func print(_ intel: PrinterIntel.StructPrintIntel) throws -> PrinterOutput {
+    func print(_ intel: PrinterIntel.StructPrinterIntel) throws -> PrinterOutput {
         try print(.struct(intel))
     }
 
