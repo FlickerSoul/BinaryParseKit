@@ -74,7 +74,7 @@ extension Constants {
 
 extension Constants {
     enum PrinterIntel {
-        static let structPrintIntel = PackageMember(name: "StructPrintIntel")
+        static let structPrinterIntel = PackageMember(name: "StructPrinterIntel")
         static let enumCasePrinterIntel = PackageMember(name: "EnumCasePrinterIntel")
     }
 }

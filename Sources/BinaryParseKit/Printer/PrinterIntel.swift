@@ -8,7 +8,7 @@ import BinaryParsing
 
 /// An enumeration representing different types of printing instructions for binary data.
 public enum PrinterIntel: Equatable {
-    case `struct`(StructPrintIntel)
+    case `struct`(StructPrinterIntel)
     case `enum`(EnumCasePrinterIntel)
     case builtIn(BuiltInPrinterIntel)
     case skip(SkipPrinterIntel)
@@ -82,7 +82,7 @@ public extension PrinterIntel {
 
 public extension PrinterIntel {
     /// An instruction representing a struct with multiple fields
-    struct StructPrintIntel: Equatable {
+    struct StructPrinterIntel: Equatable {
         /// The fields of the struct
         /// Each representing a field in the struct
         public let fields: [FieldPrinterIntel]
@@ -91,6 +91,9 @@ public extension PrinterIntel {
             self.fields = fields
         }
     }
+
+    @available(*, deprecated, renamed: "StructPrinterIntel", message: "Please use StructPrinterIntel instead")
+    typealias StructPrintIntel = StructPrinterIntel
 }
 
 public extension PrinterIntel {

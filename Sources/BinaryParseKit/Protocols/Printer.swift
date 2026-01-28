@@ -11,12 +11,12 @@ public protocol Printer {
     associatedtype PrinterOutput
 
     /// Prints the provided ``PrinterIntel``
-    /// - Returns: An instance of ``PrinterOutput`` representing the printed result.
+    /// - Returns: An instance of ``Printer/PrinterOutput`` representing the printed result.
     func print(_ intel: PrinterIntel) throws -> PrinterOutput
 }
 
 public extension Printer {
-    func print(_ intel: PrinterIntel.StructPrintIntel) throws -> PrinterOutput {
+    func print(_ intel: PrinterIntel.StructPrinterIntel) throws -> PrinterOutput {
         try print(.struct(intel))
     }
 

@@ -1,0 +1,47 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "swift",
+            "args": [
+                "build",
+                "--build-tests",
+                "--enable-experimental-prebuilts"
+            ],
+            "env": {},
+            "cwd": "${workspaceFolder:BinaryParseKit}",
+            "disableTaskQueue": true,
+            "group": "build",
+            "problemMatcher": [],
+            "label": "swift: Build All with Prebuilts",
+            "detail": "swift build --build-tests --enable-experimental-prebuilts"
+        },
+        {
+            "type": "swift",
+            "args": [
+                "build",
+                "--build-tests",
+            ],
+            "env": {},
+            "cwd": "${workspaceFolder:BinaryParseKit}",
+            "disableTaskQueue": true,
+            "group": "build",
+            "problemMatcher": [],
+            "label": "swift: Build All",
+            "detail": "swift build --build-tests"
+        },
+        {
+            "type": "swift",
+            "args": [
+                "build",
+            ],
+            "env": {},
+            "cwd": "${workspaceFolder:BinaryParseKit}",
+            "disableTaskQueue": true,
+            "group": "build",
+            "problemMatcher": [],
+            "label": "swift: Build",
+            "detail": "swift build"
+        },
+    ]
+}

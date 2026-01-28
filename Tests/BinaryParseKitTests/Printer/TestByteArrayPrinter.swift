@@ -12,7 +12,7 @@ import Testing
 
 typealias BuiltInPrinterIntel = PrinterIntel.BuiltInPrinterIntel
 typealias FieldPrinterIntel = PrinterIntel.FieldPrinterIntel
-typealias StructPrintIntel = PrinterIntel.StructPrintIntel
+typealias StructPrinterIntel = PrinterIntel.StructPrinterIntel
 typealias EnumCasePrinterIntel = PrinterIntel.EnumCasePrinterIntel
 typealias SkipPrinterIntel = PrinterIntel.SkipPrinterIntel
 
@@ -34,7 +34,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03, 0x04], fixedEndianness: false),
         )
         let fieldIntel = FieldPrinterIntel(byteCount: nil, endianness: .big, intel: intel)
-        let structIntel = StructPrintIntel(fields: [fieldIntel])
+        let structIntel = StructPrinterIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
         #expect(result == [0x01, 0x02, 0x03, 0x04])
@@ -46,7 +46,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03, 0x04], fixedEndianness: false),
         )
         let fieldIntel = FieldPrinterIntel(byteCount: nil, endianness: .little, intel: intel)
-        let structIntel = StructPrintIntel(fields: [fieldIntel])
+        let structIntel = StructPrinterIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
         #expect(result == [0x04, 0x03, 0x02, 0x01])
@@ -58,7 +58,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03, 0x04], fixedEndianness: true),
         )
         let fieldIntel = FieldPrinterIntel(byteCount: nil, endianness: .little, intel: intel)
-        let structIntel = StructPrintIntel(fields: [fieldIntel])
+        let structIntel = StructPrinterIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
         #expect(result == [0x01, 0x02, 0x03, 0x04])
@@ -84,7 +84,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             intel: .builtIn(BuiltInPrinterIntel(bytes: [0x05, 0x06])),
         )
 
-        let structIntel = StructPrintIntel(fields: [field1, field2, field3])
+        let structIntel = StructPrinterIntel(fields: [field1, field2, field3])
         let result = try printer.print(.struct(structIntel))
 
         #expect(result == [0x01, 0x02, 0x04, 0x03, 0x05, 0x06])
@@ -97,7 +97,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             endianness: .big,
             intel: .builtIn(BuiltInPrinterIntel(bytes: [0xAA, 0xBB])),
         )
-        let innerStruct = PrinterIntel.struct(StructPrintIntel(fields: [innerField]))
+        let innerStruct = PrinterIntel.struct(StructPrinterIntel(fields: [innerField]))
 
         let outerField1 = FieldPrinterIntel(
             byteCount: nil,
@@ -106,7 +106,7 @@ extension PrinterTests.ByteArrayPrinterTest {
         )
         let outerField2 = FieldPrinterIntel(byteCount: nil, endianness: nil, intel: innerStruct)
 
-        let outerStruct = StructPrintIntel(fields: [outerField1, outerField2])
+        let outerStruct = StructPrinterIntel(fields: [outerField1, outerField2])
         let result = try printer.print(.struct(outerStruct))
 
         #expect(result == [0x01, 0x02, 0xAA, 0xBB])
@@ -198,7 +198,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             intel: .builtIn(BuiltInPrinterIntel(bytes: [0x03, 0x04])),
         )
 
-        let structIntel = StructPrintIntel(fields: [field1, skipField, field2])
+        let structIntel = StructPrinterIntel(fields: [field1, skipField, field2])
         let result = try printer.print(.struct(structIntel))
 
         #expect(result == [0x01, 0x02, 0x00, 0x00, 0x00, 0x03, 0x04])
@@ -212,7 +212,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
         )
         let fieldIntel = FieldPrinterIntel(byteCount: 3, endianness: .big, intel: intel)
-        let structIntel = StructPrintIntel(fields: [fieldIntel])
+        let structIntel = StructPrinterIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
         #expect(result == [0x04, 0x05, 0x06])
@@ -231,7 +231,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             intel: .builtIn(BuiltInPrinterIntel(bytes: [0x05, 0x06])),
         )
 
-        let structIntel = StructPrintIntel(fields: [field1, field2])
+        let structIntel = StructPrinterIntel(fields: [field1, field2])
         let result = try printer.print(.struct(structIntel))
 
         #expect(result == [0x03, 0x04, 0x05, 0x06])
@@ -243,7 +243,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             BuiltInPrinterIntel(bytes: [0x01, 0x02]),
         )
         let fieldIntel = FieldPrinterIntel(byteCount: 10, endianness: .big, intel: intel)
-        let structIntel = StructPrintIntel(fields: [fieldIntel])
+        let structIntel = StructPrinterIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
         #expect(result == [0x01, 0x02])
@@ -258,7 +258,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
         )
         let fieldIntel = FieldPrinterIntel(byteCount: 2, endianness: .little, intel: intel)
-        let structIntel = StructPrintIntel(fields: [fieldIntel])
+        let structIntel = StructPrinterIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
         #expect(result == [0x06, 0x05])
@@ -295,7 +295,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             ),
         ]
 
-        let structIntel = StructPrintIntel(fields: fields)
+        let structIntel = StructPrinterIntel(fields: fields)
         let result = try printer.print(.struct(structIntel))
 
         #expect(result == [0x01, 0x02, 0x00, 0x00, 0x04, 0x03, 0x07])
@@ -326,7 +326,7 @@ extension PrinterTests.ByteArrayPrinterTest {
 
     @Test
     func `empty struct produces empty array`() throws {
-        let structIntel = StructPrintIntel(fields: [])
+        let structIntel = StructPrinterIntel(fields: [])
         let result = try printer.print(.struct(structIntel))
 
         #expect(result.isEmpty)
@@ -350,7 +350,7 @@ extension PrinterTests.ByteArrayPrinterTest {
             BuiltInPrinterIntel(bytes: [0x01, 0x02, 0x03]),
         )
         let fieldIntel = FieldPrinterIntel(byteCount: 0, endianness: .big, intel: intel)
-        let structIntel = StructPrintIntel(fields: [fieldIntel])
+        let structIntel = StructPrinterIntel(fields: [fieldIntel])
 
         let result = try printer.print(.struct(structIntel))
         #expect(result.isEmpty)
