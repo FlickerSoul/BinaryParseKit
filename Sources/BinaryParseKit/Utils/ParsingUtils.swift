@@ -8,6 +8,7 @@ import BinaryParsing
 
 /// Matches the given bytes in the input parser span.
 /// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __match(_ bytes: borrowing [UInt8], in input: borrowing BinaryParsing.ParserSpan) -> Bool {
     if bytes.isEmpty { return true }
@@ -29,6 +30,7 @@ public func __match(_ bytes: borrowing [UInt8], in input: borrowing BinaryParsin
 
 /// Matches when the remaining bytes in the input parser span equals the specified length.
 /// - Warning: This function is used by `@ParseEnum` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __match(length: Int, in input: borrowing BinaryParsing.ParserSpan) -> Bool {
     input.count == length
@@ -36,21 +38,25 @@ public func __match(length: Int, in input: borrowing BinaryParsing.ParserSpan) -
 
 /// Asserts that the given type conforms to `Parsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __assertParsable(_: (some Parsable).Type) {}
 
 /// Asserts that the given type conforms to `SizedParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __assertSizedParsable(_: (some SizedParsable).Type) {}
 
 /// Asserts that the given type conforms to `EndianParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __assertEndianParsable(_: (some EndianParsable).Type) {}
 
 /// Asserts that the given type conforms to `EndianSizedParsable`.
 /// - Warning: This function is used to `@parse` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __assertEndianSizedParsable(_: (some EndianSizedParsable).Type) {}
 
@@ -58,11 +64,13 @@ public func __assertEndianSizedParsable(_: (some EndianSizedParsable).Type) {}
 
 /// Asserts that the given type conforms to `BitmaskParsable`.
 /// - Warning: This function is used by `@mask()` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __assertBitmaskParsable(_: (some ExpressibleByRawBits & BitCountProviding).Type) {}
 
 /// Asserts that the given type conforms to `ExpressibleByRawBits`.
 /// - Warning: This function is used by `@mask(bitCount:)` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 
@@ -70,6 +78,7 @@ public func __assertExpressibleByRawBits(_: (some ExpressibleByRawBits).Type) {}
 
 /// Asserts that the given type conforms to `RawBitsConvertible` and `BitCountProviding`.
 /// - Warning: This function is used by `@ParseBitmask` macro and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __assertRawBitsConvertible(_: (some RawBitsConvertible & BitCountProviding).Type) {}
 
@@ -80,6 +89,7 @@ public func __assertRawBitsConvertible(_: (some RawBitsConvertible & BitCountPro
 ///   - bitCount: The number of bits to produce
 /// - Returns: The raw bits representation
 /// - Throws: An error if the conversion cannot be performed
+@_documentation(visibility: internal)
 @inlinable
 public func __toRawBits(
     _ value: some RawBitsConvertible,
@@ -95,6 +105,7 @@ public func __toRawBits(
 /// Overload for types that also conform to ``BitCountProviding``.
 ///
 /// - Warning: This function is used by macro generation and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
     _: T.Type,
@@ -130,6 +141,7 @@ public func __createFromBits<T: ExpressibleByRawBits & BitCountProviding>(
 /// Fallback overload for types that only conform to ``ExpressibleByRawBits``.
 ///
 /// - Warning: This function is used by macro generation and should not be used directly.
+@_documentation(visibility: internal)
 @inlinable
 public func __createFromBits<T: ExpressibleByRawBits>(
     _: T.Type,
