@@ -2,9 +2,8 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
-import PackageDescription
-
 import class Foundation.ProcessInfo
+import PackageDescription
 
 private let enableBenchmark = ProcessInfo.processInfo.environment["ENABLE_BENCHMARK"]
 
@@ -96,7 +95,8 @@ let package = Package(
 
 if enableBenchmark == "1" || enableBenchmark == "true" {
     package.dependencies.append(
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"))
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"),
+    )
     package.targets.append(contentsOf: [
         .target(
             name: "BenchmarkTypes",

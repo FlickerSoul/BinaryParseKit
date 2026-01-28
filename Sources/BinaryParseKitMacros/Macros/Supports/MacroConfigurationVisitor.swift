@@ -128,7 +128,9 @@ struct AccessorInfo {
     let bitEndian: String
 
     /// Whether bit parsing should use big endian (MSB-first).
-    var isBigEndian: Bool { bitEndian == "big" }
+    var isBigEndian: Bool {
+        bitEndian == "big"
+    }
 }
 
 private let allAccessModifiers: Set<TokenKind> = [

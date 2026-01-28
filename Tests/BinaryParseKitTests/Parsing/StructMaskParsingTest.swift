@@ -19,7 +19,10 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A simple flag type that conforms to BitmaskParsable with 1 bit.
     struct Flag: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        static var bitCount: Int { 1 }
+        static var bitCount: Int {
+            1
+        }
+
         let value: Bool
 
         init(value: Bool) {
@@ -38,7 +41,10 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A 4-bit nibble type that conforms to BitmaskParsable.
     struct Nibble: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        static var bitCount: Int { 4 }
+        static var bitCount: Int {
+            4
+        }
+
         let value: UInt8
 
         init(value: UInt8) {
@@ -57,7 +63,10 @@ extension ParsingTests.StructMaskParsingTest {
 
     /// A 3-bit value type for testing.
     struct ThreeBit: ExpressibleByRawBits, BitCountProviding, RawBitsConvertible, Equatable {
-        static var bitCount: Int { 3 }
+        static var bitCount: Int {
+            3
+        }
+
         let value: UInt8
 
         init(value: UInt8) {

@@ -185,7 +185,8 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
                                         ),
                                     )
                                 }
-                            })
+                            },
+                        )
 
                         let caseCodeBlock = try CodeBlockItemListSyntax {
                             let bytesTakenInMatching = context.makeUniqueName("__bytesTakenInMatching")

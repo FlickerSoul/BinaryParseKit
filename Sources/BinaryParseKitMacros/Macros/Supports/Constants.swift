@@ -1,9 +1,9 @@
-//
-//  Constants.swift
-//  BinaryParseKit
-//
-//  Created by Larry Zeng on 11/6/25.
-//
+///
+///  Constants.swift
+///  BinaryParseKit
+///
+///  Created by Larry Zeng on 11/6/25.
+///
 struct PackageMember: CustomStringConvertible {
     let package: String
     let name: String

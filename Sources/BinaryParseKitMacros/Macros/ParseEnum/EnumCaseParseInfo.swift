@@ -71,10 +71,8 @@ enum EnumMatchTarget {
     // @matchAndTake(byte: byte) -> .byte([byte])
     // @matchAndTake(bytes: bytes) -> .bytes(bytes)
     case bytes(ExprSyntax?)
-    // @match(length: length) -> .length(length)
-    case length(ExprSyntax)
-    // @matchDefault
-    case `default`
+    case length(ExprSyntax) // @match(length: length) -> .length(length)
+    case `default` // @matchDefault
 
     var matchBytes: ExprSyntax?? {
         if case let .bytes(bytes) = self {
