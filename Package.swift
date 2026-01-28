@@ -4,6 +4,10 @@
 import CompilerPluginSupport
 import PackageDescription
 
+import class Foundation.ProcessInfo
+
+private let enableBenchmark = ProcessInfo.processInfo.environment["ENABLE_BENCHMARK"]
+
 let package = Package(
     name: "BinaryParseKit",
     platforms: [.macOS(.v13), .iOS(.v16), .watchOS(.v9), .tvOS(.v16), .visionOS(.v1)],
@@ -25,7 +29,6 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.5"),
         .package(url: "https://github.com/pointfreeco/swift-macro-testing.git", from: "0.6.4"),
         .package(url: "https://github.com/stackotter/swift-macro-toolkit.git", from: "0.8.0"),
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"),
     ],
     targets: [
         .macro(
@@ -86,6 +89,15 @@ let package = Package(
                 "BinaryParseKit",
             ],
         ),
+
+    ],
+    swiftLanguageModes: [.v6],
+)
+
+if enableBenchmark == "1" || enableBenchmark == "true" {
+    package.dependencies.append(
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"))
+    package.targets.append(contentsOf: [
         .target(
             name: "BenchmarkTypes",
             dependencies: [
@@ -121,6 +133,5 @@ let package = Package(
             ],
             path: "Benchmarks/PrintingBenchmarks",
         ),
-    ],
-    swiftLanguageModes: [.v6],
-)
+    ])
+}
