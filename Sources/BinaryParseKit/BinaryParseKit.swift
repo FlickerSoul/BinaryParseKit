@@ -586,7 +586,7 @@ public macro matchDefault() = #externalMacro(
 /// Parses a field at the bit level with an explicit bit count.
 ///
 /// Use this macro to parse a field using a specific number of bits from a bitmask.
-/// The field type must conform to `ExpressibleByRawBits`.
+/// The field type must conform to ``ExpressibleByRawBits``.
 ///
 /// Consecutive `@mask` fields are grouped together and read from a shared byte buffer.
 /// Gaps or interleaved non-mask fields start a new bitmask region.
@@ -615,7 +615,7 @@ public macro mask(bitCount: Int) = #externalMacro(
 /// Parses a field at the bit level with inferred bit count.
 ///
 /// Use this macro to parse a field using the type's `bitCount` property.
-/// The field type must conform to `BitmaskParsable` (which includes `BitCountProviding`).
+/// The field type must conform to ``ExpressibleByRawBits`` and ``BitCountProviding``.
 ///
 /// Consecutive `@mask` fields are grouped together and read from a shared byte buffer.
 /// Gaps or interleaved non-mask fields start a new bitmask region.

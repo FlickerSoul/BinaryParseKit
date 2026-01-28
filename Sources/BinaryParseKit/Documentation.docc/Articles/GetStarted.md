@@ -28,7 +28,7 @@ dependencies: [
 
 ## Parsing
 
-We have two parsing macros: ``ParseStruct(parsingAccessor:printingAccessor:)`` and ``ParseEnum(parsingAccessor:printingAccessor:)``. They work together with decorative macros such as ``parse()``, ``match()``, ``skip(byteCount:because:)``, etc.
+We have two byte parsing macros: ``ParseStruct(bitEndian:parsingAccessor:printingAccessor:)wwww`` and ``ParseEnum(bitEndian:parsingAccessor:printingAccessor:)``. They work together with decorative macros such as ``parse()``, ``match()``, ``skip(byteCount:because:)``, etc. In addition, we have ``ParseBitmask(bitEndian:parsingAccessor:printingAccessor:)`` to handle bitmask parsing.
 
 ### Parse Struct
 

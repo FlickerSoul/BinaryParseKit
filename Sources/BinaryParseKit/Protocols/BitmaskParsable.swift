@@ -21,14 +21,8 @@ public enum BitmaskParsableError: Error, Sendable {
 /// Types conforming to this protocol can be constructed from raw bits,
 /// enabling bit-level parsing within binary data structures.
 ///
-/// The bits passed to `init(bits:)` are represented as a `RawBitsSpan`,
-/// which provides a view into a contiguous sequence of bytes. The bits are:
-/// - **MSB-first extracted**: The first bits in the source become the most significant bits
-/// - **Starting at index 0**: The bits start from the beginning of the underlying byte span
-/// - **Limited by bitCount**: Only `bitCount` bits from the span are considered valid
-///
-/// For example, extracting 3 bits `0b011` from input `[0b0110_0000]` yields
-/// a `RawBitsSpan` where `_bytes` contains `[0b0110_0000]` and `bitCount = 3`.
+/// The bits passed to `init(bits:)` are represented as a ``RawBitsSpan``,
+/// which provides a view into a contiguous sequence of bytes.
 ///
 /// - Note: Callee assumes that `bits` contain sufficient bits for the type. For instance,
 /// if the type requires 5 bits, the caller must ensure that `bits.bitCount >= 5`.
@@ -47,8 +41,7 @@ public enum BitmaskParsableError: Error, Sendable {
 public protocol ExpressibleByRawBits {
     /// Creates an instance from extracted bits.
     ///
-    /// - Parameter bits: The extracted bits as a span, with bits in MSB-first order
-    ///   starting from index 0, and `bitCount` indicating the number of valid bits.
+    /// - Parameter bits: The extracted bits as a span
     /// - Throws: An error if the bits cannot be converted to this type
     init(bits: borrowing RawBitsSpan) throws
 }

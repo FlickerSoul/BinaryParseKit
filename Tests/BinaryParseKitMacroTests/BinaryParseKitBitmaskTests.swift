@@ -128,6 +128,29 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
+        func `multiple enum case in one mask decl`() {
+            assertMacro {
+                """
+                @ParseBitmask
+                struct Flags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool, flag2: Bool
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseBitmask
+                struct Flags {
+                    @mask(bitCount: 1)
+                    ┬─────────────────
+                    ╰─ 🛑 peer macro can only be applied to a single variable
+                    var flag1: Bool, flag2: Bool
+                }
+                """
+            }
+        }
+
+        @Test
         func `field without mask attribute`() {
             assertMacro {
                 """

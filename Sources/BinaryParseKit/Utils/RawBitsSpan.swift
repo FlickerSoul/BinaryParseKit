@@ -10,14 +10,12 @@
 /// `RawBitsSpan` provides a view into a contiguous sequence of bytes with an associated bit count,
 /// enabling efficient bit-level operations without allocating or copying data.
 ///
-/// The bits are in MSB-first order, starting from `bitOffset` within the first byte of the underlying bytes.
-///
 /// Example:
 /// ```swift
 /// let data: [UInt8] = [0b1101_0000]
 /// data.withUnsafeBytes { buffer in
-///     let span = RawBitsSpan(RawSpan(buffer), bitOffset: 0, bitCount: 4)
-///     // Represents the bits: 1, 1, 0, 1 (first 4 bits of 0b1101_0000)
+///     let span = RawBitsSpan(RawSpan(buffer), bitOffset: 1, bitCount: 4)
+///     // Represents the bits: 1, 0, 1, 0 (4 bits of 0b1101_0000 after the first bit)
 /// }
 /// ```
 public struct RawBitsSpan: ~Escapable, ~Copyable {
@@ -65,7 +63,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
         }
     }
 
-    /// Public accessor for bit count.
+    /// The bit count held by this span.
     @inlinable
     public var bitCount: Int {
         _bitCount
@@ -76,7 +74,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     /// Calculated as `(bitCount + 7) / 8`
     @inlinable
     public var byteCount: Int {
-        (_bitCount + 7) / 8
+        (bitCount + 7) / 8
     }
 
     /// The number of bytes used (touched/spanned) in the buffer
@@ -85,7 +83,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
     /// Calculated as `(_bitCount + bitStartIndex + 7) / 8`
     @inlinable
     public var bufferByteCount: Int {
-        (_bitCount + bitStartIndex + 7) / 8
+        (bitCount + bitStartIndex + 7) / 8
     }
 
     /// Creates a new raw bits span with a bit offset.
@@ -125,6 +123,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
         _bitCount = bitCount
     }
 
+    /// Copying a `RawBitsSpan`.
     @inlinable
     @_lifetime(copy other)
     public init(copying other: borrowing RawBitsSpan) {
@@ -135,8 +134,8 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
 
     /// Converts the bits to a fixed-width integer value.
     ///
-    /// The bits are extracted in MSB-first order and returned right-aligned in the integer.
-    /// Excess bits in the integer are masked to 0.
+    /// The extracted are always right aligned in the resulting integer. That is,
+    /// the least significant bits of the integer correspond to the extracted bits.
     ///
     /// - Parameters:
     ///   - type: The integer type to convert to (optional, can be inferred)
@@ -231,11 +230,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
 
     // MARK: - Extracting (non-mutating)
 
-    /// Returns a new `RawBitsSpan` containing the first `count` bits from this span.
-    /// No bounds checking is performed.
-    ///
-    /// - Parameter count: The number of bits to extract from the start of the span
-    /// - Returns: A new `RawBitsSpan` containing the first `count` bits
+    /// Unchecked version of ``extracting(first:)``
     @_documentation(visibility: internal)
     @inlinable
     @_lifetime(borrow self)
@@ -243,11 +238,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
         RawBitsSpan(unchecked: (), _bytes, bitOffset: _bitOffset, bitCount: count)
     }
 
-    /// Returns a new `RawBitsSpan` containing the last `count` bits from this span.
-    /// No bounds checking is performed.
-    ///
-    /// - Parameter count: The number of bits to extract from the end of the span
-    /// - Returns: A new `RawBitsSpan` containing the last `count` bits
+    /// Unchecked version of ``extracting(last:)``
     @_documentation(visibility: internal)
     @inlinable
     @_lifetime(borrow self)
@@ -286,13 +277,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
 
     // MARK: - Slicing (mutating)
 
-    /// Removes and returns the first `count` bits from this span.
-    /// No bounds checking is performed.
-    ///
-    /// After this call, `self` contains the remaining bits (original bits after the sliced portion).
-    ///
-    /// - Parameter count: The number of bits to slice from the start of the span
-    /// - Returns: A new `RawBitsSpan` containing the sliced (first `count`) bits
+    /// Unchecked version of ``slicing(first:)``
     @_documentation(visibility: internal)
     @inlinable
     @_lifetime(copy self)
@@ -303,13 +288,7 @@ public struct RawBitsSpan: ~Escapable, ~Copyable {
         return sliced
     }
 
-    /// Removes and returns the last `count` bits from this span.
-    /// No bounds checking is performed.
-    ///
-    /// After this call, `self` contains the remaining bits (original bits before the sliced portion).
-    ///
-    /// - Parameter count: The number of bits to slice from the end of the span
-    /// - Returns: A new `RawBitsSpan` containing the sliced (last `count`) bits
+    /// Unchecked version of ``slicing(last:)``
     @_documentation(visibility: internal)
     @inlinable
     @_lifetime(copy self)
