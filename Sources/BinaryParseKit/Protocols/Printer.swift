@@ -11,7 +11,7 @@ public protocol Printer {
     associatedtype PrinterOutput
 
     /// Prints the provided ``PrinterIntel``
-    /// - Returns: An instance of ``PrinterOutput`` representing the printed result.
+    /// - Returns: An instance of ``Printer/PrinterOutput`` representing the printed result.
     func print(_ intel: PrinterIntel) throws -> PrinterOutput
 }
 
