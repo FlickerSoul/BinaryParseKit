@@ -6,6 +6,7 @@
 //
 
 import BenchmarkTypes
+import BinaryParseKit
 import Foundation
 import Testing
 
@@ -113,12 +114,15 @@ struct BenchmarkTypesTests {
 
     @Test("Parse simple bitmask")
     func parseSimpleBitmask() throws {
-        let bits: UInt8 = 0b1010_0011
-        let parsed = try BenchmarkBitmaskSimple(bits: bits)
-        let baseline = BenchmarkBitmaskSimple.parseBaseline(Data([bits]))
-        #expect(parsed.flag == 1)
-        #expect(parsed.value == 0x23)
-        #expect(parsed == baseline)
+        let data = Data([0b1010_0011])
+        try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            let parsed = try BenchmarkBitmaskSimple(bits: rawBits)
+            let baseline = BenchmarkBitmaskSimple.parseBaseline(data)
+            #expect(parsed.flag == 1)
+            #expect(parsed.value == 0x23)
+            #expect(parsed == baseline)
+        }
     }
 
     // MARK: - Complex Bitmask Tests
@@ -126,15 +130,17 @@ struct BenchmarkTypesTests {
     @Test("Parse complex bitmask")
     func parseComplexBitmask() throws {
         let data = Data([0xAB, 0xCD, 0xEF, 0x12])
-        let bits: UInt32 = 0xABCD_EF12
-        let parsed = try BenchmarkBitmaskComplex(bits: bits)
-        let baseline = BenchmarkBitmaskComplex.parseBaseline(data)
-        #expect(parsed.flag1 == 1)
-        #expect(parsed.priority == 2)
-        #expect(parsed.nibble == 11)
-        #expect(parsed.byte == 0xCD)
-        #expect(parsed.word == 0xEF12)
-        #expect(parsed == baseline)
+        try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
+            let parsed = try BenchmarkBitmaskComplex(bits: rawBits)
+            let baseline = BenchmarkBitmaskComplex.parseBaseline(data)
+            #expect(parsed.flag1 == 1)
+            #expect(parsed.priority == 2)
+            #expect(parsed.nibble == 11)
+            #expect(parsed.byte == 0xCD)
+            #expect(parsed.word == 0xEF12)
+            #expect(parsed == baseline)
+        }
     }
 
     // MARK: - Endianness Tests
@@ -164,13 +170,15 @@ struct BenchmarkTypesTests {
     @Test("Parse non-byte-aligned bitmask")
     func parseNonByteAlignedBitmask() throws {
         let data = Data([0xAC, 0xC0])
-        let bits: UInt16 = 0b1010_1100_1100_0000
-        let parsed = try NonByteAlignedBitmask(bits: bits)
-        let baseline = NonByteAlignedBitmask.parseBaseline(data)
-        #expect(parsed.first == 5) // 101
-        #expect(parsed.second == 12) // 01100
-        #expect(parsed.third == 3) // 11
-        #expect(parsed == baseline)
+        try data.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 10)
+            let parsed = try NonByteAlignedBitmask(bits: rawBits)
+            let baseline = NonByteAlignedBitmask.parseBaseline(data)
+            #expect(parsed.first == 5) // 101
+            #expect(parsed.second == 12) // 01100
+            #expect(parsed.third == 3) // 11
+            #expect(parsed == baseline)
+        }
     }
 
     // MARK: - Round-Trip Tests
@@ -187,8 +195,10 @@ struct BenchmarkTypesTests {
     func roundTripSimpleBitmask() throws {
         let original = BenchmarkBitmaskSimple(flag: 1, value: 0x23)
         let printed = try original.printParsed(printer: .data)
-        let bits = printed[0]
-        let reparsed = try BenchmarkBitmaskSimple(bits: bits)
-        #expect(original == reparsed)
+        try printed.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            let reparsed = try BenchmarkBitmaskSimple(bits: rawBits)
+            #expect(original == reparsed)
+        }
     }
 }

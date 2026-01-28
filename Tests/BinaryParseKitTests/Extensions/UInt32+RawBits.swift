@@ -10,10 +10,8 @@ import BinaryParsing
 import Foundation
 
 extension UInt32: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt32
-
-    public init(bits: RawBitsInteger) throws {
-        self = bits
+    public init(bits: borrowing RawBitsSpan) throws {
+        self = try bits.load(as: Self.self)
     }
 }
 

@@ -1,9 +1,9 @@
-//
-//  Constants.swift
-//  BinaryParseKit
-//
-//  Created by Larry Zeng on 11/6/25.
-//
+///
+///  Constants.swift
+///  BinaryParseKit
+///
+///  Created by Larry Zeng on 11/6/25.
+///
 struct PackageMember: CustomStringConvertible {
     let package: String
     let name: String
@@ -54,20 +54,13 @@ extension Constants {
         static let assertExpressibleByRawBits = PackageMember(name: "__assertExpressibleByRawBits")
         static let assertRawBitsConvertible = PackageMember(name: "__assertRawBitsConvertible")
         static let toRawBits = PackageMember(name: "__toRawBits")
-        static let maskParsing = PackageMember(name: "__maskParsing")
-        static let maskParsingFromSpan = PackageMember(name: "__maskParsing")
+        static let createFromBits = PackageMember(name: "__createFromBits")
     }
 }
 
 extension Constants {
     enum BinaryParserKitError {
         static let failedToParse = PackageMember(name: "BinaryParserKitError.failedToParse")
-    }
-}
-
-extension Constants {
-    enum BitmaskParsableError {
-        static let failedToParse = PackageMember(name: "BitmaskParsableError.rawBitsIntegerNotWideEnough")
     }
 }
 

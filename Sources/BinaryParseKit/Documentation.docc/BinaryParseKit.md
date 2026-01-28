@@ -19,7 +19,7 @@ BinaryParseKit provides a convenient and type-safe way to parse binary data in S
 
 ### Struct Parsing Macros
 
-- ``ParseStruct(parsingAccessor:printingAccessor:)``
+- ``ParseStruct(bitEndian:parsingAccessor:printingAccessor:)``
 - ``parse()``
 - ``parse(byteCount:)``
 - ``parse(endianness:)``
@@ -32,14 +32,27 @@ BinaryParseKit provides a convenient and type-safe way to parse binary data in S
 
 ### Enum Parsing Macros
 
-- ``ParseEnum(parsingAccessor:printingAccessor:)``
+- ``ParseEnum(bitEndian:parsingAccessor:printingAccessor:)``
 - ``match()``
 - ``match(byte:)``
 - ``match(bytes:)``
+- ``match(length:)``
 - ``matchAndTake()``
 - ``matchAndTake(byte:)``
 - ``matchAndTake(bytes:)``
 - ``matchDefault()``
+
+### Bitmask Parsing Macros
+
+- ``ParseBitmask(bitEndian:parsingAccessor:printingAccessor:)``
+- ``mask()``
+- ``mask(bitCount:)``
+- ``RawBitsSpan``
+- ``ExpressibleByRawBits``
+- ``BitCountProviding``
+- ``RawBits``
+- ``RawBitsConvertible``
+- ``BitmaskParsableError``
 
 ### Parsable Protocols
 

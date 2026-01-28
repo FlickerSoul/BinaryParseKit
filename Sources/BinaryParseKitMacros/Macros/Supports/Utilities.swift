@@ -153,18 +153,21 @@ func generatePrintableFields(_ infos: [PrintableFieldInfo]) -> ArrayElementListS
 /// Generates code to parse a group of consecutive @mask fields for structs
 func generateMaskGroupBlock(
     maskActions: [ParseActionGroup.MaskGroupAction],
+    bitEndian: String,
     context: some MacroExpansionContext,
 ) throws -> CodeBlockItemListSyntax {
     guard !maskActions.isEmpty else {
         return CodeBlockItemListSyntax {}
     }
 
+    let isBigEndian = bitEndian == "big"
+    let slicingMethod = isBigEndian ? "first" : "last"
+
     // Calculate total bits needed
     // For each field, we use either the explicit bitCount or the type's bitCount
     let bitsVarName = context.makeUniqueName("__bitmask_totalBits")
     let bytesVarName = context.makeUniqueName("__bitmask_byteCount")
     let spanVarName = context.makeUniqueName("__bitmask_span")
-    let offsetVarName = context.makeUniqueName("__bitmask_offset")
 
     // Calculate total bits
     let bitCountExprs = maskActions.map { maskAction in
@@ -190,15 +193,19 @@ func generateMaskGroupBlock(
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
         // Get a sliced span for bitmask bytes
-        "let \(spanVarName) = try span.sliceSpan(byteCount: \(bytesVarName))"
-
-        // Track offset for each field
-        "var \(offsetVarName) = 0"
+        // Big endian: start from bit 0 (MSB-first)
+        // Little endian: start from end of padding bits (LSB-first)
+        if isBigEndian {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: 0, bitCount: \(bitsVarName))"
+        } else {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: \(bytesVarName) * 8 - \(bitsVarName), bitCount: \(bitsVarName))"
+        }
 
         // Parse each field
         for action in maskActions {
             let variableName = action.variableName
             let fieldType = action.variableType
+            let subSpan = context.makeUniqueName("__subSpan")
 
             switch action.maskInfo.bitCount {
             case let .specified(count):
@@ -209,14 +216,16 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                self.\(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
-                    from: \(spanVarName),
-                    fieldType: (\(fieldType)).self,
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                """
+                """
+                self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
+                    (\(fieldType)).self,
+                    fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
-                    at: \(offsetVarName),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
-                "\(offsetVarName) += \(countExpr)"
             case .inferred:
                 // Assert BitmaskParsable for inferred bit count
                 let countExpr: ExprSyntax = "(\(fieldType.trimmed)).bitCount"
@@ -225,14 +234,16 @@ func generateMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                self.\(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
-                    from: \(spanVarName),
-                    fieldType: (\(fieldType)).self,
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                """
+                """
+                self.\(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
+                    (\(fieldType)).self,
+                    fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
-                    at: \(offsetVarName),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
-                "\(offsetVarName) += \(countExpr)"
             }
         }
     }
@@ -242,17 +253,20 @@ func generateMaskGroupBlock(
 func generateEnumMaskGroupBlock(
     maskActions: [ParseActionGroup.MaskGroupAction],
     caseElementName: TokenSyntax,
+    bitEndian: String,
     context: some MacroExpansionContext,
 ) throws -> CodeBlockItemListSyntax {
     guard !maskActions.isEmpty else {
         return CodeBlockItemListSyntax {}
     }
 
+    let isBigEndian = bitEndian == "big"
+    let slicingMethod = isBigEndian ? "first" : "last"
+
     // Calculate total bits needed
     let bitsVarName = context.makeUniqueName("__bitmask_totalBits")
     let bytesVarName = context.makeUniqueName("__bitmask_byteCount")
     let spanVarName = context.makeUniqueName("__bitmask_span")
-    let offsetVarName = context.makeUniqueName("__bitmask_offset")
 
     // Calculate total bits
     let bitCountExprs = maskActions.map { maskAction in
@@ -279,15 +293,19 @@ func generateEnumMaskGroupBlock(
         "let \(bytesVarName) = (\(bitsVarName) + 7) / 8"
 
         // Get a sliced span for bitmask bytes
-        "let \(spanVarName) = try span.sliceSpan(byteCount: \(bytesVarName))"
-
-        // Track offset for each field
-        "var \(offsetVarName) = 0"
+        // Big endian: start from bit 0 (MSB-first)
+        // Little endian: start from end of padding bits (LSB-first)
+        if isBigEndian {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: 0, bitCount: \(bitsVarName))"
+        } else {
+            "var \(spanVarName) = try RawBitsSpan(span.sliceSpan(byteCount: \(bytesVarName)).bytes, bitOffset: \(bytesVarName) * 8 - \(bitsVarName), bitCount: \(bitsVarName))"
+        }
 
         // Parse each field
         for maskAction in maskActions {
             let variableName = maskAction.variableName
             let fieldType = maskAction.variableType
+            let subSpan = context.makeUniqueName("__subSpan")
 
             switch maskAction.maskInfo.bitCount {
             case let .specified(count):
@@ -298,14 +316,16 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldType)).self)
                 """
                 """
-                let \(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
-                    from: \(spanVarName),
-                    fieldType: (\(fieldType)).self,
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                """
+                """
+                let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
+                    (\(fieldType)).self,
+                    fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
-                    at: \(offsetVarName),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
-                "\(offsetVarName) += \(count.expr)"
             case .inferred:
                 // Assert BitmaskParsable for inferred bit count
                 let countExpr: ExprSyntax = "(\(fieldType.trimmed)).bitCount"
@@ -314,14 +334,16 @@ func generateEnumMaskGroupBlock(
                 \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                 """
                 """
-                let \(variableName) = try \(raw: Constants.UtilityFunctions.maskParsingFromSpan)(
-                    from: \(spanVarName),
-                    fieldType: (\(fieldType)).self,
+                let \(subSpan) = \(spanVarName).__slicing(unchecked: (), \(raw: slicingMethod): \(countExpr))
+                """
+                """
+                let \(variableName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
+                    (\(fieldType)).self,
+                    fieldBits: \(subSpan),
                     fieldRequestedBitCount: \(countExpr),
-                    at: \(offsetVarName),
+                    bitEndian: .\(raw: bitEndian),
                 )
                 """
-                "\(offsetVarName) += \(countExpr)"
             }
         }
     }

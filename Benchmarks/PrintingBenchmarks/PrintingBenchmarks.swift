@@ -137,7 +137,7 @@ let benchmarks: @Sendable () -> Void = {
 
     let roundTripEnumData = Data([0x03, 0x12, 0x34, 0x56, 0x78])
     let roundTripStructData = Data([0x12, 0x34, 0x56, 0x78])
-    let roundTripBitmaskBits: UInt8 = 0b1010_0011
+    let roundTripBitmaskData = Data([0b1010_0011])
 
     Benchmark("Round-Trip Enum (Parse + Print)") { benchmark in
         for _ in benchmark.scaledIterations {
@@ -154,9 +154,14 @@ let benchmarks: @Sendable () -> Void = {
     }
 
     Benchmark("Round-Trip Bitmask (Parse + Print)") { benchmark in
-        for _ in benchmark.scaledIterations {
-            let parsed = try! BenchmarkBitmaskSimple(bits: roundTripBitmaskBits)
-            blackHole(try! parsed.printParsed(printer: .data))
+        roundTripBitmaskData.withParserSpan { parserSpan in
+            let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
+            benchmark.context {
+                for _ in benchmark.scaledIterations {
+                    let parsed = try! BenchmarkBitmaskSimple(bits: rawBits)
+                    blackHole(try! parsed.printParsed(printer: .data))
+                }
+            }
         }
     }
 

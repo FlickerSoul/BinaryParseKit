@@ -6,6 +6,7 @@
 //
 
 /// - Note: This function is intended to be used only by the macro system.
+@_documentation(visibility: internal)
 public func __getPrinterIntel<T>(_ value: T) throws -> PrinterIntel {
     if let intel = (value as? Printable) {
         return try intel.printerIntel()

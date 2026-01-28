@@ -256,6 +256,7 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// - A ``Printable`` conformance
 ///
 /// - Parameters:
+///   - bitEndian: The bit ordering for bitmask parsing. Use `.big` for MSB-first (default) or `.little` for LSB-first.
 ///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
 ///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
 ///
@@ -282,6 +283,7 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// ```
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
 public macro ParseStruct(
+    bitEndian: Endianness = .big,
     parsingAccessor: ExtensionAccessor = .follow,
     printingAccessor: ExtensionAccessor = .follow,
 ) = #externalMacro(
@@ -302,6 +304,7 @@ public macro ParseStruct(
 /// - A ``Printable`` conformance
 ///
 /// - Parameters:
+///   - bitEndian: The bit ordering for bitmask parsing. Use `.big` for MSB-first (default) or `.little` for LSB-first.
 ///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
 ///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
 ///
@@ -311,6 +314,7 @@ public macro ParseStruct(
 /// - Note: any `match` macro has to proceed `parse` and `skip` macros.
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
 public macro ParseEnum(
+    bitEndian: Endianness = .big,
     parsingAccessor: ExtensionAccessor = .follow,
     printingAccessor: ExtensionAccessor = .follow,
 ) = #externalMacro(
@@ -582,7 +586,7 @@ public macro matchDefault() = #externalMacro(
 /// Parses a field at the bit level with an explicit bit count.
 ///
 /// Use this macro to parse a field using a specific number of bits from a bitmask.
-/// The field type must conform to `ExpressibleByRawBits`.
+/// The field type must conform to ``ExpressibleByRawBits``.
 ///
 /// Consecutive `@mask` fields are grouped together and read from a shared byte buffer.
 /// Gaps or interleaved non-mask fields start a new bitmask region.
@@ -611,7 +615,7 @@ public macro mask(bitCount: Int) = #externalMacro(
 /// Parses a field at the bit level with inferred bit count.
 ///
 /// Use this macro to parse a field using the type's `bitCount` property.
-/// The field type must conform to `BitmaskParsable` (which includes `BitCountProviding`).
+/// The field type must conform to ``ExpressibleByRawBits`` and ``BitCountProviding``.
 ///
 /// Consecutive `@mask` fields are grouped together and read from a shared byte buffer.
 /// Gaps or interleaved non-mask fields start a new bitmask region.
@@ -646,6 +650,7 @@ public macro mask() = #externalMacro(
 /// - An `init(bits: RawBits) throws` initializer
 ///
 /// - Parameters:
+///   - bitEndian: The bit ordering for parsing. Use `.big` for MSB-first (default) or `.little` for LSB-first.
 ///   - parsingAccessor: The accessor level for the generated initializer (default is `.follow`)
 ///   - printingAccessor: The accessor level for the generated `bitCount` property (default is `.follow`)
 ///
@@ -682,6 +687,7 @@ public macro mask() = #externalMacro(
     names: arbitrary
 )
 public macro ParseBitmask(
+    bitEndian: Endianness = .big,
     parsingAccessor: ExtensionAccessor = .follow,
     printingAccessor: ExtensionAccessor = .follow,
 ) = #externalMacro(

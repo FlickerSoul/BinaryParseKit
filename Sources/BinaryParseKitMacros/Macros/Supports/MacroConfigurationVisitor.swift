@@ -1,5 +1,5 @@
 //
-//  MacroAccessorVisitor.swift
+//  MacroConfigurationVisitor.swift
 //  BinaryParseKit
 //
 //  Created by Larry Zeng on 11/26/25.
@@ -10,10 +10,11 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-enum MacroAccessorError: DiagnosticMessage, Error {
+enum MacroConfigurationError: DiagnosticMessage, Error {
     case invalidAccessor(String)
     case moreThanOneModifier(modifiers: String)
     case unknownAccessor
+    case invalidBitEndian(String)
 
     var message: String {
         switch self {
@@ -23,6 +24,8 @@ enum MacroAccessorError: DiagnosticMessage, Error {
             "More than one modifier found: \(modifiers). Only one modifier is allowed."
         case .unknownAccessor:
             "You have used unknown accessor in `@ParseStruct` or `@ParseEnum`."
+        case let .invalidBitEndian(value):
+            #"Invalid bitEndian value: \#(value); Please use .big or .little."#
         }
     }
 
@@ -35,16 +38,18 @@ enum MacroAccessorError: DiagnosticMessage, Error {
 
     var severity: SwiftDiagnostics.DiagnosticSeverity {
         switch self {
-        case .invalidAccessor, .moreThanOneModifier, .unknownAccessor: .error
+        case .invalidAccessor, .moreThanOneModifier, .unknownAccessor, .invalidBitEndian: .error
         }
     }
 }
 
-class MacroAccessorVisitor: SyntaxVisitor {
+class MacroConfigurationVisitor: SyntaxVisitor {
     private static let defaultAccessor = ExtensionAccessor.follow
 
-    private(set) var printingAccessor: ExtensionAccessor = MacroAccessorVisitor.defaultAccessor
-    private(set) var parsingAccessor: ExtensionAccessor = MacroAccessorVisitor.defaultAccessor
+    private(set) var printingAccessor: ExtensionAccessor = MacroConfigurationVisitor.defaultAccessor
+    private(set) var parsingAccessor: ExtensionAccessor = MacroConfigurationVisitor.defaultAccessor
+    /// The bit endian value: "big" or "little". Defaults to "big".
+    private(set) var bitEndian: String = "big"
 
     private let context: any MacroExpansionContext
 
@@ -55,30 +60,48 @@ class MacroAccessorVisitor: SyntaxVisitor {
 
     override func visit(_ node: LabeledExprSyntax) -> SyntaxVisitorContinueKind {
         let labelText = node.label?.text
-        switch labelText {
-        case "printingAccessor":
-            setACL(to: \.printingAccessor, with: node)
-        case "parsingAccessor":
-            setACL(to: \.parsingAccessor, with: node)
-        default:
-            break
+        do {
+            switch labelText {
+            case "printingAccessor":
+                try setACL(to: \.printingAccessor, with: node)
+            case "parsingAccessor":
+                try setACL(to: \.parsingAccessor, with: node)
+            case "bitEndian":
+                try setBitEndian(with: node)
+            default:
+                break
+            }
+        } catch {
+            context.diagnose(.init(node: node, message: error))
         }
+
         return .skipChildren
     }
 
+    private func setBitEndian(with node: LabeledExprSyntax) throws(MacroConfigurationError) {
+        let expression = node.expression
+        guard let memberAccessSyntax = expression.as(MemberAccessExprSyntax.self) else {
+            throw MacroConfigurationError.invalidBitEndian(expression.description)
+        }
+        guard memberAccessSyntax.base == nil else {
+            throw MacroConfigurationError.invalidBitEndian(expression.description)
+        }
+
+        let value = memberAccessSyntax.declName.baseName.text
+        guard value == "big" || value == "little" else {
+            throw MacroConfigurationError.invalidBitEndian(value)
+        }
+        bitEndian = value
+    }
+
     private func setACL(
-        to keypath: ReferenceWritableKeyPath<MacroAccessorVisitor, ExtensionAccessor>,
+        to keypath: ReferenceWritableKeyPath<MacroConfigurationVisitor, ExtensionAccessor>,
         with node: LabeledExprSyntax,
-    ) {
+    ) throws(MacroConfigurationError) {
         let acl = parseACL(from: node)
         self[keyPath: keypath] = acl
         if case let .unknown(value) = acl {
-            context.diagnose(
-                .init(
-                    node: node,
-                    message: MacroAccessorError.invalidAccessor(value),
-                ),
-            )
+            throw MacroConfigurationError.invalidAccessor(value)
         }
     }
 
@@ -101,6 +124,13 @@ class MacroAccessorVisitor: SyntaxVisitor {
 struct AccessorInfo {
     let parsingAccessor: DeclModifierSyntax
     let printingAccessor: DeclModifierSyntax
+    /// The bit endian value: "big" or "little".
+    let bitEndian: String
+
+    /// Whether bit parsing should use big endian (MSB-first).
+    var isBigEndian: Bool {
+        bitEndian == "big"
+    }
 }
 
 private let allAccessModifiers: Set<TokenKind> = [
@@ -112,30 +142,30 @@ private let allAccessModifiers: Set<TokenKind> = [
 ]
 private let defaultAccessModifier: TokenKind = .keyword(.internal)
 
-func extractAccessor(
+func extractMacroConfiguration(
     from attributeNode: AttributeSyntax,
     attachedTo declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext,
-) throws(MacroAccessorError) -> AccessorInfo {
+) throws(MacroConfigurationError) -> AccessorInfo {
     let accessModifiers = declaration.modifiers
         .filter { modifier in
             allAccessModifiers.contains(modifier.name.tokenKind)
         }
 
     guard accessModifiers.count < 2 else {
-        throw MacroAccessorError
+        throw MacroConfigurationError
             .moreThanOneModifier(modifiers: accessModifiers.map(\.name.text).joined(separator: ", "))
     }
 
     let modifierToken = accessModifiers.first?.name.tokenKind ?? defaultAccessModifier
 
-    let accessorVisitor = MacroAccessorVisitor(context: context)
+    let accessorVisitor = MacroConfigurationVisitor(context: context)
     accessorVisitor.walk(attributeNode)
 
     guard let parsingAccessor = accessorVisitor.parsingAccessor.getAccessorToken(defaultAccessor: modifierToken),
           let printingAccessor = accessorVisitor.printingAccessor.getAccessorToken(defaultAccessor: modifierToken)
     else {
-        throw MacroAccessorError.unknownAccessor
+        throw MacroConfigurationError.unknownAccessor
     }
 
     return .init(
@@ -145,5 +175,6 @@ func extractAccessor(
         printingAccessor: .init(
             name: TokenSyntax(printingAccessor, presence: .present),
         ),
+        bitEndian: accessorVisitor.bitEndian,
     )
 }

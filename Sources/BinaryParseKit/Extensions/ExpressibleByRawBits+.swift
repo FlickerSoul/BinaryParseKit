@@ -10,11 +10,12 @@ import Foundation
 // MARK: - Bool Conformance
 
 extension Bool: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt8
-
-    public init(bits: RawBitsInteger) throws {
-        // bits is right-aligned, check LSB
-        self = (bits & 0x01) != 0
+    public init(bits: borrowing RawBitsSpan) throws {
+        // Extract the first bit from the span
+        precondition(bits.bitCount == 1, "Bool requires only 1 bit")
+        let booleanInteger = bits.loadUnsafe(as: UInt8.self, bitCount: 1)
+        assert(booleanInteger == 0 || booleanInteger == 1, "Bool raw bits must be 0 or 1")
+        self = booleanInteger != 0
     }
 }
 
@@ -30,10 +31,10 @@ extension Bool: RawBitsConvertible {
 // MARK: - Integer Conformances
 
 extension UInt8: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt8
-
-    public init(bits: RawBitsInteger) throws {
-        self = bits
+    public init(bits: borrowing RawBitsSpan) throws {
+        // Extract up to 8 bits from the span and convert to UInt8
+        precondition(bits.bitCount <= 8, "UInt8 can hold at most 8 bits")
+        self = try bits.load(as: UInt8.self)
     }
 }
 
@@ -48,10 +49,10 @@ extension UInt8: RawBitsConvertible {
 }
 
 extension Int8: ExpressibleByRawBits {
-    public typealias RawBitsInteger = UInt8
-
-    public init(bits: RawBitsInteger) throws {
-        self = Int8(bitPattern: bits)
+    public init(bits: borrowing RawBitsSpan) throws {
+        // Extract up to 8 bits from the span and convert to Int8
+        let unsigned = try UInt8(bits: bits)
+        self = Int8(bitPattern: unsigned)
     }
 }
 

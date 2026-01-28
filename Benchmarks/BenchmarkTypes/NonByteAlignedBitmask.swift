@@ -11,8 +11,6 @@ import Foundation
 
 @ParseBitmask
 public struct NonByteAlignedBitmask: Equatable, Sendable, BaselineParsable {
-    public typealias RawBitsInteger = UInt16
-
     @mask(bitCount: 3)
     public var first: UInt8
 

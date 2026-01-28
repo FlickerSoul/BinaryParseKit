@@ -39,46 +39,43 @@ extension BinaryParseKitMacroTests {
                     internal static var bitCount: Int {
                         1 + 3 + (Bool).bitCount
                     }
-                    internal init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `flag1` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         do {
-                            let fieldBitCount = 1
-                            self.flag1 = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (Bool).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = 1
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.flag1 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                         // Parse `value` of type `UInt8` with specified bit count 3
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
-                            let fieldBitCount = 3
-                            self.value = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (UInt8).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu0_ = 3
+                            let __macro_local_9__subSpanfMu0_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu0_)
+                            self.value = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu0_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu0_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                         // Parse `flag2` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
                         do {
-                            let fieldBitCount = (Bool).bitCount
-                            self.flag2 = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (Bool).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu1_ = (Bool).bitCount
+                            let __macro_local_9__subSpanfMu1_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu1_)
+                            self.flag2 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu1_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu1_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -125,6 +122,29 @@ extension BinaryParseKitMacroTests {
                 class Flags {
                     @mask(bitCount: 1)
                     var flag: Bool
+                }
+                """
+            }
+        }
+
+        @Test
+        func `multiple enum case in one mask decl`() {
+            assertMacro {
+                """
+                @ParseBitmask
+                struct Flags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool, flag2: Bool
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseBitmask
+                struct Flags {
+                    @mask(bitCount: 1)
+                    ┬─────────────────
+                    ╰─ 🛑 peer macro can only be applied to a single variable
+                    var flag1: Bool, flag2: Bool
                 }
                 """
             }
@@ -198,20 +218,19 @@ extension BinaryParseKitMacroTests {
                     internal static var bitCount: Int {
                         1
                     }
-                    internal init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `flag` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         do {
-                            let fieldBitCount = 1
-                            self.flag = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (Bool).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = 1
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.flag = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -263,20 +282,19 @@ extension BinaryParseKitMacroTests {
                     internal static var bitCount: Int {
                         4
                     }
-                    internal init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `value` of type `UInt8` with specified bit count 4
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
-                            let fieldBitCount = 4
-                            self.value = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (UInt8).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = 4
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.value = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -330,20 +348,19 @@ extension BinaryParseKitMacroTests {
                     internal static var bitCount: Int {
                         8
                     }
-                    internal init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `rawValue` of type `UInt8` with specified bit count 8
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
-                            let fieldBitCount = 8
-                            self.rawValue = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (UInt8).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = 8
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.rawValue = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -390,20 +407,19 @@ extension BinaryParseKitMacroTests {
                     internal static var bitCount: Int {
                         8
                     }
-                    internal init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `value` of type `UInt8` with specified bit count 8
                         BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
                         do {
-                            let fieldBitCount = 8
-                            self.value = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (UInt8).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = 8
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.value = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -451,33 +467,31 @@ extension BinaryParseKitMacroTests {
                     internal static var bitCount: Int {
                         (Bool).bitCount + (Bool).bitCount
                     }
-                    internal init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `flag1` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
                         do {
-                            let fieldBitCount = (Bool).bitCount
-                            self.flag1 = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (Bool).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = (Bool).bitCount
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.flag1 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                         // Parse `flag2` of type `Bool` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Bool).self)
                         do {
-                            let fieldBitCount = (Bool).bitCount
-                            self.flag2 = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (Bool).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu0_ = (Bool).bitCount
+                            let __macro_local_9__subSpanfMu0_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu0_)
+                            self.flag2 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu0_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu0_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -525,20 +539,19 @@ extension BinaryParseKitMacroTests {
                     public static var bitCount: Int {
                         1
                     }
-                    public init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    public init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `flag` of type `Bool` with specified bit count 1
                         BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
                         do {
-                            let fieldBitCount = 1
-                            self.flag = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (Bool).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = 1
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.flag = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -731,20 +744,19 @@ extension BinaryParseKitMacroTests {
                     internal static var bitCount: Int {
                         (Flag).bitCount
                     }
-                    internal init(bits: RawBitsInteger) throws {
-                        var bitPosition = 0
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
                         // Parse `a` of type `Flag` with inferred bit count
                         BinaryParseKit.__assertBitmaskParsable((Flag).self)
                         do {
-                            let fieldBitCount = (Flag).bitCount
-                            self.a = try BinaryParseKit.__maskParsing(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (Flag).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let __macro_local_10__bitCountfMu_ = (Flag).bitCount
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.a = try BinaryParseKit.__createFromBits(
+                                (Flag).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
                             )
-                            bitPosition += fieldBitCount
                         }
                     }
                 }
@@ -764,6 +776,227 @@ extension BinaryParseKitMacroTests {
                         let bits = try self.toRawBits(bitCount: Self.bitCount)
                         return .bitmask(.init(bits: bits))
                     }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `little endian bit parsing`() {
+            assertMacro {
+                """
+                @ParseBitmask(bitEndian: .little)
+                struct LittleEndianFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            } expansion: {
+                """
+                struct LittleEndianFlags {
+                    var flag1: Bool
+                    var value: UInt8
+                    var flag2: Bool
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
+                    internal static var bitCount: Int {
+                        1 + 3 + (Bool).bitCount
+                    }
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
+                        // Parse `flag1` of type `Bool` with specified bit count 1
+                        BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                        do {
+                            let __macro_local_10__bitCountfMu_ = 1
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), last: __macro_local_10__bitCountfMu_)
+                            self.flag1 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .little,
+                            )
+                        }
+                        // Parse `value` of type `UInt8` with specified bit count 3
+                        BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                        do {
+                            let __macro_local_10__bitCountfMu0_ = 3
+                            let __macro_local_9__subSpanfMu0_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), last: __macro_local_10__bitCountfMu0_)
+                            self.value = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu0_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu0_,
+                                bitEndian: .little,
+                            )
+                        }
+                        // Parse `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertBitmaskParsable((Bool).self)
+                        do {
+                            let __macro_local_10__bitCountfMu1_ = (Bool).bitCount
+                            let __macro_local_9__subSpanfMu1_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), last: __macro_local_10__bitCountfMu1_)
+                            self.flag2 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu1_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu1_,
+                                bitEndian: .little,
+                            )
+                        }
+                    }
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        // Convert `flag1` of type `Bool` with specified bit count 1
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag1, bitCount: 1))
+                        // Convert `value` of type `UInt8` with specified bit count 3
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 3))
+                        // Convert `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertRawBitsConvertible((Bool).self)
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag2, bitCount: (Bool).bitCount))
+                        return result
+                    }
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
+                    }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `explicit big endian bit parsing`() {
+            assertMacro {
+                """
+                @ParseBitmask(bitEndian: .big)
+                struct LittleEndianFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            } expansion: {
+                """
+                struct LittleEndianFlags {
+                    var flag1: Bool
+                    var value: UInt8
+                    var flag2: Bool
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.ExpressibleByRawBits, BinaryParseKit.BitCountProviding {
+                    internal static var bitCount: Int {
+                        1 + 3 + (Bool).bitCount
+                    }
+                    internal init(bits: borrowing BinaryParseKit.RawBitsSpan) throws {
+                        var __macro_local_10__bitsSpanfMu_ = RawBitsSpan(copying: bits)
+                        // Parse `flag1` of type `Bool` with specified bit count 1
+                        BinaryParseKit.__assertExpressibleByRawBits((Bool).self)
+                        do {
+                            let __macro_local_10__bitCountfMu_ = 1
+                            let __macro_local_9__subSpanfMu_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu_)
+                            self.flag1 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu_,
+                                bitEndian: .big,
+                            )
+                        }
+                        // Parse `value` of type `UInt8` with specified bit count 3
+                        BinaryParseKit.__assertExpressibleByRawBits((UInt8).self)
+                        do {
+                            let __macro_local_10__bitCountfMu0_ = 3
+                            let __macro_local_9__subSpanfMu0_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu0_)
+                            self.value = try BinaryParseKit.__createFromBits(
+                                (UInt8).self,
+                                fieldBits: __macro_local_9__subSpanfMu0_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu0_,
+                                bitEndian: .big,
+                            )
+                        }
+                        // Parse `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertBitmaskParsable((Bool).self)
+                        do {
+                            let __macro_local_10__bitCountfMu1_ = (Bool).bitCount
+                            let __macro_local_9__subSpanfMu1_ = __macro_local_10__bitsSpanfMu_.__slicing(unchecked: (), first: __macro_local_10__bitCountfMu1_)
+                            self.flag2 = try BinaryParseKit.__createFromBits(
+                                (Bool).self,
+                                fieldBits: __macro_local_9__subSpanfMu1_,
+                                fieldRequestedBitCount: __macro_local_10__bitCountfMu1_,
+                                bitEndian: .big,
+                            )
+                        }
+                    }
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.RawBitsConvertible {
+                    internal func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits {
+                        var result = BinaryParseKit.RawBits()
+                        // Convert `flag1` of type `Bool` with specified bit count 1
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag1, bitCount: 1))
+                        // Convert `value` of type `UInt8` with specified bit count 3
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.value, bitCount: 3))
+                        // Convert `flag2` of type `Bool` with inferred bit count
+                        BinaryParseKit.__assertRawBitsConvertible((Bool).self)
+                        result = result.appending(try BinaryParseKit.__toRawBits(self.flag2, bitCount: (Bool).bitCount))
+                        return result
+                    }
+                }
+
+                extension LittleEndianFlags: BinaryParseKit.Printable {
+                    internal func printerIntel() throws -> PrinterIntel {
+                        let bits = try self.toRawBits(bitCount: Self.bitCount)
+                        return .bitmask(.init(bits: bits))
+                    }
+                }
+                """
+            }
+        }
+
+        @Test
+        func `non .big/.little as bitEndian should fail`() {
+            assertMacro {
+                """
+                @ParseBitmask(bitEndian: someVariable)
+                struct LittleEndianFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
+                }
+                """
+            } diagnostics: {
+                """
+                @ParseBitmask(bitEndian: someVariable)
+                              ┬──────────────────────
+                              ╰─ 🛑 Invalid bitEndian value: someVariable; Please use .big or .little.
+                struct LittleEndianFlags {
+                    @mask(bitCount: 1)
+                    var flag1: Bool
+
+                    @mask(bitCount: 3)
+                    var value: UInt8
+
+                    @mask
+                    var flag2: Bool
                 }
                 """
             }

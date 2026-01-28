@@ -24,7 +24,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
 
         let type = type.trimmed
 
-        let accessorInfo = try extractAccessor(
+        let configuration = try extractMacroConfiguration(
             from: node,
             attachedTo: declaration,
             in: context,
@@ -53,51 +53,56 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
                 "extension \(type): \(raw: Constants.Protocols.expressibleByRawBitsProtocol), \(raw: Constants.Protocols.bitCountProvidingProtocol)",
             ) {
                 // Static bitCount property
-                try VariableDeclSyntax("\(accessorInfo.printingAccessor) static var bitCount: Int") {
+                try VariableDeclSyntax("\(configuration.printingAccessor) static var bitCount: Int") {
                     totalBitCountExpr
                 }
 
                 // init(bits:) initializer
                 try InitializerDeclSyntax(
-                    "\(accessorInfo.parsingAccessor) init(bits: RawBitsInteger) throws",
+                    "\(configuration.parsingAccessor) init(bits: borrowing BinaryParseKit.RawBitsSpan) throws",
                 ) {
-                    "var bitPosition = 0"
+                    let bitsSpan = context.makeUniqueName("__bitsSpan")
+                    "var \(bitsSpan) = RawBitsSpan(copying: bits)"
 
                     for fieldInfo in fieldVisitor.fields.values {
+                        let subSpan = context.makeUniqueName("__subSpan")
+                        let bitCount = context.makeUniqueName("__bitCount")
+                        let fieldType = fieldInfo.type
+                        let fieldName = fieldInfo.name
+
                         let bitCountExpr: ExprSyntax = switch fieldInfo.maskInfo.bitCount {
                         case let .specified(count):
                             count.expr
                         case .inferred:
-                            "(\(fieldInfo.type)).bitCount"
+                            "(\(fieldType)).bitCount"
                         }
 
                         switch fieldInfo.maskInfo.bitCount {
                         case .specified:
                             """
-                            // Parse `\(fieldInfo.name)` of type `\(fieldInfo
-                                .type)` with specified bit count \(bitCountExpr)
+                            // Parse `\(fieldName)` of type `\(fieldType)` with specified bit count \(bitCountExpr)
                             \(raw: Constants.UtilityFunctions.assertExpressibleByRawBits)((\(fieldInfo.type)).self)
                             """
                         case .inferred:
                             """
-                            // Parse `\(fieldInfo.name)` of type `\(fieldInfo.type)` with inferred bit count
-                            \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldInfo.type)).self)
+                            // Parse `\(fieldName)` of type `\(fieldType)` with inferred bit count
+                            \(raw: Constants.UtilityFunctions.assertBitmaskParsable)((\(fieldType)).self)
                             """
                         }
 
-                        // Extract field bits from the integer: shift right and mask
-                        // bits >> (RawBitsInteger.bitWidth - bitPosition - fieldBitCount) & mask
+                        // Extract field bits from the span
+                        // Use first/last slicing based on bit endianness
+                        let slicingMethod = configuration.isBigEndian ? "first" : "last"
                         """
                         do {
-                            let fieldBitCount = \(bitCountExpr)
-                            self.\(fieldInfo.name) = try \(raw: Constants.UtilityFunctions.maskParsing)(
-                                from: bits,
-                                parentType: Self.self,
-                                fieldType: (\(fieldInfo.type)).self,
-                                fieldRequestedBitCount: fieldBitCount,
-                                at: bitPosition
+                            let \(bitCount) = \(bitCountExpr)
+                            let \(subSpan) = \(bitsSpan).__slicing(unchecked: (), \(raw: slicingMethod): \(bitCount))
+                            self.\(fieldName) = try \(raw: Constants.UtilityFunctions.createFromBits)(
+                                (\(fieldType)).self,
+                                fieldBits: \(subSpan),
+                                fieldRequestedBitCount: \(bitCount),
+                                bitEndian: .\(raw: configuration.bitEndian),
                             )
-                            bitPosition += fieldBitCount
                         }
                         """
                     }
@@ -110,7 +115,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
             ) {
                 // toRawBits(bitCount:) method
                 try FunctionDeclSyntax(
-                    "\(accessorInfo.printingAccessor) func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits",
+                    "\(configuration.printingAccessor) func toRawBits(bitCount: Int) throws -> BinaryParseKit.RawBits",
                 ) {
                     "var result = BinaryParseKit.RawBits()"
 
@@ -142,7 +147,7 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
             ) {
                 // printerIntel() method
                 try FunctionDeclSyntax(
-                    "\(accessorInfo.printingAccessor) func printerIntel() throws -> PrinterIntel",
+                    "\(configuration.printingAccessor) func printerIntel() throws -> PrinterIntel",
                 ) {
                     "let bits = try self.toRawBits(bitCount: Self.bitCount)"
                     "return .bitmask(.init(bits: bits))"

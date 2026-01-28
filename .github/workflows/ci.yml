@@ -23,46 +23,55 @@ jobs:
   lint:
     name: Lint & Format Check
     runs-on: macOS-26
-    env:
-      DEVELOPER_DIR: "/Applications/Xcode_26.1.app/Contents/Developer"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Swift Version
-        run: xcrun swift --version
       - name: Install SwiftLint
         run: brew install swiftlint --quiet
       - name: Install swift-format
         run: brew install swiftformat --quiet
       - name: SwiftLint
-        run: swiftlint --strict --config .swiftlint.yml .
+        run: swiftlint --strict --config .swiftlint.yml . --reporter github-actions-logging
       - name: Swift Format Check
-        run: swiftformat --lint-only --config .swiftformat.conf . --strict
+        run: swiftformat --lint-only --config .swiftformat.conf . --strict --reporter github-actions-log --verbose
   test:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runsOn }}
     needs: lint
-    env:
-      DEVELOPER_DIR: "/Applications/${{ matrix.xcode }}.app/Contents/Developer"
     strategy:
       matrix:
         include:
-          - xcode: "Xcode_26.0"
-            runsOn: macOS-26
+          - runsOn: macOS-26
             name: "macOS 26, SPM 6.2.0 Test"
     steps:
       - uses: actions/checkout@v4
+      - name: Install Swiftly And Swift
+        run: |
+          curl -L https://download.swift.org/swiftly/darwin/swiftly.pkg > swiftly.pkg
+          installer -pkg swiftly.pkg -target CurrentUserHomeDirectory
+
+          ~/.swiftly/bin/swiftly init
+
+          . "$HOME/.swiftly/env.sh"
+          hash -r
+
+          swiftly install --use --assume-yes
+          swiftly link --assume-yes
+
+          echo "$HOME/.swiftly/bin" >> $GITHUB_PATH
       - name: Swift Version
-        run: xcrun swift --version
-      - name: Install xcbeautify
+        run: which swift && swift --version
+      - name: Brew install tools
         run: brew install xcbeautify --quiet
       - name: Run Tests
         run: |
-          set -o pipefail && \
-          xcodebuild test \
-          -scheme BinaryParseKit \
-          -destination 'platform=macOS' \
-          -skipMacroValidation | xcbeautify --renderer github-actions
+          defaults write com.apple.dt.Xcode IDEPackageEnablePrebuilts YES
+
+          # set -o pipefail && \
+          # xcodebuild test \
+          # -scheme BinaryParseKit \
+          # -destination 'platform=macOS' \
+          # -skipMacroValidation | xcbeautify --renderer github-actions
 
           # https://github.com/swiftlang/swift-package-manager/issues/9163
-          # set -o pipefail && xcrun swift test -c debug --enable-code-coverage --xunit-output $TEST_RESULTS_DIR/xunit.xml 2>&1 | xcbeautify --renderer github-actions
+          set -o pipefail && swift test | xcbeautify --renderer github-actions

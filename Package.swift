@@ -2,7 +2,10 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
+import class Foundation.ProcessInfo
 import PackageDescription
+
+private let enableBenchmark = ProcessInfo.processInfo.environment["ENABLE_BENCHMARK"]
 
 let package = Package(
     name: "BinaryParseKit",
@@ -25,7 +28,6 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.5"),
         .package(url: "https://github.com/pointfreeco/swift-macro-testing.git", from: "0.6.4"),
         .package(url: "https://github.com/stackotter/swift-macro-toolkit.git", from: "0.8.0"),
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"),
     ],
     targets: [
         .macro(
@@ -86,10 +88,21 @@ let package = Package(
                 "BinaryParseKit",
             ],
         ),
+
+    ],
+    swiftLanguageModes: [.v6],
+)
+
+if enableBenchmark == "1" || enableBenchmark == "true" {
+    package.dependencies.append(
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"),
+    )
+    package.targets.append(contentsOf: [
         .target(
             name: "BenchmarkTypes",
             dependencies: [
                 "BinaryParseKit",
+                .product(name: "Benchmark", package: "package-benchmark"),
             ],
             path: "Benchmarks/BenchmarkTypes",
         ),
@@ -120,6 +133,5 @@ let package = Package(
             ],
             path: "Benchmarks/PrintingBenchmarks",
         ),
-    ],
-    swiftLanguageModes: [.v6],
-)
+    ])
+}
