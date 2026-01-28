@@ -12,11 +12,10 @@ import Foundation
 extension Bool: ExpressibleByRawBits {
     public init(bits: borrowing RawBitsSpan) throws {
         // Extract the first bit from the span
-        precondition(bits.bitCount >= 1, "Bool requires at least 1 bit")
-        let firstByte = bits.bytes[0]
-        // Check the bit at bitOffset position (MSB-first)
-        let mask: UInt8 = 0x80 >> bits.bitStartIndex
-        self = (firstByte & mask) != 0
+        precondition(bits.bitCount == 1, "Bool requires only 1 bit")
+        let booleanInteger = bits.loadUnsafe(as: UInt8.self, bitCount: 1)
+        assert(booleanInteger == 0 || booleanInteger == 1, "Bool raw bits must be 0 or 1")
+        self = booleanInteger != 0
     }
 }
 
