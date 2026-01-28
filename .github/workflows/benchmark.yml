@@ -16,18 +16,31 @@ jobs:
     name: Run Benchmarks
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: macOS-26
-    env:
-      DEVELOPER_DIR: "/Applications/Xcode_26.2.app/Contents/Developer"
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - name: Install Swiftly And Swift
+        run: |
+          curl -L https://download.swift.org/swiftly/darwin/swiftly.pkg > swiftly.pkg
+          installer -pkg swiftly.pkg -target CurrentUserHomeDirectory
+
+          ~/.swiftly/bin/swiftly init
+
+          . "$HOME/.swiftly/env.sh"
+          hash -r
+
+          swiftly install --use --assume-yes
+          swiftly link --assume-yes
+
+          echo "$HOME/.swiftly/bin" >> $GITHUB_PATH
       - name: Swift Version
-        run: xcrun swift --version
+        run: which swift && swift --version
       - name: Install jemalloc
         run: |
           echo "/opt/homebrew/bin:/usr/local/bin" >> $GITHUB_PATH
           brew install jemalloc
       - name: Run Parsing Benchmarks
         run: |
-          xcrun swift package benchmark --no-progress --format markdown >> $GITHUB_STEP_SUMMARY
+          export ENABLE_BENCHMARK=1
+          swift package benchmark --no-progress --format markdown >> $GITHUB_STEP_SUMMARY

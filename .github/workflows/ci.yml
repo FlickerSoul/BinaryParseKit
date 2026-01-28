@@ -31,9 +31,9 @@ jobs:
       - name: Install swift-format
         run: brew install swiftformat --quiet
       - name: SwiftLint
-        run: swiftlint --strict --config .swiftlint.yml .
+        run: swiftlint --strict --config .swiftlint.yml . --reporter github-actions-logging
       - name: Swift Format Check
-        run: swiftformat --lint-only --config .swiftformat.conf . --strict
+        run: swiftformat --lint-only --config .swiftformat.conf . --strict --reporter github-actions-log --verbose
   test:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.runsOn }}
