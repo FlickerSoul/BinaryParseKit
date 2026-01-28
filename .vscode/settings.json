@@ -1,0 +1,8 @@
+{
+    "[swift]": {
+        "editor.defaultFormatter": "vknabel.vscode-swiftformat",
+    },
+    "swiftformat.configSearchPaths": [
+        ".swiftformat.conf"
+    ]
+}
