@@ -38,8 +38,10 @@ https://github.com/FlickerSoul/BinaryParseKit
 Or add it to your `Package.swift`:
 
 ```swift
+// IMPORTANT: please use `revision` instead of `from` to workaround the unstable dependency version issue from Swift Package Manager
+// This is because we are pinning to the main branch of the upstream `swift-binary-parsing` for wider platform version support, which doesn't have stable releases yet
 dependencies: [
-    .package(url: "https://github.com/FlickerSoul/BinaryParseKit", .upToNextMinor(from: "0.0.1"))
+    .package(url: "https://github.com/FlickerSoul/BinaryParseKit", revision: "0.0.5")
 ]
 ```
 
