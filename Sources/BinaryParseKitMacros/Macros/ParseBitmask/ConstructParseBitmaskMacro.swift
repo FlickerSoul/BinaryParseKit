@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 
 public struct ConstructParseBitmaskMacro: ExtensionMacro {
     public static func expansion(
-        of node: SwiftSyntax.AttributeSyntax,
+        of _: SwiftSyntax.AttributeSyntax,
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
         providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
         conformingTo _: [SwiftSyntax.TypeSyntax],
@@ -25,7 +25,6 @@ public struct ConstructParseBitmaskMacro: ExtensionMacro {
         let type = type.trimmed
 
         let configuration = try extractMacroConfiguration(
-            from: node,
             attachedTo: declaration,
             in: context,
         )

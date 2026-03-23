@@ -15,8 +15,8 @@ import Testing
 struct RawBitsTests {
     @Suite
     struct Initialization {
-        @Test("RawBits initialization with 10 bits")
-        func initWith10Bits() {
+        @Test
+        func `rawBits initialization with 10 bits`() {
             let data = Data([0b1101_0011, 0b1000_0000]) // 16 bits available, using 10
             let bits = RawBits(data: data, size: 10)
 
@@ -35,8 +35,8 @@ struct RawBitsTests {
             #expect(bits.data == Data([0b1101_0011, 0b1100_0000]))
         }
 
-        @Test("Normalization trims excess bytes")
-        func normalizationTrimsExcessBytes() {
+        @Test
+        func `normalization trims excess bytes`() {
             // 3 bytes provided, but only need 1 for 5 bits
             let data = Data([0b1101_0011, 0xFF, 0xFF])
             let bits = RawBits(data: data, size: 5)
@@ -47,8 +47,8 @@ struct RawBitsTests {
             #expect(bits.data == Data([0b1101_0000])) // Last 3 bits zeroed
         }
 
-        @Test("Normalization with exact byte boundary")
-        func normalizationExactByteBoundary() {
+        @Test
+        func `normalization with exact byte boundary`() {
             // Exactly 8 bits - no partial byte
             let data = Data([0b1010_1010, 0xFF])
             let bits = RawBits(data: data, size: 8)
@@ -59,8 +59,8 @@ struct RawBitsTests {
             #expect(bits.data == Data([0b1010_1010])) // No masking needed, second byte trimmed
         }
 
-        @Test("Normalization with single bit")
-        func normalizationSingleBit() {
+        @Test
+        func `normalization with single bit`() {
             let data = Data([0b0111_1111])
             let bits = RawBits(data: data, size: 1)
 
@@ -69,8 +69,8 @@ struct RawBitsTests {
             #expect(bits.data == Data([0b0000_0000])) // Only MSB matters, and it's 0
         }
 
-        @Test("Normalization preserves valid bits")
-        func normalizationPreservesValidBits() {
+        @Test
+        func `normalization preserves valid bits`() {
             // 12 bits: first byte + 4 bits of second byte
             let data = Data([0b1010_1010, 0b1111_0000])
             let bits = RawBits(data: data, size: 12)
@@ -86,8 +86,8 @@ struct RawBitsTests {
             #expect(bits2.data == Data([0b1010_1010, 0b1111_0000])) // Last 4 bits zeroed
         }
 
-        @Test("RawBits initialization with 100 bits")
-        func initWith100Bits() {
+        @Test
+        func `rawBits initialization with 100 bits`() {
             let data = Data(repeating: 0xFF, count: 13) // 104 bits available
             let bits = RawBits(data: data, size: 100)
 
@@ -95,8 +95,8 @@ struct RawBitsTests {
             #expect(bits.byteCount == 13)
         }
 
-        @Test("RawBits from full Data")
-        func initFromFullData() {
+        @Test
+        func `rawBits from full Data`() {
             let data = Data([0x12, 0x34])
             let bits = RawBits(data: data)
 
@@ -104,8 +104,8 @@ struct RawBitsTests {
             #expect(bits.byteCount == 2)
         }
 
-        @Test("Empty RawBits")
-        func emptyRawBits() {
+        @Test
+        func `empty RawBits`() {
             let bits = RawBits()
 
             #expect(bits.size == 0)
@@ -113,10 +113,9 @@ struct RawBitsTests {
         }
     }
 
-    @Suite("Equality")
     struct Equality {
-        @Test("Equal RawBits")
-        func equalRawBits() {
+        @Test
+        func `equal RawBits`() {
             let data1 = Data([0xAB, 0xCD])
             let data2 = Data([0xAB, 0xCD])
 
@@ -126,8 +125,8 @@ struct RawBitsTests {
             #expect(bits1 == bits2)
         }
 
-        @Test("Different size inequality")
-        func differentSizeInequality() {
+        @Test
+        func `different size inequality`() {
             let data = Data([0xAB, 0xCD])
 
             let bits1 = RawBits(data: data, size: 16)
@@ -136,8 +135,8 @@ struct RawBitsTests {
             #expect(bits1 != bits2)
         }
 
-        @Test("Partial byte equality")
-        func partialByteEquality() {
+        @Test
+        func `partial byte equality`() {
             // Only first 4 bits should matter
             let data1 = Data([0b1111_0000])
             let data2 = Data([0b1111_1111])

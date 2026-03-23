@@ -23,7 +23,7 @@ enum MacroConfigurationError: DiagnosticMessage, Error {
         case let .moreThanOneModifier(modifiers: modifiers):
             "More than one modifier found: \(modifiers). Only one modifier is allowed."
         case .unknownAccessor:
-            "You have used unknown accessor in `@ParseStruct` or `@ParseEnum`."
+            "You have used unknown accessor in `@configureParsing`."
         case let .invalidBitEndian(value):
             #"Invalid bitEndian value: \#(value); Please use .big or .little."#
         }
@@ -42,6 +42,8 @@ enum MacroConfigurationError: DiagnosticMessage, Error {
         }
     }
 }
+
+private let configureParsingSyntaxNames: Set<String> = ["configureParsing", "BinaryParseKit.configureParsing"]
 
 class MacroConfigurationVisitor: SyntaxVisitor {
     private static let defaultAccessor = ExtensionAccessor.follow
@@ -143,7 +145,6 @@ private let allAccessModifiers: Set<TokenKind> = [
 private let defaultAccessModifier: TokenKind = .keyword(.internal)
 
 func extractMacroConfiguration(
-    from attributeNode: AttributeSyntax,
     attachedTo declaration: some DeclGroupSyntax,
     in context: some MacroExpansionContext,
 ) throws(MacroConfigurationError) -> AccessorInfo {
@@ -160,7 +161,12 @@ func extractMacroConfiguration(
     let modifierToken = accessModifiers.first?.name.tokenKind ?? defaultAccessModifier
 
     let accessorVisitor = MacroConfigurationVisitor(context: context)
-    accessorVisitor.walk(attributeNode)
+
+    if let configureAttribute = declaration.attributes
+        .compactMap({ $0.as(AttributeSyntax.self) })
+        .first(where: { configureParsingSyntaxNames.contains($0.attributeName.trimmedDescription) }) {
+        accessorVisitor.walk(configureAttribute)
+    }
 
     guard let parsingAccessor = accessorVisitor.parsingAccessor.getAccessorToken(defaultAccessor: modifierToken),
           let printingAccessor = accessorVisitor.printingAccessor.getAccessorToken(defaultAccessor: modifierToken)

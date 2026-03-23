@@ -9,7 +9,7 @@
 import Foundation
 import Testing
 
-@Suite("__createFromBits Tests")
+@Suite
 struct CreateFromBitsTests {
     // MARK: - Test Types
 
@@ -65,8 +65,8 @@ struct CreateFromBitsTests {
 
     // MARK: - Insufficient bits (fieldBitCount < Type.bitCount)
 
-    @Test("Throws insufficientBitsAvailable when fieldBitCount < typeBitCount (5 < 6)")
-    func throwsWhenInsufficientBits5vs6() {
+    @Test
+    func `throws insufficientBitsAvailable when fieldBitCount < typeBitCount (5 < 6)`() {
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
             let bitsInteger: UInt8 = 0b11111
             _ = try bitsInteger.withParserSpan { parserSpan in
@@ -76,8 +76,8 @@ struct CreateFromBitsTests {
         }
     }
 
-    @Test("Throws insufficientBitsAvailable when fieldBitCount < typeBitCount (3 < 4)")
-    func throwsWhenInsufficientBits3vs4() {
+    @Test
+    func `throws insufficientBitsAvailable when fieldBitCount < typeBitCount (3 < 4)`() {
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
             let bitsInteger: UInt8 = 0b111
             _ = try bitsInteger.withParserSpan { parserSpan in
@@ -87,8 +87,8 @@ struct CreateFromBitsTests {
         }
     }
 
-    @Test("Throws insufficientBitsAvailable when fieldBitCount < typeBitCount (0 < 1)")
-    func throwsWhenInsufficientBits0vs1() {
+    @Test
+    func `throws insufficientBitsAvailable when fieldBitCount < typeBitCount (0 < 1)`() {
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
             let bitsInteger: UInt8 = 0
             _ = try bitsInteger.withParserSpan { parserSpan in
@@ -98,8 +98,8 @@ struct CreateFromBitsTests {
         }
     }
 
-    @Test("Throws insufficientBitsAvailable when fieldBitCount < typeBitCount (11 < 12)")
-    func throwsWhenInsufficientBits11vs12() {
+    @Test
+    func `throws insufficientBitsAvailable when fieldBitCount < typeBitCount (11 < 12)`() {
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
             let bitsInteger: UInt16 = 0x7FF
             _ = try bitsInteger.withParserSpan { parserSpan in
@@ -111,8 +111,8 @@ struct CreateFromBitsTests {
 
     // MARK: - Exact match (fieldBitCount == Type.bitCount)
 
-    @Test("Exact match: fieldBitCount == typeBitCount (6 == 6)")
-    func exactMatch6Bits() throws {
+    @Test
+    func `exact match: fieldBitCount == typeBitCount (6 == 6)`() throws {
         // fieldBits = 0b101101 = 45 positioned at MSB of byte
         // 0b101101_00 = 0xB4
         let bitsInteger: UInt8 = 0b1011_0100
@@ -123,8 +123,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0b101101)
     }
 
-    @Test("Exact match: fieldBitCount == typeBitCount (4 == 4)")
-    func exactMatch4Bits() throws {
+    @Test
+    func `exact match: fieldBitCount == typeBitCount (4 == 4)`() throws {
         // 0b1010 positioned at MSB of byte = 0b1010_0000 = 0xA0
         let bitsInteger: UInt8 = 0b1010_0000
         let result = try bitsInteger.withParserSpan { parserSpan in
@@ -134,8 +134,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0b1010)
     }
 
-    @Test("Exact match: fieldBitCount == typeBitCount (1 == 1)")
-    func exactMatch1Bit() throws {
+    @Test
+    func `exact match: fieldBitCount == typeBitCount (1 == 1)`() throws {
         // 1 bit = 1 at MSB = 0b1000_0000 = 0x80
         let bitsInteger1: UInt8 = 0b1000_0000
         let result1 = try bitsInteger1.withParserSpan { parserSpan in
@@ -153,8 +153,8 @@ struct CreateFromBitsTests {
         #expect(result0.value == 0)
     }
 
-    @Test("Exact match: fieldBitCount == typeBitCount (12 == 12)")
-    func exactMatch12Bits() throws {
+    @Test
+    func `exact match: fieldBitCount == typeBitCount (12 == 12)`() throws {
         // 0xABC (12 bits) positioned at MSB of 16-bit value
         // 0xABC << 4 = 0xABC0
         let bitsInteger: UInt16 = 0xABC0
@@ -167,8 +167,8 @@ struct CreateFromBitsTests {
 
     // MARK: - Excess bits (fieldBitCount > Type.bitCount) - takes MSB
 
-    @Test("Excess bits: takes MSB when fieldBitCount > typeBitCount (8 > 6)")
-    func excessBits8vs6() throws {
+    @Test
+    func `excess bits: takes MSB when fieldBitCount > typeBitCount (8 > 6)`() throws {
         // fieldBits = 0b10110100 (8 bits)
         // typeBitCount = 6, so shift right by 2
         // Result = 0b101101 = 45
@@ -180,8 +180,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0b101101)
     }
 
-    @Test("Excess bits: takes MSB when fieldBitCount > typeBitCount (7 > 6)")
-    func excessBits7vs6() throws {
+    @Test
+    func `excess bits: takes MSB when fieldBitCount > typeBitCount (7 > 6)`() throws {
         // fieldBits = 7 bits positioned at MSB: 1011010_0 = 0b1011_0100
         // typeBitCount = 6, so takes first 6 bits = 0b101101 = 45
         let bitsInteger: UInt8 = 0b1011_0100
@@ -192,8 +192,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0b101101)
     }
 
-    @Test("Excess bits: takes MSB when fieldBitCount > typeBitCount (8 > 4)")
-    func excessBits8vs4() throws {
+    @Test
+    func `excess bits: takes MSB when fieldBitCount > typeBitCount (8 > 4)`() throws {
         // fieldBits = 0b11010101 (8 bits)
         // typeBitCount = 4, so shift right by 4
         // Result = 0b1101 = 13
@@ -205,8 +205,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0b1101)
     }
 
-    @Test("Excess bits: takes MSB when fieldBitCount > typeBitCount (3 > 1)")
-    func excessBits3vs1() throws {
+    @Test
+    func `excess bits: takes MSB when fieldBitCount > typeBitCount (3 > 1)`() throws {
         // fieldBits = 3 bits positioned at MSB: 101_00000 = 0b1010_0000
         // typeBitCount = 1, so takes first 1 bit = 0b1 = 1
         let bitsInteger1: UInt8 = 0b1010_0000
@@ -226,8 +226,8 @@ struct CreateFromBitsTests {
         #expect(result2.value == 0)
     }
 
-    @Test("Excess bits: takes MSB when fieldBitCount > typeBitCount (16 > 12)")
-    func excessBits16vs12() throws {
+    @Test
+    func `excess bits: takes MSB when fieldBitCount > typeBitCount (16 > 12)`() throws {
         // fieldBits = 0xABCD (16 bits)
         // typeBitCount = 12, so shift right by 4
         // Result = 0xABC
@@ -241,8 +241,8 @@ struct CreateFromBitsTests {
 
     // MARK: - Type without BitCountProviding (pass-through)
 
-    @Test("Type without BitCountProviding: passes through bits directly")
-    func flexibleTypePassThrough() throws {
+    @Test
+    func `type without BitCountProviding: passes through bits directly`() throws {
         let bitsInteger: UInt8 = 0xAB
         let result = try bitsInteger.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -251,8 +251,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0xAB)
     }
 
-    @Test("Type without BitCountProviding: passes through even with small fieldBitCount")
-    func flexibleTypeSmallBitCount() throws {
+    @Test
+    func `type without BitCountProviding: passes through even with small fieldBitCount`() throws {
         // 0b1010 positioned at MSB = 0b1010_0000
         // Reading 4 bits gives 0b1010 = 10
         let bitsInteger: UInt8 = 0b1010_0000
@@ -263,8 +263,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0b1010)
     }
 
-    @Test("Type without BitCountProviding: passes through with large fieldBitCount")
-    func flexibleTypeLargeBitCount() throws {
+    @Test
+    func `type without BitCountProviding: passes through with large fieldBitCount`() throws {
         let bitsInteger: UInt8 = 0xFF
         let result = try bitsInteger.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -275,8 +275,8 @@ struct CreateFromBitsTests {
 
     // MARK: - Edge cases with truncation
 
-    @Test("Truncation when fieldBits integer is wider than expected")
-    func truncationWiderInteger() throws {
+    @Test
+    func `truncation when fieldBits integer is wider than expected`() throws {
         // Using UInt16 value but reading as UInt8
         // Value 0x1234 - reading first byte from big-endian
         let bitsInteger: UInt16 = 0x1234
@@ -287,8 +287,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0x12) // Reading the first byte from big-endian
     }
 
-    @Test("Truncation after MSB adjustment")
-    func truncationAfterMSBAdjustment() throws {
+    @Test
+    func `truncation after MSB adjustment`() throws {
         // fieldBits = 0x1234 (16 bits), fieldBitCount = 16
         // Strict6Bit.bitCount = 6, so adjust to take first 6 bits
         // 0x1234 in binary: 0001 0010 0011 0100
@@ -303,8 +303,8 @@ struct CreateFromBitsTests {
 
     // MARK: - Zero values
 
-    @Test("Zero fieldBits with exact match")
-    func zeroFieldBitsExactMatch() throws {
+    @Test
+    func `zero fieldBits with exact match`() throws {
         let bitsInteger: UInt8 = 0
         let result = try bitsInteger.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 6)
@@ -313,8 +313,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 0)
     }
 
-    @Test("Zero fieldBits with excess bits")
-    func zeroFieldBitsExcessBits() throws {
+    @Test
+    func `zero fieldBits with excess bits`() throws {
         let bitsInteger: UInt8 = 0
         let result = try bitsInteger.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -325,8 +325,8 @@ struct CreateFromBitsTests {
 
     // MARK: - Maximum values
 
-    @Test("Maximum fieldBits with exact match")
-    func maxFieldBitsExactMatch() throws {
+    @Test
+    func `maximum fieldBits with exact match`() throws {
         // 6 bits max = 0b111111 = 63
         let bitsInteger: UInt8 = 0b1111_1100
         let result = try bitsInteger.withParserSpan { parserSpan in
@@ -336,8 +336,8 @@ struct CreateFromBitsTests {
         #expect(result.value == 63)
     }
 
-    @Test("Maximum fieldBits with excess bits takes MSB")
-    func maxFieldBitsExcessTakesMSB() throws {
+    @Test
+    func `maximum fieldBits with excess bits takes MSB`() throws {
         // 8 bits all ones = 0xFF
         // Take first 6 bits = 0b111111 = 63
         let bitsInteger: UInt8 = 0xFF

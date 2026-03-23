@@ -22,8 +22,8 @@ extension ParsingTests.StructParsingTest {
         let second: Int16
     }
 
-    @Test("Data instance is larger than needed (BE)")
-    func bigEndianDataLargeParse() {
+    @Test
+    func `data instance is larger than needed (BE)`() {
         #expect(throws: ParsingError.self) {
             _ = try DataLargerParseBE(parsing: Data([1, 2, 3, 4, 5, 6]))
         }
@@ -38,8 +38,8 @@ extension ParsingTests.StructParsingTest {
         let second: Int16
     }
 
-    @Test("Data instance is larger than needed (LE)")
-    func littleEndianDataLargeParse() {
+    @Test
+    func `data instance is larger than needed (LE)`() {
         #expect(throws: ParsingError.self) {
             _ = try DataLargerParseLE(parsing: Data([1, 2, 3, 4, 5, 6]))
         }
@@ -54,8 +54,8 @@ extension ParsingTests.StructParsingTest {
         let second: Int16
     }
 
-    @Test("Data instance is exactly sized (BE)")
-    func bigEndianDataExactParse() {
+    @Test
+    func `data instance is exactly sized (BE)`() {
         #expect(throws: Never.self) {
             let parsed = try DataExactParseBE(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0102_0304)
@@ -72,8 +72,8 @@ extension ParsingTests.StructParsingTest {
         let second: Int16
     }
 
-    @Test("Data instance is exactly sized (LE)")
-    func littleEndianDataExactParse() {
+    @Test
+    func `data instance is exactly sized (LE)`() {
         #expect(throws: Never.self) {
             let parsed = try DataExactParseLE(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0403_0201)
@@ -93,8 +93,8 @@ extension ParsingTests.StructParsingTest {
         let third: UInt16
     }
 
-    @Test("Mixed endianness (BE, LE)")
-    func mixedEndianness_BE_LE() {
+    @Test
+    func `mixed endianness (BE, LE)`() {
         #expect(throws: Never.self) {
             let parsed = try BigEndiannessMixedEndianParse(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0102)
@@ -115,8 +115,8 @@ extension ParsingTests.StructParsingTest {
         let third: UInt16
     }
 
-    @Test("Mixed endianness (LE, BE)")
-    func mixedEndianness_LE_BE() {
+    @Test
+    func `mixed endianness (LE, BE)`() {
         #expect(throws: Never.self) {
             let parsed = try LittleEndianMixedEndianParse(parsing: Data([1, 2, 3, 4, 5, 6]))
             #expect(parsed.first == 0x0201)
@@ -161,8 +161,8 @@ extension ParsingTests.StructParsingTest {
         let double: Double
     }
 
-    @Test("Basic types (BE)")
-    func bigEndianBasicTypeParse() {
+    @Test
+    func `basic types (BE)`() {
         #expect(throws: Never.self) {
             let parsed = try BasicTypeParseBE(
                 parsing: Data([
@@ -241,8 +241,8 @@ extension ParsingTests.StructParsingTest {
     }
 
     @available(iOS 14.0, *)
-    @Test("Basic types (LE)")
-    func littleEndianBasicTypeParse() {
+    @Test
+    func `basic types (LE)`() {
         #expect(throws: Never.self) {
             let parsed = try BasicTypeParseLE(
                 parsing: Data([
@@ -299,8 +299,8 @@ extension ParsingTests.StructParsingTest {
         var float16: Float16
     }
 
-    @Test("Skip bytes (BE)")
-    func bigEndianSkip() {
+    @Test
+    func `skip bytes (BE)`() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructSkipBE(
                 parsing: Data([
@@ -333,8 +333,8 @@ extension ParsingTests.StructParsingTest {
     }
 
     @available(iOS 14.0, *)
-    @Test("Skip bytes (LE)")
-    func littleEndianSkip() {
+    @Test
+    func `skip bytes (LE)`() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructSkipLE(
                 parsing: Data([
@@ -362,12 +362,12 @@ extension ParsingTests.StructParsingTest {
         let byte: UInt8
     }
 
-    @Test("Input data is too short (BE)", arguments: [
+    @Test(arguments: [
         Data([]),
         Data([0x01, 0x02, 0x03]),
         Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
     ])
-    func bigEndianInputShortThrow(data: Data) {
+    func `input data is too short (BE)`(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseStructInputShortThrowBE(parsing: data)
         }
@@ -383,12 +383,12 @@ extension ParsingTests.StructParsingTest {
         let byte: UInt8
     }
 
-    @Test("Input data is too short (LE)", arguments: [
+    @Test(arguments: [
         Data([]),
         Data([0x01, 0x02, 0x03]),
         Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06]),
     ])
-    func littleEndianInputShortThrow(data: Data) {
+    func `input data is too short (LE)`(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseStructInputShortThrowLE(parsing: data)
         }
@@ -404,8 +404,8 @@ extension ParsingTests.StructParsingTest {
         let words: String
     }
 
-    @Test("Parse rest (BE)")
-    func bigEndianParseRest() {
+    @Test
+    func `parse rest (BE)`() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestBE(
                 parsing: Data([
@@ -430,8 +430,8 @@ extension ParsingTests.StructParsingTest {
         let words: String
     }
 
-    @Test("Parse rest (LE)")
-    func littleEndianParseRest() {
+    @Test
+    func `parse rest (LE)`() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestLE(
                 parsing: Data([
@@ -456,8 +456,8 @@ extension ParsingTests.StructParsingTest {
         let words: String
     }
 
-    @Test("Parse rest with no rest (BE)")
-    func bigEndianParseRestNoRest() {
+    @Test
+    func `parse rest with no rest (BE)`() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestNoRestBE(
                 parsing: Data([
@@ -481,8 +481,8 @@ extension ParsingTests.StructParsingTest {
         let words: String
     }
 
-    @Test("Parse rest with no rest (LE)")
-    func littleEndianParseRestNoRest() {
+    @Test
+    func `parse rest with no rest (LE)`() {
         #expect(throws: Never.self) {
             let parsed = try ParseStructRestNoRestLE(
                 parsing: Data([
@@ -502,16 +502,16 @@ extension ParsingTests.StructParsingTest {
         @parse(byteCount: 1, endianness: .big)
         let word: Int8
 
-        @parseRest()
+        @parseRest
         let words: String
     }
 
-    @Test("Parse rest with input data too short (BE)", arguments: [
+    @Test(arguments: [
         Data([]),
         Data([0x01]),
         Data([0x01, 0x02]),
     ])
-    func bigEndianParseRestInputShortThrow(data: Data) {
+    func `parse rest with input data too short (BE)`(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseRestInputShortThrowBE(parsing: data)
         }
@@ -523,16 +523,16 @@ extension ParsingTests.StructParsingTest {
         @parse(byteCount: 1, endianness: .little)
         let word: Int8
 
-        @parseRest()
+        @parseRest
         let words: String
     }
 
-    @Test("Parse rest with input data too short (LE)", arguments: [
+    @Test(arguments: [
         Data([]),
         Data([0x01]),
         Data([0x01, 0x02]),
     ])
-    func littleEndianParseRestInputShortThrow(data: Data) {
+    func `parse rest with input data too short (LE)`(data: Data) {
         #expect(throws: ParsingError.self) {
             _ = try ParseRestInputShortThrowLE(parsing: data)
         }
@@ -548,8 +548,8 @@ extension ParsingTests.StructParsingTest {
         let words: String
     }
 
-    @Test("Parse variable based on another field")
-    func parseBytesOfVariable() throws {
+    @Test
+    func `parse variable based on another field`() throws {
         let parsed = try ParseBytesOfVariable(parsing: [
             0x01, 0x00, // skip
             0x0C,

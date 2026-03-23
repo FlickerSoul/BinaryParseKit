@@ -12,9 +12,9 @@ import Testing
 
 extension BinaryParseKitMacroTests {
     @Suite
-    struct `Test Parsing Struct` { // swiftlint:disable:this type_body_length
+    struct TestParsingStruct { // swiftlint:disable:this type_body_length
         @Test
-        func successfulParseStructMacroExpansion() {
+        func `successful parse struct macro expansion`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -123,7 +123,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func parseStructOnClass() {
+        func `parse struct on class`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -146,7 +146,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func parseStructOnEnum() {
+        func `parse struct on enum`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -167,7 +167,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func variableWithoutTypeAnnotation() {
+        func `variable without type annotation`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -192,7 +192,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func variableWithoutParseAttribute() {
+        func `variable without parse attribute`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -215,7 +215,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func multipleParseRestAttributes() {
+        func `multiple parse rest attributes`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -244,7 +244,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func nonTrailingParseRest() {
+        func `non trailing parse rest`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -273,7 +273,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func emptyStructWithNoParseableFields() {
+        func `empty struct with no parseable fields`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -314,7 +314,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidVariablePattern() {
+        func `invalid variable pattern`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -339,7 +339,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidParseAttributeArgument() {
+        func `invalid parse attribute argument`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -367,7 +367,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func conflictingByteCountArguments() {
+        func `conflicting byte count arguments`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -393,7 +393,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidByteCountLiteral() {
+        func `invalid byte count literal`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -419,7 +419,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidByteCountOfKeyPath() {
+        func `invalid byte count of key path`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -445,7 +445,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func skipWithMissingArguments() {
+        func `skip with missing arguments`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -473,7 +473,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func skipWithWrongNumberOfArguments() {
+        func `skip with wrong number of arguments`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -501,7 +501,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func skipWithInvalidByteCount() {
+        func `skip with invalid byte count`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -529,7 +529,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func computedPropertyWithParse() {
+        func `computed property with parse`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -559,7 +559,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func byteCountParseConvertInParse() {
+        func `byte count parse convert in parse`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -585,7 +585,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func byteCountParseConvertInSkip() {
+        func `byte count parse convert in skip`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -725,7 +725,8 @@ extension BinaryParseKitMacroTests {
             assertMacro(record: .never) {
                 """
                 // \(testCase.arguments)
-                @ParseStruct(\(testCase.arguments))
+                @configureParsing(\(testCase.arguments))
+                @ParseStruct
                 struct TestStruct {
                     @parse
                     let value: Value
@@ -764,7 +765,8 @@ extension BinaryParseKitMacroTests {
         func `struct bad accessor`() {
             assertMacro {
                 """
-                @ParseStruct(parsingAccessor: "invalid", printingAccessor: .invalid)
+                @configureParsing(parsingAccessor: "invalid", printingAccessor: .invalid)
+                @ParseStruct
                 struct TestStruct {
                     @parse
                     let value: Value
@@ -772,13 +774,14 @@ extension BinaryParseKitMacroTests {
                 """
             } diagnostics: {
                 """
-                @ParseStruct(parsingAccessor: "invalid", printingAccessor: .invalid)
-                                                         ┬─────────────────────────
-                │            │                           ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
-                             ┬──────────────────────────
-                │            ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
-                ┬───────────────────────────────────────────────────────────────────
-                ╰─ 🛑 You have used unknown accessor in `@ParseStruct` or `@ParseEnum`.
+                @configureParsing(parsingAccessor: "invalid", printingAccessor: .invalid)
+                                                              ┬─────────────────────────
+                                  │                           ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                                  ┬──────────────────────────
+                                  ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                @ParseStruct
+                ┬───────────
+                ╰─ 🛑 You have used unknown accessor in `@configureParsing`.
                 struct TestStruct {
                     @parse
                     let value: Value
@@ -1249,7 +1252,8 @@ extension BinaryParseKitMacroTests {
         func `little endian mask fields in struct`() {
             assertMacro {
                 """
-                @ParseStruct(bitEndian: .little)
+                @configureParsing(bitEndian: .little)
+                @ParseStruct
                 struct LittleEndianBitFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool
@@ -1324,7 +1328,8 @@ extension BinaryParseKitMacroTests {
         func `explicit big endian mask fields in struct`() {
             assertMacro {
                 """
-                @ParseStruct(bitEndian: .big)
+                @configureParsing(bitEndian: .big)
+                @ParseStruct
                 struct LittleEndianBitFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool
@@ -1399,7 +1404,8 @@ extension BinaryParseKitMacroTests {
         func `non .big/.little as bitEndian should fail`() {
             assertMacro {
                 """
-                @ParseStruct(bitEndian: Something.big)
+                @configureParsing(bitEndian: Something.big)
+                @ParseStruct
                 struct LittleEndianBitFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool
@@ -1413,9 +1419,10 @@ extension BinaryParseKitMacroTests {
                 """
             } diagnostics: {
                 """
-                @ParseStruct(bitEndian: Something.big)
-                             ┬───────────────────────
-                             ╰─ 🛑 Invalid bitEndian value: Something.big; Please use .big or .little.
+                @configureParsing(bitEndian: Something.big)
+                                  ┬───────────────────────
+                                  ╰─ 🛑 Invalid bitEndian value: Something.big; Please use .big or .little.
+                @ParseStruct
                 struct LittleEndianBitFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool

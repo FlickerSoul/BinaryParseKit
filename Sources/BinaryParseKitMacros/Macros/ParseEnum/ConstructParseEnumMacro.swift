@@ -13,7 +13,7 @@ import SwiftSyntaxMacros
 
 public struct ConstructEnumParseMacro: ExtensionMacro {
     public static func expansion(
-        of attributeNode: SwiftSyntax.AttributeSyntax,
+        of _: SwiftSyntax.AttributeSyntax,
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
         providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
         conformingTo _: [SwiftSyntax.TypeSyntax],
@@ -24,7 +24,6 @@ public struct ConstructEnumParseMacro: ExtensionMacro {
         }
 
         let configuration = try extractMacroConfiguration(
-            from: attributeNode,
             attachedTo: enumDeclaration,
             in: context,
         )

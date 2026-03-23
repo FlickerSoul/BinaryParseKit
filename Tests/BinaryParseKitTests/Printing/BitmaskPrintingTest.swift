@@ -29,8 +29,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var nibble: UInt8
     }
 
-    @Test("Basic bitmask round-trip: parse then print")
-    func basicBitmaskRoundTrip() throws {
+    @Test
+    func `basic bitmask round-trip: parse then print`() throws {
         // Binary: 1 010 0011 = 0xA3
         let originalBytes = Data([0b1010_0011])
         let flags = try originalBytes.withParserSpan { parserSpan in
@@ -43,8 +43,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalBytes)
     }
 
-    @Test("Basic bitmask round-trip: all zeros")
-    func basicBitmaskRoundTripAllZeros() throws {
+    @Test
+    func `basic bitmask round-trip: all zeros`() throws {
         let originalBytes = Data([0b0000_0000])
         let flags = try originalBytes.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -55,8 +55,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalBytes)
     }
 
-    @Test("Basic bitmask round-trip: all ones")
-    func basicBitmaskRoundTripAllOnes() throws {
+    @Test
+    func `basic bitmask round-trip: all ones`() throws {
         let originalBytes = Data([0b1111_1111])
         let flags = try originalBytes.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -81,8 +81,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var low: UInt8
     }
 
-    @Test("Multi-byte bitmask round-trip")
-    func multiByteBitmaskRoundTrip() throws {
+    @Test
+    func `multi-byte bitmask round-trip`() throws {
         // Binary: 1010 10110011 0100 = 0xAB34
         let originalBytes = Data([0b1010_1011, 0b0011_0100])
         let wide = try originalBytes.withParserSpan { parserSpan in
@@ -108,8 +108,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var third: UInt8
     }
 
-    @Test("Non-byte-aligned bitmask round-trip (10 bits)")
-    func nonByteAlignedBitmaskRoundTrip() throws {
+    @Test
+    func `non-byte-aligned bitmask round-trip (10 bits)`() throws {
         // Binary: 101 01100 11 = 10 bits
         // Byte representation: 10101100 11000000 = 0xACC0 (MSB-aligned in 16-bit)
         let originalData = Data([0b1010_1100, 0b1100_0000])
@@ -125,8 +125,8 @@ extension PrintingTests.BitmaskPrintingTest {
 
     // MARK: - toRawBits Tests
 
-    @Test("toRawBits produces correct bits")
-    func toRawBitsCorrectness() throws {
+    @Test
+    func `toRawBits produces correct bits`() throws {
         let flags = BasicFlags(flag1: 1, value: 2, nibble: 3)
         let rawBits = try flags.toRawBits(bitCount: BasicFlags.bitCount)
 
@@ -134,8 +134,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(Array(rawBits.data) == [0b1010_0011]) // 1 010 0011
     }
 
-    @Test("toRawBits with different values")
-    func toRawBitsDifferentValues() throws {
+    @Test
+    func `toRawBits with different values`() throws {
         let flags = BasicFlags(flag1: 0, value: 7, nibble: 15)
         let rawBits = try flags.toRawBits(bitCount: BasicFlags.bitCount)
 
@@ -146,8 +146,8 @@ extension PrintingTests.BitmaskPrintingTest {
 
     // MARK: - printerIntel Tests
 
-    @Test("printerIntel returns bitmask intel")
-    func printerIntelReturnsBitmask() throws {
+    @Test
+    func `printerIntel returns bitmask intel`() throws {
         let data = Data([0b1010_0011])
         let flags = try data.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -179,8 +179,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var lowBits: UInt8
     }
 
-    @Test("13-bit bitmask round-trip")
-    func thirteenBitMaskRoundTrip() throws {
+    @Test
+    func `round-trip 13-bit bitmask`() throws {
         // 10101 1100 0011 000 (padded to 16 bits) -> highBits=21, middleBits=12, lowBits=3
         // Bytes: 10101110 00011000 = 0xAE18 (MSB-aligned in 16-bit)
         let originalData = Data([0b1010_1110, 0b0001_1000])
@@ -221,8 +221,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var bit7: UInt8
     }
 
-    @Test("Eight single-bit fields round-trip")
-    func eightSingleBitsRoundTrip() throws {
+    @Test
+    func `eight single-bit fields round-trip`() throws {
         // 10101010 -> bit0=1, bit1=0, bit2=1, bit3=0, bit4=1, bit5=0, bit6=1, bit7=0
         let originalData = Data([0b1010_1010])
         let parsed = try originalData.withParserSpan { parserSpan in
@@ -234,8 +234,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Eight single-bit fields all ones round-trip")
-    func eightSingleBitsAllOnesRoundTrip() throws {
+    @Test
+    func `eight single-bit fields all ones round-trip`() throws {
         let originalData = Data([0b1111_1111])
         let parsed = try originalData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -246,8 +246,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Eight single-bit fields all zeros round-trip")
-    func eightSingleBitsAllZerosRoundTrip() throws {
+    @Test
+    func `eight single-bit fields all zeros round-trip`() throws {
         let originalData = Data([0b0000_0000])
         let parsed = try originalData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 8)
@@ -268,8 +268,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var smallPart: UInt16
     }
 
-    @Test("Large 32-bit bitmask round-trip")
-    func largeBitmaskRoundTrip() throws {
+    @Test
+    func `large 32-bit bitmask round-trip`() throws {
         // 20 bits + 12 bits = 32 bits total
         let originalData = Data([0x12, 0x34, 0x56, 0x78])
         let parsed = try originalData.withParserSpan { parserSpan in
@@ -307,8 +307,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var sevenBits: UInt8
     }
 
-    @Test("Asymmetric bit widths (1-7 bits) round-trip")
-    func asymmetricBitWidthsRoundTrip() throws {
+    @Test
+    func `asymmetric bit widths (1-7 bits) round-trip`() throws {
         // 1 + 2 + 3 + 4 + 5 + 6 + 7 = 28 bits
         // 1 11 101 0110 01111 010101 0101010 0000
         // Bytes: 11110101 10011110 10101010 10100000 = 0xF59EAAA0 (MSB-aligned in 32-bit)
@@ -340,8 +340,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var lowerHalf: UInt16
     }
 
-    @Test("Two 16-bit halves round-trip")
-    func twoHalvesRoundTrip() throws {
+    @Test
+    func `two 16-bit halves round-trip`() throws {
         let originalData = Data([0x12, 0x34, 0x56, 0x78])
         let parsed = try originalData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 32)
@@ -359,8 +359,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var value: UInt8
     }
 
-    @Test("Single 3-bit field round-trip")
-    func threeBitFieldRoundTrip() throws {
+    @Test
+    func `single 3-bit field round-trip`() throws {
         // 101 00000 = 0xA0 (MSB-aligned in 8-bit)
         let originalData = Data([0b1010_0000])
         let parsed = try originalData.withParserSpan { parserSpan in
@@ -372,8 +372,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("ThreeBitField bitCount is correct")
-    func threeBitFieldBitCount() {
+    @Test
+    func `threeBitField bitCount is correct`() {
         #expect(ThreeBitField.bitCount == 3)
     }
 
@@ -390,8 +390,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var thirdByte: UInt8
     }
 
-    @Test("24-bit (3 bytes) bitmask round-trip")
-    func twentyFourBitsRoundTrip() throws {
+    @Test
+    func `round-trip 24-bit (3 bytes) bitmask`() throws {
         let originalData = Data([0xAB, 0xCD, 0xEF])
         let parsed = try originalData.withParserSpan { parserSpan in
             let rawBits = RawBitsSpan(parserSpan.bytes, bitOffset: 0, bitCount: 24)
@@ -402,8 +402,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("TwentyFourBits bitCount is correct")
-    func twentyFourBitsBitCount() {
+    @Test
+    func `twentyFourBits bitCount is correct`() {
         #expect(TwentyFourBits.bitCount == 24)
     }
 
@@ -417,8 +417,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var low: UInt8
     }
 
-    @Test("7-bit bitmask round-trip")
-    func sevenBitsRoundTrip() throws {
+    @Test
+    func `round-trip 7-bit bitmask`() throws {
         // 101 0110 0 = 0xAC (MSB-aligned in 8-bit, with trailing 0 padding)
         let originalData = Data([0b1010_1100])
         let parsed = try originalData.withParserSpan { parserSpan in
@@ -430,8 +430,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("SevenBits bitCount is correct")
-    func sevenBitsBitCount() {
+    @Test
+    func `sevenBits bitCount is correct`() {
         #expect(SevenBits.bitCount == 7)
     }
 
@@ -445,8 +445,8 @@ extension PrintingTests.BitmaskPrintingTest {
         var low: UInt8
     }
 
-    @Test("9-bit bitmask round-trip")
-    func nineBitsRoundTrip() throws {
+    @Test
+    func `round-trip 9-bit bitmask`() throws {
         // 1010 10110 0000000 = 0xAB00 (MSB-aligned in 16-bit, with trailing padding)
         let originalData = Data([0b1010_1011, 0b0000_0000])
         let parsed = try originalData.withParserSpan { parserSpan in
@@ -458,15 +458,15 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("NineBits bitCount is correct")
-    func nineBitsBitCount() {
+    @Test
+    func `nineBits bitCount is correct`() {
         #expect(NineBits.bitCount == 9)
     }
 
     // MARK: - Padding Normalization Tests (output has clean padding bits)
 
-    @Test("Non-byte-aligned bitmask produces clean padding")
-    func nonByteAlignedCleanPadding() throws {
+    @Test
+    func `non-byte-aligned bitmask produces clean padding`() throws {
         // 10 bits: 101 01100 11
         // MSB-aligned in 16-bit: 10101100 11000000 = 0xACC0
         // Output: 10101100 11000000 (padding bits are 0s)
@@ -480,8 +480,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == Data([0b1010_1100, 0b1100_0000]))
     }
 
-    @Test("13-bit bitmask produces clean padding")
-    func thirteenBitCleanPadding() throws {
+    @Test
+    func `thirteen-bit bitmask produces clean padding`() throws {
         // 13 bits: 10101 1100 0011
         // MSB-aligned in 16-bit: 10101110 00011000 = 0xAE18
         // Output: 10101110 00011000 (padding: 000)
@@ -495,8 +495,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == Data([0b1010_1110, 0b0001_1000]))
     }
 
-    @Test("3-bit field produces clean padding")
-    func threeBitCleanPadding() throws {
+    @Test
+    func `round-trip 3-bit field`() throws {
         // 3 bits: 101
         // MSB-aligned in 8-bit: 10100000
         // Output: 10100000
@@ -510,8 +510,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == Data([0b1010_0000]))
     }
 
-    @Test("7-bit bitmask produces clean padding")
-    func sevenBitCleanPadding() throws {
+    @Test
+    func `seven-bit bitmask produces clean padding`() throws {
         // 7 bits: 101 0110
         // MSB-aligned in 8-bit: 10101100
         // Output: 10101100
@@ -525,8 +525,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == Data([0b1010_1100]))
     }
 
-    @Test("9-bit bitmask produces clean padding")
-    func nineBitCleanPadding() throws {
+    @Test
+    func `non-byte-aligned 9-bit bitmask produces clean padding`() throws {
         // 9 bits: 1010 10110
         // MSB-aligned in 16-bit: 10101011 00000000 = 0xAB00
         // Output: 10101011 00000000
@@ -540,8 +540,8 @@ extension PrintingTests.BitmaskPrintingTest {
         #expect(printedBytes == Data([0b1010_1011, 0b0000_0000]))
     }
 
-    @Test("28-bit asymmetric produces clean padding")
-    func asymmetricCleanPadding() throws {
+    @Test
+    func `clean padding for 28-bit asymmetric`() throws {
         // 28 bits with 4 padding bits
         // MSB-aligned in 32-bit: 11110101 10011110 10101010 10100000 = 0xF59EAAA0
         // Output should have padding bits = 0000

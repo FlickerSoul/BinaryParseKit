@@ -242,6 +242,37 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
+// MARK: - Parse Configuration
+
+/// Configures parsing behavior for ``ParseStruct``, ``ParseEnum``, and ``ParseBitmask`` macros.
+///
+/// Use this macro alongside `@ParseStruct`, `@ParseEnum`, or `@ParseBitmask` to customize
+/// parsing behavior such as bit endianness and extension access levels.
+///
+/// - Parameters:
+///   - bitEndian: The bit ordering for bitmask parsing. Use `.big` for MSB-first (default) or `.little` for LSB-first.
+///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
+///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
+///
+/// Example:
+/// ```swift
+/// @configureParsing(bitEndian: .little, parsingAccessor: .public, printingAccessor: .public)
+/// @ParseStruct
+/// struct FileHeader {
+///     @parse(byteCount: 4, endianness: .big)
+///     let magic: UInt32
+///
+///     @parse(byteCount: 2, endianness: .little)
+///     let version: UInt16
+/// }
+/// ```
+@attached(peer)
+public macro configureParsing(
+    bitEndian: Endianness = .big,
+    parsingAccessor: ExtensionAccessor = .follow,
+    printingAccessor: ExtensionAccessor = .follow,
+) = #externalMacro(module: "BinaryParseKitMacros", type: "EmptyPeerMacro")
+
 // MARK: - Struct Parsing
 
 /// Generates a ``Parsable`` implementation for a struct with annotated fields.
@@ -255,12 +286,9 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// - Proper error handling for parsing failures
 /// - A ``Printable`` conformance
 ///
-/// - Parameters:
-///   - bitEndian: The bit ordering for bitmask parsing. Use `.big` for MSB-first (default) or `.little` for LSB-first.
-///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
-///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
-///
 /// - Note: All fields except those with accessors (`get` and `set`) must be marked with `@parse` variants.
+/// - Note: Use ``configureParsing(bitEndian:parsingAccessor:printingAccessor:)`` to configure bit endianness and access
+/// levels.
 ///
 /// Example:
 /// ```swift
@@ -282,11 +310,7 @@ public macro parseRest(endianness: Endianness) = #externalMacro(
 /// let header = try FileHeader(parsing: data)
 /// ```
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
-public macro ParseStruct(
-    bitEndian: Endianness = .big,
-    parsingAccessor: ExtensionAccessor = .follow,
-    printingAccessor: ExtensionAccessor = .follow,
-) = #externalMacro(
+public macro ParseStruct() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructStructParseMacro",
 )
@@ -303,21 +327,14 @@ public macro ParseStruct(
 /// - A ``Parsable`` conformance
 /// - A ``Printable`` conformance
 ///
-/// - Parameters:
-///   - bitEndian: The bit ordering for bitmask parsing. Use `.big` for MSB-first (default) or `.little` for LSB-first.
-///   - parsingAccessor: The accessor level for the generated `Parsable` conformance (default is `.follow`)
-///   - printingAccessor: The accessor level for the generated `Printable` conformance (default is `.follow`)
-///
 /// - Note: All enum cases must be marked with `@match` variants, which is intentional by design, which I don't think is
 /// necessary and is possible to be lifted in the future.
 /// - Note: Only one `@matchDefault` case is allowed per enum, and has to be declared at the end of all other cases.
 /// - Note: any `match` macro has to proceed `parse` and `skip` macros.
+/// - Note: Use ``configureParsing(bitEndian:parsingAccessor:printingAccessor:)`` to configure bit endianness and access
+/// levels.
 @attached(extension, conformances: BinaryParseKit.Parsable, BinaryParseKit.Printable, names: arbitrary)
-public macro ParseEnum(
-    bitEndian: Endianness = .big,
-    parsingAccessor: ExtensionAccessor = .follow,
-    printingAccessor: ExtensionAccessor = .follow,
-) = #externalMacro(
+public macro ParseEnum() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructEnumParseMacro",
 )
@@ -649,12 +666,9 @@ public macro mask() = #externalMacro(
 /// - A `static var bitCount: Int` that is the sum of all field bit counts
 /// - An `init(bits: RawBits) throws` initializer
 ///
-/// - Parameters:
-///   - bitEndian: The bit ordering for parsing. Use `.big` for MSB-first (default) or `.little` for LSB-first.
-///   - parsingAccessor: The accessor level for the generated initializer (default is `.follow`)
-///   - printingAccessor: The accessor level for the generated `bitCount` property (default is `.follow`)
-///
 /// - Note: All fields in a `@ParseBitmask` struct must have `@mask` attribute.
+/// - Note: Use ``configureParsing(bitEndian:parsingAccessor:printingAccessor:)`` to configure bit endianness and access
+/// levels.
 ///
 /// Example:
 /// ```swift
@@ -686,11 +700,7 @@ public macro mask() = #externalMacro(
     BinaryParseKit.Printable,
     names: arbitrary
 )
-public macro ParseBitmask(
-    bitEndian: Endianness = .big,
-    parsingAccessor: ExtensionAccessor = .follow,
-    printingAccessor: ExtensionAccessor = .follow,
-) = #externalMacro(
+public macro ParseBitmask() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructParseBitmaskMacro",
 )

@@ -29,8 +29,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case simple(UInt16)
     }
 
-    @Test("Enum with mask round-trip")
-    func enumWithMaskRoundTrip() throws {
+    @Test
+    func `enum with mask round-trip`() throws {
         // Match byte 0x01 (consumed), then parse: 1 0110100 = 0xB4
         let originalData = Data([0x01, 0b1011_0100])
         let parsed = try BasicEnumWithMask(parsing: originalData)
@@ -39,8 +39,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum with mask round-trip all zeros")
-    func enumWithMaskRoundTripAllZeros() throws {
+    @Test
+    func `enum with mask round-trip all zeros`() throws {
         let originalData = Data([0x01, 0x00])
         let parsed = try BasicEnumWithMask(parsing: originalData)
 
@@ -48,8 +48,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum with mask round-trip all ones")
-    func enumWithMaskRoundTripAllOnes() throws {
+    @Test
+    func `enum with mask round-trip all ones`() throws {
         let originalData = Data([0x01, 0xFF])
         let parsed = try BasicEnumWithMask(parsing: originalData)
 
@@ -57,8 +57,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum simple case round-trip")
-    func enumSimpleCaseRoundTrip() throws {
+    @Test
+    func `enum simple case round-trip`() throws {
         let originalData = Data([0x02, 0x12, 0x34])
         let parsed = try BasicEnumWithMask(parsing: originalData)
 
@@ -81,8 +81,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case singleMask(UInt8)
     }
 
-    @Test("Enum with mixed @parse and @mask round-trip")
-    func enumMixedParseAndMaskRoundTrip() throws {
+    @Test
+    func `enum with mixed @parse and @mask round-trip`() throws {
         // Match 0x01 (consumed), then parse UInt16 BE (0x1234), then parse mask byte: 1010 0101 = 0xA5
         let originalData = Data([0x01, 0x12, 0x34, 0xA5])
         let parsed = try MixedParseAndMask(parsing: originalData)
@@ -91,8 +91,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum single mask case round-trip")
-    func enumSingleMaskCaseRoundTrip() throws {
+    @Test
+    func `enum single mask case round-trip`() throws {
         let originalData = Data([0x02, 0x42])
         let parsed = try MixedParseAndMask(parsing: originalData)
 
@@ -113,8 +113,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case complex(group1a: UInt8, group1b: UInt8, separator: UInt8, group2a: UInt8, group2b: UInt8)
     }
 
-    @Test("Enum with multiple mask groups round-trip")
-    func enumMultipleMaskGroupsRoundTrip() throws {
+    @Test
+    func `enum with multiple mask groups round-trip`() throws {
         // Match 0x01 (consumed)
         // First mask group: 11 010110 = 0xD6 -> group1a=3, group1b=22
         // Separator: 0xFF
@@ -137,8 +137,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case withPadding(UInt8, UInt8)
     }
 
-    @Test("Enum with skip before mask round-trip")
-    func enumMaskWithSkipRoundTrip() throws {
+    @Test
+    func `enum with skip before mask round-trip`() throws {
         // Match 0x01 (consumed), skip 2 bytes, then parse mask: 1100 0011 = 0xC3
         let originalData = Data([0x01, 0xFF, 0xFF, 0xC3])
         let parsed = try MaskWithSkip(parsing: originalData)
@@ -158,8 +158,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case wide(UInt16, UInt8)
     }
 
-    @Test("Enum with multi-byte mask round-trip")
-    func enumMultiByteMaskRoundTrip() throws {
+    @Test
+    func `enum with multi-byte mask round-trip`() throws {
         // Match 0x01 (consumed), then parse 16 bits: 1010 1011 0011 0100 = 0xAB34
         let originalData = Data([0x01, 0b1010_1011, 0b0011_0100])
         let parsed = try MultiByteMask(parsing: originalData)
@@ -180,8 +180,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case tenBits(UInt8, UInt8, UInt8)
     }
 
-    @Test("Enum with non-byte-aligned mask (10 bits) round-trip")
-    func enumNonByteAlignedMaskRoundTrip() throws {
+    @Test
+    func `enum with non-byte-aligned mask (10 bits) round-trip`() throws {
         // Match 0x01 (consumed)
         // 101 01100 11 = 10 bits -> first=5, second=12, third=3
         // Byte representation: 10101100 11000000 = 0xAC 0xC0
@@ -202,8 +202,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case thirteenBits(highBits: UInt8, middleBits: UInt8, lowBits: UInt8)
     }
 
-    @Test("Enum with 13-bit mask round-trip")
-    func enumThirteenBitMaskRoundTrip() throws {
+    @Test
+    func `enum with 13-bit mask round-trip`() throws {
         // Match 0x01 (consumed)
         // 10101 1100 0011 000 (padded to 16 bits) -> highBits=21, middleBits=12, lowBits=3
         // Bytes: 10101110 00011000 = 0xAE 0x18
@@ -228,8 +228,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case complex(header: UInt8, nibble1: UInt8, nibble2: UInt8, twobit: UInt8, sixbit: UInt8, footer: UInt16)
     }
 
-    @Test("Enum with interleaved parse-mask-skip-mask-parse round-trip")
-    func enumInterleavedParseMaskSkipMaskParseRoundTrip() throws {
+    @Test
+    func `enum with interleaved parse-mask-skip-mask-parse round-trip`() throws {
         // Match 0x01 (consumed)
         // header: 0x42
         // mask1: 1010 0101 -> nibble1=10, nibble2=5
@@ -262,8 +262,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case data(flags: UInt8, value: UInt16)
     }
 
-    @Test("Enum with skip-mask-skip-parse round-trip")
-    func enumSkipMaskSkipParseRoundTrip() throws {
+    @Test
+    func `enum with skip-mask-skip-parse round-trip`() throws {
         // Match 0x01 (consumed)
         // skip: 0xFF
         // mask: 0xAB -> flags=0xAB
@@ -295,8 +295,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         )
     }
 
-    @Test("Enum with multiple non-byte-aligned mask groups round-trip")
-    func enumMultipleNonByteAlignedMaskGroupsRoundTrip() throws {
+    @Test
+    func `enum with multiple non-byte-aligned mask groups round-trip`() throws {
         // Match 0x01 (consumed)
         // First group (8 bits): 101 011 10 -> group1High=5, group1Mid=3, group1Low=2
         // separator: 0xFF
@@ -327,8 +327,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case bits(UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
     }
 
-    @Test("Enum with eight single-bit masks round-trip")
-    func enumEightSingleBitMasksRoundTrip() throws {
+    @Test
+    func `enum with eight single-bit masks round-trip`() throws {
         // Match 0x01 (consumed)
         // 10101010 -> bit0=1, bit1=0, bit2=1, bit3=0, bit4=1, bit5=0, bit6=1, bit7=0
         let originalData = Data([0x01, 0b1010_1010])
@@ -338,16 +338,16 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum with eight single-bit masks all ones round-trip")
-    func enumEightSingleBitMasksAllOnesRoundTrip() throws {
+    @Test
+    func `enum with eight single-bit masks all ones round-trip`() throws {
         let originalData = Data([0x01, 0xFF])
         let parsed = try SingleBitMasks(parsing: originalData)
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum with eight single-bit masks all zeros round-trip")
-    func enumEightSingleBitMasksAllZerosRoundTrip() throws {
+    @Test
+    func `enum with eight single-bit masks all zeros round-trip`() throws {
         let originalData = Data([0x01, 0x00])
         let parsed = try SingleBitMasks(parsing: originalData)
         let printedBytes = try parsed.printParsed(printer: .data)
@@ -366,8 +366,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case data(firstNibble: UInt8, secondNibble: UInt8, middleWord: UInt16, threeBit: UInt8, fiveBit: UInt8)
     }
 
-    @Test("Enum with mask-parse-mask pattern round-trip")
-    func enumMaskParseMaskRoundTrip() throws {
+    @Test
+    func `enum with mask-parse-mask pattern round-trip`() throws {
         // Match 0x01 (consumed)
         // First mask byte: 1010 0101 -> firstNibble=10, secondNibble=5
         // Parse word BE: 0x1234
@@ -409,8 +409,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         )
     }
 
-    @Test("Enum with three separate mask groups round-trip")
-    func enumThreeMaskGroupsRoundTrip() throws {
+    @Test
+    func `enum with three separate mask groups round-trip`() throws {
         // Match 0x01 (consumed)
         // Group1: 1100 0011 -> group1a=12, group1b=3
         // sep1: 0xAA
@@ -453,8 +453,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case noMask(UInt16)
     }
 
-    @Test("Enum multiple cases with different mask patterns round-trip - nibbles case")
-    func enumMultipleCasesNibblesRoundTrip() throws {
+    @Test
+    func `enum multiple cases with different mask patterns round-trip - nibbles case`() throws {
         // 1010 0101 -> nibble1=10, nibble2=5
         let originalData = Data([0x01, 0b1010_0101])
         let parsed = try MultipleCasesWithMasks(parsing: originalData)
@@ -463,8 +463,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum multiple cases with different mask patterns round-trip - mixedBits case")
-    func enumMultipleCasesMixedBitsRoundTrip() throws {
+    @Test
+    func `enum multiple cases with different mask patterns round-trip - mixedBits case`() throws {
         // 101 01100 11 010110 -> a=5, b=12, c=3, d=22
         let originalData = Data([0x02, 0b1010_1100, 0b1101_0110])
         let parsed = try MultipleCasesWithMasks(parsing: originalData)
@@ -473,8 +473,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum multiple cases with different mask patterns round-trip - noMask case")
-    func enumMultipleCasesNoMaskRoundTrip() throws {
+    @Test
+    func `enum multiple cases with different mask patterns round-trip - noMask case`() throws {
         let originalData = Data([0x03, 0x12, 0x34])
         let parsed = try MultipleCasesWithMasks(parsing: originalData)
         #expect(parsed == .noMask(0x1234))
@@ -491,8 +491,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case withMask(UInt8, UInt8)
     }
 
-    @Test("Enum match (not take) with masks round-trip")
-    func enumMatchWithMasksRoundTrip() throws {
+    @Test
+    func `enum match (not take) with masks round-trip`() throws {
         // Match 0x01 (NOT consumed) - so 0x01 is still at position 0
         // and becomes the mask byte: 0000 0001 -> nibble1=0, nibble2=1
         let originalData = Data([0x01, 0xA5])
@@ -516,8 +516,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         case unknown(UInt8)
     }
 
-    @Test("Enum matchDefault with masks round-trip - known case")
-    func enumMatchDefaultWithMasksKnownRoundTrip() throws {
+    @Test
+    func `enum matchDefault with masks round-trip - known case`() throws {
         // 1010 1011 -> nibble1=10, nibble2=11
         let originalData = Data([0x01, 0b1010_1011])
         let parsed = try MatchDefaultWithMasks(parsing: originalData)
@@ -526,8 +526,8 @@ extension PrintingTests.EnumMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Enum matchDefault with masks round-trip - unknown case")
-    func enumMatchDefaultWithMasksUnknownRoundTrip() throws {
+    @Test
+    func `enum matchDefault with masks round-trip - unknown case`() throws {
         // Any byte that's not 0x01 triggers default
         // Default doesn't consume match bytes, so 0xFF is read as the mask
         let originalData = Data([0xFF, 0x42])

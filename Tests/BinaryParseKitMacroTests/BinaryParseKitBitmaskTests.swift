@@ -10,7 +10,7 @@ import Testing
 
 extension BinaryParseKitMacroTests {
     @Suite
-    struct `Test Parsing Bitmask` { // swiftlint:disable:this type_body_length
+    struct TestParsingBitmask { // swiftlint:disable:this type_body_length
         @Test
         func `successful expansion`() {
             assertMacro {
@@ -523,7 +523,8 @@ extension BinaryParseKitMacroTests {
         func `custom accessors`() {
             assertMacro {
                 """
-                @ParseBitmask(parsingAccessor: .public, printingAccessor: .public)
+                @configureParsing(parsingAccessor: .public, printingAccessor: .public)
+                @ParseBitmask
                 struct PublicFlags {
                     @mask(bitCount: 1)
                     var flag: Bool
@@ -579,7 +580,8 @@ extension BinaryParseKitMacroTests {
         func `no type annotation`() {
             assertMacro {
                 """
-                @ParseBitmask(parsingAccessor: .public, printingAccessor: .public)
+                @configureParsing(parsingAccessor: .public, printingAccessor: .public)
+                @ParseBitmask
                 struct PublicFlags {
                     @mask(bitCount: 1)
                     var flag
@@ -587,8 +589,9 @@ extension BinaryParseKitMacroTests {
                 """
             } diagnostics: {
                 """
-                @ParseBitmask(parsingAccessor: .public, printingAccessor: .public)
-                ┬─────────────────────────────────────────────────────────────────
+                @configureParsing(parsingAccessor: .public, printingAccessor: .public)
+                @ParseBitmask
+                ┬────────────
                 ╰─ 🛑 Fatal error in ParseBitmask macro: Errors encountered while parsing @mask fields.
                 struct PublicFlags {
                     @mask(bitCount: 1)
@@ -785,7 +788,8 @@ extension BinaryParseKitMacroTests {
         func `little endian bit parsing`() {
             assertMacro {
                 """
-                @ParseBitmask(bitEndian: .little)
+                @configureParsing(bitEndian: .little)
+                @ParseBitmask
                 struct LittleEndianFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool
@@ -878,7 +882,8 @@ extension BinaryParseKitMacroTests {
         func `explicit big endian bit parsing`() {
             assertMacro {
                 """
-                @ParseBitmask(bitEndian: .big)
+                @configureParsing(bitEndian: .big)
+                @ParseBitmask
                 struct LittleEndianFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool
@@ -971,7 +976,8 @@ extension BinaryParseKitMacroTests {
         func `non .big/.little as bitEndian should fail`() {
             assertMacro {
                 """
-                @ParseBitmask(bitEndian: someVariable)
+                @configureParsing(bitEndian: someVariable)
+                @ParseBitmask
                 struct LittleEndianFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool
@@ -985,9 +991,10 @@ extension BinaryParseKitMacroTests {
                 """
             } diagnostics: {
                 """
-                @ParseBitmask(bitEndian: someVariable)
-                              ┬──────────────────────
-                              ╰─ 🛑 Invalid bitEndian value: someVariable; Please use .big or .little.
+                @configureParsing(bitEndian: someVariable)
+                                  ┬──────────────────────
+                                  ╰─ 🛑 Invalid bitEndian value: someVariable; Please use .big or .little.
+                @ParseBitmask
                 struct LittleEndianFlags {
                     @mask(bitCount: 1)
                     var flag1: Bool

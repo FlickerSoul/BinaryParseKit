@@ -13,7 +13,7 @@ import Testing
 // swiftlint:disable file_length line_length
 extension BinaryParseKitMacroTests {
     @Suite
-    struct `Test Parsing Enum` { // swiftlint:disable:this type_body_length
+    struct TestParsingEnum { // swiftlint:disable:this type_body_length
         @Test
         func `parse regular enum`() {
             assertMacro {
@@ -881,7 +881,8 @@ extension BinaryParseKitMacroTests {
             assertMacro(record: .never) {
                 """
                 // \(testCase.arguments)
-                @ParseEnum(\(testCase.arguments))
+                @configureParsing(\(testCase.arguments))
+                @ParseEnum
                 enum TestEnum {
                     @match(byte: 0x01)
                     case a
@@ -945,7 +946,8 @@ extension BinaryParseKitMacroTests {
         func `enum bad accessor`() {
             assertMacro {
                 """
-                @ParseEnum(parsingAccessor: "invalid", printingAccessor: .invalid)
+                @configureParsing(parsingAccessor: "invalid", printingAccessor: .invalid)
+                @ParseEnum
                 enum TestEnum {
                     @match(byte: 0x01)
                     case a
@@ -956,13 +958,14 @@ extension BinaryParseKitMacroTests {
                 """
             } diagnostics: {
                 """
-                @ParseEnum(parsingAccessor: "invalid", printingAccessor: .invalid)
-                                                       ┬─────────────────────────
-                │          │                           ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
-                           ┬──────────────────────────
-                │          ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
-                ┬─────────────────────────────────────────────────────────────────
-                ╰─ 🛑 You have used unknown accessor in `@ParseStruct` or `@ParseEnum`.
+                @configureParsing(parsingAccessor: "invalid", printingAccessor: .invalid)
+                                                              ┬─────────────────────────
+                                  │                           ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                                  ┬──────────────────────────
+                                  ╰─ 🛑 Invalid ACL value: invalid; Please use one of public, package, internal, fileprivate, private, follow; use it in string literal "public" or enum member access .public.
+                @ParseEnum
+                ┬─────────
+                ╰─ 🛑 You have used unknown accessor in `@configureParsing`.
                 enum TestEnum {
                     @match(byte: 0x01)
                     case a
@@ -1596,7 +1599,8 @@ extension BinaryParseKitMacroTests {
         func `little endian enum with mask associated values`() {
             assertMacro {
                 """
-                @ParseEnum(bitEndian: .little)
+                @configureParsing(bitEndian: .little)
+                @ParseEnum
                 enum LittleEndianTestEnum {
                     @match(byte: 0x01)
                     @mask(bitCount: 1)
@@ -1668,7 +1672,8 @@ extension BinaryParseKitMacroTests {
         func `explicit big endian enum with mask associated values`() {
             assertMacro {
                 """
-                @ParseEnum(bitEndian: .big)
+                @configureParsing(bitEndian: .big)
+                @ParseEnum
                 enum LittleEndianTestEnum {
                     @match(byte: 0x01)
                     @mask(bitCount: 1)
@@ -1740,7 +1745,8 @@ extension BinaryParseKitMacroTests {
         func `non .big/.little as bitEndian should fail`() {
             assertMacro {
                 """
-                @ParseEnum(bitEndian: Value.someVariable)
+                @configureParsing(bitEndian: Value.someVariable)
+                @ParseEnum
                 enum LittleEndianTestEnum {
                     @match(byte: 0x01)
                     @mask(bitCount: 1)
@@ -1750,9 +1756,10 @@ extension BinaryParseKitMacroTests {
                 """
             } diagnostics: {
                 """
-                @ParseEnum(bitEndian: Value.someVariable)
-                           ┬────────────────────────────
-                           ╰─ 🛑 Invalid bitEndian value: Value.someVariable; Please use .big or .little.
+                @configureParsing(bitEndian: Value.someVariable)
+                                  ┬────────────────────────────
+                                  ╰─ 🛑 Invalid bitEndian value: Value.someVariable; Please use .big or .little.
+                @ParseEnum
                 enum LittleEndianTestEnum {
                     @match(byte: 0x01)
                     @mask(bitCount: 1)

@@ -11,7 +11,7 @@ import SwiftSyntaxMacros
 
 public struct ConstructStructParseMacro: ExtensionMacro {
     public static func expansion(
-        of attributeNode: SwiftSyntax.AttributeSyntax,
+        of _: SwiftSyntax.AttributeSyntax,
         attachedTo declaration: some SwiftSyntax.DeclGroupSyntax,
         providingExtensionsOf type: some SwiftSyntax.TypeSyntaxProtocol,
         conformingTo _: [SwiftSyntax.TypeSyntax],
@@ -22,7 +22,6 @@ public struct ConstructStructParseMacro: ExtensionMacro {
         }
 
         let configuration = try extractMacroConfiguration(
-            from: attributeNode,
             attachedTo: structDeclaration,
             in: context,
         )

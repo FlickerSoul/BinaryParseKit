@@ -25,6 +25,7 @@ import Testing
         "matchAndTake": EmptyPeerMacro.self,
         "mask": EmptyPeerMacro.self,
         "ParseBitmask": ConstructParseBitmaskMacro.self,
+        "configureParsing": EmptyPeerMacro.self,
     ]
     private let shouldRunMacroTest = true
 #else

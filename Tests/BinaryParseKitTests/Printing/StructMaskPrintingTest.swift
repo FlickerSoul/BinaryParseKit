@@ -29,8 +29,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var nibble: UInt8
     }
 
-    @Test("Basic bitmask struct round-trip")
-    func basicBitmaskRoundTrip() throws {
+    @Test
+    func `basic bitmask struct round-trip`() throws {
         // Binary: 1 010 0011 = 0xA3
         let originalData = Data([0xA3])
         let parsed = try BasicBitmask(parsing: originalData)
@@ -39,8 +39,8 @@ extension PrintingTests.StructMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Basic bitmask struct round-trip all zeros")
-    func basicBitmaskRoundTripAllZeros() throws {
+    @Test
+    func `basic bitmask struct round-trip all zeros`() throws {
         let originalData = Data([0x00])
         let parsed = try BasicBitmask(parsing: originalData)
 
@@ -48,8 +48,8 @@ extension PrintingTests.StructMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Basic bitmask struct round-trip all ones")
-    func basicBitmaskRoundTripAllOnes() throws {
+    @Test
+    func `basic bitmask struct round-trip all ones`() throws {
         let originalData = Data([0xFF])
         let parsed = try BasicBitmask(parsing: originalData)
 
@@ -74,8 +74,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var footer: UInt16
     }
 
-    @Test("Mixed @parse and @mask round-trip")
-    func mixedParseMaskRoundTrip() throws {
+    @Test
+    func `mixed @parse and @mask round-trip`() throws {
         // header = 0x42
         // Binary for mask byte: 1 0110100 = 0xB4
         // footer = 0x1234
@@ -106,8 +106,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var fourth: UInt8
     }
 
-    @Test("Multiple mask groups round-trip")
-    func multipleMaskGroupsRoundTrip() throws {
+    @Test
+    func `multiple mask groups round-trip`() throws {
         // First group: 1010 0101 = 0xA5 -> first=10, second=5
         // Separator: 0xFF
         // Second group: 11 010110 = 0xD6 -> third=3, fourth=22
@@ -132,8 +132,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var low: UInt8
     }
 
-    @Test("Multi-byte bitmask round-trip")
-    func multiBytesBitmaskRoundTrip() throws {
+    @Test
+    func `multi-byte bitmask round-trip`() throws {
         // Binary: 1010 10110011 0100 = 0xAB 0x34
         let originalData = Data([0xAB, 0x34])
         let parsed = try MultiBytesBitmask(parsing: originalData)
@@ -154,8 +154,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var flags: UInt8
     }
 
-    @Test("Skip with mask round-trip")
-    func skipWithMaskRoundTrip() throws {
+    @Test
+    func `skip with mask round-trip`() throws {
         // Skip 2 bytes, then parse mask byte: 1100 0011 = 0xC3
         let originalData = Data([0xFF, 0xFF, 0xC3])
         let parsed = try SkipWithMask(parsing: originalData)
@@ -180,8 +180,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var third: UInt8
     }
 
-    @Test("Non-byte-aligned mask (10 bits) round-trip")
-    func nonByteAlignedMaskRoundTrip() throws {
+    @Test
+    func `non-byte-aligned mask (10 bits) round-trip`() throws {
         // 101 01100 11 = 10 bits -> first=5, second=12, third=3
         // Byte representation: 10101100 11000000 = 0xAC 0xC0
         let originalData = Data([0b1010_1100, 0b1100_0000])
@@ -204,8 +204,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var lowBits: UInt8
     }
 
-    @Test("13-bit mask round-trip")
-    func thirteenBitMaskRoundTrip() throws {
+    @Test
+    func `round-trip 13-bit mask`() throws {
         // 10101 1100 0011 000 (padded to 16 bits) -> highBits=21, middleBits=12, lowBits=3
         // Bytes: 10101110 00011000 = 0xAE 0x18
         let originalData = Data([0b1010_1110, 0b0001_1000])
@@ -239,8 +239,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var footer: UInt16
     }
 
-    @Test("Interleaved parse-mask-skip-mask-parse round-trip")
-    func interleavedParseMaskSkipMaskParseRoundTrip() throws {
+    @Test
+    func `interleaved parse-mask-skip-mask-parse round-trip`() throws {
         // header: 0x42
         // mask1: 1010 0101 = 0xA5 -> nibble1=10, nibble2=5
         // skip: 0xFF 0xFF
@@ -270,8 +270,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var value: UInt16
     }
 
-    @Test("Skip-mask-skip-parse round-trip")
-    func skipMaskSkipParseRoundTrip() throws {
+    @Test
+    func `skip-mask-skip-parse round-trip`() throws {
         // skip: 0xFF
         // mask: 0xAB -> flags=0xAB
         // skip: 0xFF 0xFF
@@ -309,8 +309,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var group2Low: UInt8
     }
 
-    @Test("Multiple non-byte-aligned mask groups round-trip")
-    func multipleNonByteAlignedMaskGroupsRoundTrip() throws {
+    @Test
+    func `multiple non-byte-aligned mask groups round-trip`() throws {
         // First group (8 bits): 101 011 10 -> group1High=5, group1Mid=3, group1Low=2
         // separator: 0xFF
         // Second group (16 bits): 10101 01100 001100 -> group2High=21, group2Mid=12, group2Low=12
@@ -359,8 +359,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var bit7: UInt8
     }
 
-    @Test("Eight single-bit masks round-trip")
-    func eightSingleBitMasksRoundTrip() throws {
+    @Test
+    func `eight single-bit masks round-trip`() throws {
         // 10101010 -> bit0=1, bit1=0, bit2=1, bit3=0, bit4=1, bit5=0, bit6=1, bit7=0
         let originalData = Data([0b1010_1010])
         let parsed = try SingleBitMasks(parsing: originalData)
@@ -369,16 +369,16 @@ extension PrintingTests.StructMaskPrintingTest {
         #expect(printedBytes == originalData)
     }
 
-    @Test("Eight single-bit masks all ones round-trip")
-    func eightSingleBitMasksAllOnesRoundTrip() throws {
+    @Test
+    func `eight single-bit masks all ones round-trip`() throws {
         let originalData = Data([0xFF])
         let parsed = try SingleBitMasks(parsing: originalData)
         let printedBytes = try parsed.printParsed(printer: .data)
         #expect(printedBytes == originalData)
     }
 
-    @Test("Eight single-bit masks all zeros round-trip")
-    func eightSingleBitMasksAllZerosRoundTrip() throws {
+    @Test
+    func `eight single-bit masks all zeros round-trip`() throws {
         let originalData = Data([0x00])
         let parsed = try SingleBitMasks(parsing: originalData)
         let printedBytes = try parsed.printParsed(printer: .data)
@@ -395,8 +395,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var medium: UInt16
     }
 
-    @Test("Large mask fields (32 bits total) round-trip")
-    func largeMaskFieldsRoundTrip() throws {
+    @Test
+    func `large mask fields (32 bits total) round-trip`() throws {
         // 20 bits: 0001 0010 0011 0100 0101 -> large=0x12345 (right-aligned)
         // 12 bits: 0110 0111 1000 -> medium=0x678 (right-aligned)
         // Combined 32 bits: 00010010 00110100 01010110 01111000 = 0x12345678
@@ -426,8 +426,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var fiveBit: UInt8
     }
 
-    @Test("Mask-parse-mask pattern round-trip")
-    func maskParseMaskRoundTrip() throws {
+    @Test
+    func `mask-parse-mask pattern round-trip`() throws {
         // First mask byte: 1010 0101 -> firstNibble=10, secondNibble=5
         // Parse word BE: 0x1234
         // Second mask byte: 111 01100 -> threeBit=7, fiveBit=12
@@ -469,8 +469,8 @@ extension PrintingTests.StructMaskPrintingTest {
         var group3b: UInt8
     }
 
-    @Test("Three separate mask groups round-trip")
-    func threeMaskGroupsRoundTrip() throws {
+    @Test
+    func `three separate mask groups round-trip`() throws {
         // Group1: 1100 0011 -> group1a=12, group1b=3
         // sep1: 0xAA
         // Group2: 10 110011 -> group2a=2, group2b=51
