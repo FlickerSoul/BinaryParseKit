@@ -315,6 +315,34 @@ public macro ParseStruct() = #externalMacro(
     type: "ConstructStructParseMacro",
 )
 
+/// Generates a ``Parsable`` implementation body for a struct with annotated fields, without adding protocol
+/// conformances.
+///
+/// This is the no-conformance variant of ``ParseStruct()``. It generates the same parsing and printing
+/// implementation, but does not declare `Parsable` or `Printable` conformances on the extension.
+/// Use this when you need to declare the conformances separately (e.g. in a different module or file).
+///
+/// - Note: All fields except those with accessors (`get` and `set`) must be marked with `@parse` variants.
+/// - Note: Use ``configureParsing(bitEndian:parsingAccessor:printingAccessor:)`` to configure bit endianness and access
+/// levels.
+///
+/// Example:
+/// ```swift
+/// @_ParseStruct
+/// struct FileHeader: Parsable, Printable {
+///     @parse(byteCount: 4, endianness: .big)
+///     let magic: UInt32
+///
+///     @parse(byteCount: 2, endianness: .little)
+///     let version: UInt16
+/// }
+/// ```
+@attached(extension, names: arbitrary)
+public macro _ParseStruct() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ConstructStructParseBodyMacro",
+)
+
 // MARK: - Parse Enum
 
 /// Generates a ``Parsable`` implementation for an enum with annotated cases.
@@ -598,6 +626,22 @@ public macro matchDefault() = #externalMacro(
     type: "EmptyPeerMacro",
 )
 
+/// Generates a ``Parsable`` implementation body for an enum with annotated cases, without adding protocol conformances.
+///
+/// This is the no-conformance variant of ``ParseEnum()``. It generates the same parsing and printing
+/// implementation, but does not declare `Parsable` or `Printable` conformances on the extension.
+/// Use this when you need to declare the conformances separately (e.g. in a different module or file).
+///
+/// - Note: All enum cases must be marked with `@match` variants.
+/// - Note: Only one `@matchDefault` case is allowed per enum, and it must be declared at the end of all other cases.
+/// - Note: Use ``configureParsing(bitEndian:parsingAccessor:printingAccessor:)`` to configure bit endianness and access
+/// levels.
+@attached(extension, names: arbitrary)
+public macro _ParseEnum() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ConstructEnumParseBodyMacro",
+)
+
 // MARK: - Bitmask Parsing
 
 /// Parses a field at the bit level with an explicit bit count.
@@ -703,4 +747,21 @@ public macro mask() = #externalMacro(
 public macro ParseBitmask() = #externalMacro(
     module: "BinaryParseKitMacros",
     type: "ConstructParseBitmaskMacro",
+)
+
+/// Generates a `BitmaskParsable` implementation body for a struct with @mask fields, without adding protocol
+/// conformances.
+///
+/// This is the no-conformance variant of ``ParseBitmask()``. It generates the same `bitCount`, `init(bits:)`,
+/// `toRawBits(bitCount:)`, and `printerIntel()` implementations, but does not declare
+/// `ExpressibleByRawBits`, `BitCountProviding`, `RawBitsConvertible`, or `Printable` conformances.
+/// Use this when you need to declare the conformances separately (e.g. in a different module or file).
+///
+/// - Note: All fields in a `@_ParseBitmask` struct must have `@mask` attribute.
+/// - Note: Use ``configureParsing(bitEndian:parsingAccessor:printingAccessor:)`` to configure bit endianness and access
+/// levels.
+@attached(extension, names: arbitrary)
+public macro _ParseBitmask() = #externalMacro(
+    module: "BinaryParseKitMacros",
+    type: "ConstructParseBitmaskBodyMacro",
 )
