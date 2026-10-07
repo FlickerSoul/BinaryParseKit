@@ -46,7 +46,11 @@ enum EnumParseAction {
     case mask(EnumCaseParameterMaskInfo)
 
     var isMask: Bool {
-        if case .mask = self { true } else { false }
+        if case .mask = self {
+            true
+        } else {
+            false
+        }
     }
 }
 

@@ -384,7 +384,7 @@ public macro ParseEnum() = #externalMacro(
 ///     case success = 0x00  // Matches byte 0x00 without advancing the pointer
 ///
 ///     @match
-///     case error = 0x01    // Matches byte 0x01 without advancing the pointer
+///     case error = 0x01  // Matches byte 0x01 without advancing the pointer
 /// }
 ///
 /// let status = try StatusCode(parsing: Data([0x00]))
@@ -438,7 +438,7 @@ public macro match(byte: UInt8) = #externalMacro(
 ///     case jpegHeader  // Matches JPEG magic bytes without advancing the pointer
 ///
 ///     @match(bytes: [0x89, 0x50, 0x4E, 0x47])
-///     case pngHeader   // Matches PNG magic bytes without advancing the pointer
+///     case pngHeader  // Matches PNG magic bytes without advancing the pointer
 /// }
 ///
 /// let frame = try FrameType(parsing: Data([0xFF, 0xD8]))
@@ -535,7 +535,7 @@ public macro matchAndTake() = #externalMacro(
 ///     case data(UInt32)  // Matches 0x01, consumes it, then parses UInt32
 ///
 ///     @matchAndTake(byte: 0xFF)
-///     case terminate     // Matches and consumes 0xFF
+///     case terminate  // Matches and consumes 0xFF
 /// }
 ///
 /// let packet = try Packet(parsing: Data([0x01, 0x12, 0x34, 0x56, 0x78]))
@@ -691,7 +691,7 @@ public macro mask(bitCount: Int) = #externalMacro(
 ///     var enabled: Bool  // Uses Bool.bitCount (1)
 ///
 ///     @mask()
-///     var value: UInt8   // Uses UInt8.bitCount (8)
+///     var value: UInt8  // Uses UInt8.bitCount (8)
 /// }
 /// ```
 @attached(peer)

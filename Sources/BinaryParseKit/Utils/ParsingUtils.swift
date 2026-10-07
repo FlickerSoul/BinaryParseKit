@@ -11,7 +11,9 @@ import BinaryParsing
 @_documentation(visibility: internal)
 @inlinable
 public func __match(_ bytes: borrowing [UInt8], in input: borrowing BinaryParsing.ParserSpan) -> Bool {
-    if bytes.isEmpty { return true }
+    if bytes.isEmpty {
+        return true
+    }
 
     do {
         try input._checkCount(minimum: bytes.count)
