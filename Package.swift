@@ -14,16 +14,16 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "BinaryParseKit",
-            targets: ["BinaryParseKit"],
+            targets: ["BinaryParseKit"]
         ),
         .executable(
             name: "BinaryParseKitClient",
-            targets: ["BinaryParseKitClient"],
+            targets: ["BinaryParseKitClient"]
         ),
     ],
     dependencies: [
         .package(
-            url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "604.0.0"),
+            url: "https://github.com/swiftlang/swift-syntax.git", "602.0.0" ..< "604.0.0"
         ),
         .package(url: "https://github.com/apple/swift-binary-parsing.git", branch: "main"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.0"),
@@ -41,7 +41,7 @@ let package = Package(
                 .product(name: "Collections", package: "swift-collections"),
                 .target(name: "BinaryParseKitCommons"),
                 .product(name: "MacroToolkit", package: "swift-macro-toolkit"),
-            ],
+            ]
         ),
         .target(
             name: "BinaryParseKitCommons",
@@ -49,7 +49,7 @@ let package = Package(
                 .enableExperimentalFeature("LifetimeDependence"),
                 .enableExperimentalFeature("Lifetimes"),
                 .strictMemorySafety(),
-            ],
+            ]
         ),
         .target(
             name: "BinaryParseKit",
@@ -62,7 +62,7 @@ let package = Package(
                 .enableExperimentalFeature("LifetimeDependence"),
                 .enableExperimentalFeature("Lifetimes"),
                 .strictMemorySafety(),
-            ],
+            ]
         ),
         .executableTarget(
             name: "BinaryParseKitClient",
@@ -73,7 +73,7 @@ let package = Package(
                 .enableExperimentalFeature("LifetimeDependence"),
                 .enableExperimentalFeature("Lifetimes"),
                 .strictMemorySafety(),
-            ],
+            ]
         ),
         .testTarget(
             name: "BinaryParseKitMacroTests",
@@ -82,22 +82,22 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
                 .product(name: "MacroTesting", package: "swift-macro-testing"),
                 "BinaryParseKitCommons",
-            ],
+            ]
         ),
         .testTarget(
             name: "BinaryParseKitTests",
             dependencies: [
                 "BinaryParseKit",
-            ],
+            ]
         ),
 
     ],
-    swiftLanguageModes: [.v6],
+    swiftLanguageModes: [.v6]
 )
 
 if enableBenchmark == "1" || enableBenchmark == "true" {
     package.dependencies.append(
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.7")
     )
     package.targets.append(contentsOf: [
         .target(
@@ -106,14 +106,14 @@ if enableBenchmark == "1" || enableBenchmark == "true" {
                 "BinaryParseKit",
                 .product(name: "Benchmark", package: "package-benchmark"),
             ],
-            path: "Benchmarks/BenchmarkTypes",
+            path: "Benchmarks/BenchmarkTypes"
         ),
         .testTarget(
             name: "BenchmarkTypesTests",
             dependencies: [
                 "BenchmarkTypes",
             ],
-            path: "Benchmarks/BenchmarkTypesTests",
+            path: "Benchmarks/BenchmarkTypesTests"
         ),
         .executableTarget(
             name: "ParsingBenchmarks",
@@ -123,7 +123,7 @@ if enableBenchmark == "1" || enableBenchmark == "true" {
                 "BinaryParseKit",
                 "BenchmarkTypes",
             ],
-            path: "Benchmarks/ParsingBenchmarks",
+            path: "Benchmarks/ParsingBenchmarks"
         ),
         .executableTarget(
             name: "PrintingBenchmarks",
@@ -133,7 +133,7 @@ if enableBenchmark == "1" || enableBenchmark == "true" {
                 "BinaryParseKit",
                 "BenchmarkTypes",
             ],
-            path: "Benchmarks/PrintingBenchmarks",
+            path: "Benchmarks/PrintingBenchmarks"
         ),
     ])
 }

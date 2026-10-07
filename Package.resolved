@@ -1,5 +1,5 @@
 {
-  "originHash" : "491e0a0954c96bc9c49392122d5be36e770264882625a888e40a2f47bfb31c46",
+  "originHash" : "d2ba645a2ba9d0f288a15dbb0e36246a1cb88861ca23563de5037fcf9a73e97b",
   "pins" : [
     {
       "identity" : "swift-binary-parsing",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/apple/swift-binary-parsing.git",
       "state" : {
         "branch" : "main",
-        "revision" : "3954d6fa395881629ad2ca4f42928766ededc1cc"
+        "revision" : "a26e49fe375ccdfbf8b639969dca1831dba956f4"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-macro-testing.git",
       "state" : {
-        "revision" : "9ab11325daa51c7c5c10fcf16c92bac906717c7e",
-        "version" : "0.6.4"
+        "revision" : "0b6bd11ea72e07eec539f2f000efad0b363a90cc",
+        "version" : "0.7.0"
       }
     },
     {
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/stackotter/swift-macro-toolkit.git",
       "state" : {
-        "revision" : "77d4a6d6215a0709d169fa1c2be4df8d8e5f0796",
-        "version" : "0.8.0"
+        "revision" : "d6ed555bb83c9f21a292e9769952e8f52610a6e2",
+        "version" : "0.9.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing",
       "state" : {
-        "revision" : "a8b7c5e0ed33d8ab8887d1654d9b59f2cbad529b",
-        "version" : "1.18.7"
+        "revision" : "28e5de025e3fd98991791bfbf83023ab3708da03",
+        "version" : "1.19.6"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
-        "version" : "602.0.0"
+        "revision" : "79e4b74a295b6eb74a8b585e3a39d29e70c1dbd1",
+        "version" : "603.0.2"
       }
     },
     {
