@@ -9,7 +9,6 @@ import SwiftSyntaxMacrosGenericTestSupport
 import Testing
 
 extension BinaryParseKitMacroTests {
-    @Suite
     struct `Test Parsing Bitmask` { // swiftlint:disable:this type_body_length
         @Test
         func `successful expansion`() {

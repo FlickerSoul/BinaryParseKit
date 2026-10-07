@@ -10,7 +10,7 @@ import BinaryParsing
 import Foundation
 import Testing
 
-extension ParsingTests { @Suite struct EnumMaskParsingTest {} }
+extension ParsingTests { struct EnumMaskParsingTest {} }
 
 // MARK: - @mask Integration Tests for Enums
 
@@ -29,8 +29,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case simple(UInt16)
     }
 
-    @Test("Enum with mask associated values")
-    func enumWithMaskValues() throws {
+    @Test
+    func `enum with mask associated values`() throws {
         let flags = try BasicEnumWithMask(parsing: Data([0x01, 0b1011_0100]))
         #expect(flags == .flags(0b1, 0b0110100))
 
@@ -39,14 +39,14 @@ extension ParsingTests.EnumMaskParsingTest {
         #expect(simple == .simple(0x1234))
     }
 
-    @Test("Enum with mask - all zeros")
-    func enumWithMaskAllZeros() throws {
+    @Test
+    func `enum with mask - all zeros`() throws {
         let flags = try BasicEnumWithMask(parsing: Data([0x01, 0b0000_0000]))
         #expect(flags == .flags(0b0, 0b0000000))
     }
 
-    @Test("Enum with mask - all ones")
-    func enumWithMaskAllOnes() throws {
+    @Test
+    func `enum with mask - all ones`() throws {
         // 1 1111111 = 0xFF
         let flags = try BasicEnumWithMask(parsing: Data([0x01, 0b1111_1111]))
         #expect(flags == .flags(0b1, 0b1111111))
@@ -67,8 +67,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case singleMask(UInt8)
     }
 
-    @Test("Enum with mixed @parse and @mask")
-    func enumMixedParseAndMask() throws {
+    @Test
+    func `enum with mixed @parse and @mask`() throws {
         // Match 0x01 (consumed), then parse UInt16 BE (0x1234), then parse mask byte: 1010 0101 = 0xA5
         let mixed = try MixedParseAndMask(parsing: Data([0x01, 0x12, 0x34, 0b1010_0101]))
         #expect(mixed == .mixed(0x1234, nibble1: 0b1010, nibble2: 0b0101))
@@ -91,8 +91,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case complex(group1a: UInt8, group1b: UInt8, separator: UInt8, group2a: UInt8, group2b: UInt8)
     }
 
-    @Test("Enum with multiple separate mask groups")
-    func enumMultipleMaskGroups() throws {
+    @Test
+    func `enum with multiple separate mask groups`() throws {
         let complex = try MultipleMaskGroups(parsing: Data([0x01, 0b1101_0110, 0xFF, 0b1010_0101]))
         #expect(complex == .complex(
             group1a: 0b11,
@@ -114,8 +114,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case withPadding(UInt8, UInt8)
     }
 
-    @Test("Enum with skip before mask fields")
-    func enumMaskWithSkip() throws {
+    @Test
+    func `enum with skip before mask fields`() throws {
         // Match 0x01 (consumed), skip 2 bytes, then parse mask: 1100 0011 = 0xC3
         let result = try MaskWithSkip(parsing: Data([0x01, 0xFF, 0xFF, 0b1100_0011]))
         #expect(result == .withPadding(0b1100, 0b0011))
@@ -134,8 +134,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case unknown
     }
 
-    @Test("Enum with mask and default case")
-    func enumMaskWithDefault() throws {
+    @Test
+    func `enum with mask and default case`() throws {
         // Known case
         let known = try MaskWithDefault(parsing: Data([0x01, 0b1010_1011]))
         #expect(known == .known(0b1010, 0b1011))
@@ -155,8 +155,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case wide(UInt16, UInt8)
     }
 
-    @Test("Enum with multi-byte mask field")
-    func enumMultiByteMask() throws {
+    @Test
+    func `enum with multi-byte mask field`() throws {
         let result = try MultiByteMask(parsing: Data([0x01, 0b1010_1011, 0b0011_0100]))
         #expect(result == .wide(0b1010_1011_0011, 0b0100))
     }
@@ -188,8 +188,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case test(ParsingTests.EnumMaskParsingTest.Strict6Bit)
     }
 
-    @Test("Throws error when bitCount < Type.bitCount")
-    func insufficientBits() {
+    @Test
+    func `throws error when bitCount < Type.bitCount`() {
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
             try InsufficientBitsEnum(parsing: Data([0x01, 0b1111_1111]))
         }
@@ -202,8 +202,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case test(ParsingTests.EnumMaskParsingTest.Strict6Bit)
     }
 
-    @Test("Exact bitCount equal to Type.bitCount")
-    func sameBitCountBits() throws {
+    @Test
+    func `exact bitCount equal to Type.bitCount`() throws {
         let value = try SameBitCountEnum(parsing: Data([0x01, 0b1011_0100]))
         #expect(value == .test(Strict6Bit(value: 0b101101)))
     }
@@ -215,8 +215,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case test(ParsingTests.EnumMaskParsingTest.Strict6Bit)
     }
 
-    @Test("Takes MSB when bitCount > Type.bitCount (7 > 6)")
-    func sufficientBits() throws {
+    @Test
+    func `takes MSB when bitCount > Type.bitCount (7 > 6)`() throws {
         let value = try SufficientBitsEnum(parsing: Data([0x01, 0b1011_0101]))
         #expect(value == .test(Strict6Bit(value: 0b101101)))
     }
@@ -228,8 +228,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case test(ParsingTests.EnumMaskParsingTest.Strict6Bit)
     }
 
-    @Test("Takes MSB when bitCount > Type.bitCount (15 > 6)")
-    func excessBits() throws {
+    @Test
+    func `takes MSB when bitCount > Type.bitCount (15 > 6)`() throws {
         let value = try ExcessBitsEnum(parsing: Data([0x01, 0b1111_0000, 0b1111_0010]))
         #expect(value == .test(Strict6Bit(value: 0b111100)))
     }
@@ -252,8 +252,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case simple(UInt16)
     }
 
-    @Test("Little endian enum with mask associated values")
-    func littleEndianEnumWithMaskValues() throws {
+    @Test
+    func `little endian enum with mask associated values`() throws {
         let flags = try LittleEndianBasicEnumWithMask(parsing: Data([0x01, 0b1011_0100]))
         #expect(flags == .flags(0b0, 0b1011010))
 
@@ -262,14 +262,14 @@ extension ParsingTests.EnumMaskParsingTest {
         #expect(simple == .simple(0x1234))
     }
 
-    @Test("Little endian enum with mask - all zeros")
-    func littleEndianEnumWithMaskAllZeros() throws {
+    @Test
+    func `little endian enum with mask - all zeros`() throws {
         let flags = try LittleEndianBasicEnumWithMask(parsing: Data([0x01, 0b0000_0000]))
         #expect(flags == .flags(0b0, 0b0000000))
     }
 
-    @Test("Little endian enum with mask - all ones")
-    func littleEndianEnumWithMaskAllOnes() throws {
+    @Test
+    func `little endian enum with mask - all ones`() throws {
         let flags = try LittleEndianBasicEnumWithMask(parsing: Data([0x01, 0b1111_1111]))
         #expect(flags == .flags(0b1, 0b1111111))
     }
@@ -283,8 +283,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case value(UInt8)
     }
 
-    @Test("Big vs Little endian enum comparison - same data, different results")
-    func bigVsLittleEndianEnumComparison() throws {
+    @Test
+    func `big vs Little endian enum comparison - same data, different results`() throws {
         let littleEndian = try LittleEndianEnumComparison(parsing: Data([0x01, 0b1011_0011]))
         #expect(littleEndian == .value(0b011)) // 011 from LSB
     }
@@ -304,8 +304,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case singleMask(UInt8)
     }
 
-    @Test("Little endian enum with mixed @parse and @mask")
-    func littleEndianEnumMixedParseAndMask() throws {
+    @Test
+    func `little endian enum with mixed @parse and @mask`() throws {
         let mixed = try LittleEndianMixedParseAndMask(parsing: Data([0x01, 0x12, 0x34, 0b1010_0101]))
         #expect(mixed == .mixed(0x1234, nibble1: 0b0101, nibble2: 0b1010))
 
@@ -341,8 +341,8 @@ extension ParsingTests.EnumMaskParsingTest {
         )
     }
 
-    @Test("Little endian enum with multiple separate mask groups")
-    func littleEndianEnumMultipleMaskGroups() throws {
+    @Test
+    func `little endian enum with multiple separate mask groups`() throws {
         let complex = try LittleEndianMultipleMaskGroups(parsing: Data([
             0x01,
             0b1101_0110,
@@ -378,8 +378,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case withPadding(UInt8, UInt8)
     }
 
-    @Test("Little endian enum with skip before mask fields")
-    func littleEndianEnumMaskWithSkip() throws {
+    @Test
+    func `little endian enum with skip before mask fields`() throws {
         let result = try LittleEndianMaskWithSkip(parsing: Data([0x01, 0xFF, 0xFF, 0b1100_0011]))
         #expect(result == .withPadding(0b0011, 0b1100))
     }
@@ -393,20 +393,20 @@ extension ParsingTests.EnumMaskParsingTest {
         case flag(UInt8)
     }
 
-    @Test("Little endian enum single bit - LSB is 1")
-    func littleEndianEnumSingleBitOne() throws {
+    @Test
+    func `little endian enum single bit - LSB is 1`() throws {
         let result = try LittleEndianSingleBitEnum(parsing: Data([0x01, 0b0000_0001]))
         #expect(result == .flag(0b1))
     }
 
-    @Test("Little endian enum single bit - LSB is 0")
-    func littleEndianEnumSingleBitZero() throws {
+    @Test
+    func `little endian enum single bit - LSB is 0`() throws {
         let result = try LittleEndianSingleBitEnum(parsing: Data([0x01, 0b1000_0000]))
         #expect(result == .flag(0b0))
     }
 
-    @Test("Little endian enum single bit - 0xFE has LSB 0")
-    func littleEndianEnumSingleBitFE() throws {
+    @Test
+    func `little endian enum single bit - 0xFE has LSB 0`() throws {
         let result = try LittleEndianSingleBitEnum(parsing: Data([0x01, 0b1111_1110]))
         #expect(result == .flag(0b0))
     }
@@ -424,8 +424,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case unknown
     }
 
-    @Test("Little endian enum with mask and default case")
-    func littleEndianEnumMaskWithDefault() throws {
+    @Test
+    func `little endian enum with mask and default case`() throws {
         let known = try LittleEndianMaskWithDefault(parsing: Data([0x01, 0b1010_1011]))
         #expect(known == .known(0b1011, 0b1010))
 
@@ -443,8 +443,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case test(ParsingTests.EnumMaskParsingTest.Strict6Bit)
     }
 
-    @Test("Little endian takes LSB when bitCount > Type.bitCount")
-    func littleEndianEnumExcessBits() throws {
+    @Test
+    func `little endian takes LSB when bitCount > Type.bitCount`() throws {
         let value = try LittleEndianExcessBitsEnum(parsing: Data([0x01, 0b1111_0000, 0b1100_0100]))
         #expect(value == .test(Strict6Bit(value: 0b000100)))
     }
@@ -460,8 +460,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case threeFields(first: UInt8, second: UInt8, third: UInt8)
     }
 
-    @Test("Little endian enum unaligned single byte")
-    func littleEndianEnumUnalignedSingleByte() throws {
+    @Test
+    func `little endian enum unaligned single byte`() throws {
         let result = try LittleEndianUnalignedSingleByte(parsing: Data([0x01, 0b1101_0101]))
         #expect(
             result == .threeFields(
@@ -483,8 +483,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case wideFields(first: UInt8, second: UInt16, third: UInt8)
     }
 
-    @Test("Little endian enum spanning 3 bytes")
-    func littleEndianEnumThreeByteCrossing() throws {
+    @Test
+    func `little endian enum spanning 3 bytes`() throws {
         let result = try LittleEndianThreeByteCrossing(parsing: Data([
             0x01,
             0b1101_0101, 0b1011_0011, 0b1111_0000,
@@ -517,8 +517,8 @@ extension ParsingTests.EnumMaskParsingTest {
         )
     }
 
-    @Test("Little endian enum single bit fields")
-    func littleEndianEnumSingleBitFields() throws {
+    @Test
+    func `little endian enum single bit fields`() throws {
         let result = try LittleEndianSingleBitFieldsEnum(parsing: Data([0x01, 0b1010_1010]))
         #expect(
             result == .eightBits(
@@ -546,8 +546,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case nonPowerOfTwo(three: UInt8, five: UInt8, seven: UInt8, nine: UInt16)
     }
 
-    @Test("Little endian enum with non-power-of-two fields")
-    func littleEndianEnumNonPowerOfTwo() throws {
+    @Test
+    func `little endian enum with non-power-of-two fields`() throws {
         let result = try LittleEndianNonPowerOfTwoEnum(parsing: Data([
             0x01,
             0b1111_1010, 0b1001_0101, 0b1011_0011,
@@ -580,8 +580,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case values(first: UInt8, second: UInt8)
     }
 
-    @Test("Big vs Little endian enum - same data produces different values")
-    func bigVsLittleEndianEnumComparisonFull() throws {
+    @Test
+    func `big vs Little endian enum - same data produces different values`() throws {
         let data = Data([0x01, 0b1011_0011])
         let bigResult = try BigEndianEnumComparison(parsing: data)
         #expect(
@@ -625,8 +625,8 @@ extension ParsingTests.EnumMaskParsingTest {
         )
     }
 
-    @Test("Little endian enum with multiple parse separators")
-    func littleEndianEnumMultipleSeparators() throws {
+    @Test
+    func `little endian enum with multiple parse separators`() throws {
         let result = try LittleEndianMultipleSeparators(parsing: Data([
             0x01, // match
             0b1101_0101, // mask group 1 (3+5=8 bits)
@@ -660,8 +660,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case maxValues(three: UInt8, six: UInt8, seven: UInt8)
     }
 
-    @Test("Little endian enum maximum values")
-    func littleEndianEnumMaxValues() throws {
+    @Test
+    func `little endian enum maximum values`() throws {
         // All ones
         let result = try LittleEndianMaxValuesEnum(parsing: Data([0x01, 0b1111_1111, 0b1111_1111]))
         #expect(
@@ -675,8 +675,8 @@ extension ParsingTests.EnumMaskParsingTest {
 
     // MARK: - Little Endian All Zeros Enum
 
-    @Test("Little endian enum all zeros")
-    func littleEndianEnumAllZeros() throws {
+    @Test
+    func `little endian enum all zeros`() throws {
         let result = try LittleEndianMaxValuesEnum(parsing: Data([0x01, 0x00, 0x00]))
         #expect(
             result == .maxValues(
@@ -697,8 +697,8 @@ extension ParsingTests.EnumMaskParsingTest {
         case wideValues(twelve: UInt16, twenty: UInt32)
     }
 
-    @Test("Little endian enum wide bitmask fields")
-    func littleEndianEnumWideBitmask() throws {
+    @Test
+    func `little endian enum wide bitmask fields`() throws {
         let result = try LittleEndianWideBitmaskEnum(parsing: Data([
             0x01,
             0b1101_0101, 0b1011_0011, 0b1111_0000, 0b1010_1010,
@@ -734,26 +734,26 @@ extension ParsingTests.EnumMaskParsingTest {
         case unknown
     }
 
-    @Test("Little endian enum with multiple cases - case A")
-    func littleEndianEnumMultiCaseA() throws {
+    @Test
+    func `little endian enum with multiple cases - case A`() throws {
         let result = try LittleEndianMultiCaseEnum(parsing: Data([0x01, 0b1010_1111]))
         #expect(result == .caseA(low: 0b1111, high: 0b1010))
     }
 
-    @Test("Little endian enum with multiple cases - case B")
-    func littleEndianEnumMultiCaseB() throws {
+    @Test
+    func `little endian enum with multiple cases - case B`() throws {
         let result = try LittleEndianMultiCaseEnum(parsing: Data([0x02, 0b1101_0101]))
         #expect(result == .caseB(first: 0b01, second: 0b101, third: 0b110))
     }
 
-    @Test("Little endian enum with multiple cases - case C (parse not affected)")
-    func littleEndianEnumMultiCaseC() throws {
+    @Test
+    func `little endian enum with multiple cases - case C (parse not affected)`() throws {
         let result = try LittleEndianMultiCaseEnum(parsing: Data([0x03, 0x12, 0x34]))
         #expect(result == .caseC(value: 0x1234))
     }
 
-    @Test("Little endian enum with multiple cases - default")
-    func littleEndianEnumMultiCaseDefault() throws {
+    @Test
+    func `little endian enum with multiple cases - default`() throws {
         let result = try LittleEndianMultiCaseEnum(parsing: Data([0xFF]))
         #expect(result == .unknown)
     }

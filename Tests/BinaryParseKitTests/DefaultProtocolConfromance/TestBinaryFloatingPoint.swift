@@ -16,7 +16,7 @@ extension DefaultProtocolConformanceTests {
 
 extension DefaultProtocolConformanceTests.TestBinaryFloatingPoint {
     @Test
-    func parsingFromByteArray() throws {
+    func `parsing from byte array`() throws {
         try testingParsingImpl(
             [0xDE, 0xAD, 0xBE, 0xEF],
             to: Float16.self,
