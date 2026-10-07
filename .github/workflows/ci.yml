@@ -41,24 +41,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - runsOn: macOS-26
-            name: "macOS 26, SPM 6.2.0 Test"
+          - runsOn: xcode-27
+            name: "Xcode 27 Test"
     steps:
       - uses: actions/checkout@v4
-      - name: Install Swiftly And Swift
-        run: |
-          curl -L https://download.swift.org/swiftly/darwin/swiftly.pkg > swiftly.pkg
-          installer -pkg swiftly.pkg -target CurrentUserHomeDirectory
-
-          ~/.swiftly/bin/swiftly init
-
-          . "$HOME/.swiftly/env.sh"
-          hash -r
-
-          swiftly install --use --assume-yes
-          swiftly link --assume-yes
-
-          echo "$HOME/.swiftly/bin" >> $GITHUB_PATH
+      # Use Xcode's toolchain: an open-source toolchain paired with Xcode's Swift Testing
+      # fails to build swift-snapshot-testing's attachment code.
       - name: Swift Version
         run: which swift && swift --version
       - name: Brew install tools

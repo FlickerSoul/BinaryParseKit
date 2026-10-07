@@ -10,7 +10,7 @@ import BinaryParsing
 import Foundation
 import Testing
 
-extension ParsingTests { @Suite struct StructMaskParsingTest {} }
+extension ParsingTests { struct StructMaskParsingTest {} }
 
 // MARK: - @mask Integration Tests
 
@@ -97,20 +97,20 @@ extension ParsingTests.StructMaskParsingTest {
         var nibble: UInt8
     }
 
-    @Test("Basic bitmask parsing with explicit bit counts - all bits from single byte")
-    func basicBitmaskExplicitParsing() throws {
+    @Test
+    func `basic bitmask parsing with explicit bit counts - all bits from single byte`() throws {
         let parsed = try BasicBitmaskExplicit(parsing: Data([0b1010_0011]))
         #expect(parsed == BasicBitmaskExplicit(flag1: 0b1, value: 0b010, nibble: 0b0011))
     }
 
-    @Test("Basic bitmask parsing - all zeros")
-    func basicBitmaskExplicitAllZeros() throws {
+    @Test
+    func `basic bitmask parsing - all zeros`() throws {
         let parsed = try BasicBitmaskExplicit(parsing: Data([0b0000_0000]))
         #expect(parsed == BasicBitmaskExplicit(flag1: 0, value: 0, nibble: 0))
     }
 
-    @Test("Basic bitmask parsing - all ones")
-    func basicBitmaskExplicitAllOnes() throws {
+    @Test
+    func `basic bitmask parsing - all ones`() throws {
         // Binary: 1 111 1111 = 0xFF
         let parsed = try BasicBitmaskExplicit(parsing: Data([0b1111_1111]))
         #expect(parsed == BasicBitmaskExplicit(flag1: 0b1, value: 0b111, nibble: 0b1111))
@@ -130,8 +130,8 @@ extension ParsingTests.StructMaskParsingTest {
         var value: UInt8
     }
 
-    @Test("Inferred bitCount from BitmaskParsable type")
-    func inferredBitmaskParsing() throws {
+    @Test
+    func `inferred bitCount from BitmaskParsable type`() throws {
         let parsed = try BitmaskInferred(parsing: Data([0b1000_0101]))
         #expect(parsed == BitmaskInferred(flag1: Flag(value: true), flag2: Flag(value: false), value: 0b000101))
     }
@@ -148,8 +148,8 @@ extension ParsingTests.StructMaskParsingTest {
         var third: ParsingTests.StructMaskParsingTest.ThreeBit
     }
 
-    @Test("All fields with inferred bit counts")
-    func allInferredBitmaskParsing() throws {
+    @Test
+    func `all fields with inferred bit counts`() throws {
         let parsed = try BitmaskAllInferred(parsing: Data([0b1101_0011]))
         #expect(parsed == BitmaskAllInferred(
             first: Flag(value: true),
@@ -172,8 +172,8 @@ extension ParsingTests.StructMaskParsingTest {
         var low: UInt8
     }
 
-    @Test("Multi-byte bitmask spanning 2 bytes")
-    func multiBytesBitmaskParsing() throws {
+    @Test
+    func `multi-byte bitmask spanning 2 bytes`() throws {
         let parsed = try MultiBytesBitmask(parsing: Data([0b1010_1011, 0b0011_0100]))
         #expect(parsed == MultiBytesBitmask(high: 0b1010, middle: 0b1011_0011, low: 0b0100))
     }
@@ -195,8 +195,8 @@ extension ParsingTests.StructMaskParsingTest {
         var footer: UInt16
     }
 
-    @Test("Mixed @parse and @mask fields")
-    func mixedParseMaskParsing() throws {
+    @Test
+    func `mixed @parse and @mask fields`() throws {
         let parsed = try MixedParseMask(parsing: Data([0x42, 0b1011_0100, 0x12, 0x34]))
         #expect(parsed == MixedParseMask(header: 0x42, flag: 0b1, value: 0b0110100, footer: 0x1234))
     }
@@ -221,8 +221,8 @@ extension ParsingTests.StructMaskParsingTest {
         var fourth: UInt8
     }
 
-    @Test("Multiple separate mask groups")
-    func multipleMaskGroupsParsing() throws {
+    @Test
+    func `multiple separate mask groups`() throws {
         let parsed = try MultipleMaskGroups(parsing: Data([0b1010_0101, 0xFF, 0b1101_0110]))
         #expect(parsed == MultipleMaskGroups(
             first: 0b1010,
@@ -244,8 +244,8 @@ extension ParsingTests.StructMaskParsingTest {
         var second: UInt16
     }
 
-    @Test("Mask parsing with insufficient data throws")
-    func maskInsufficientDataThrows() {
+    @Test
+    func `mask parsing with insufficient data throws`() {
         // Needs 16 bits (2 bytes) but only 1 byte provided
         #expect(throws: ParsingError.self) {
             _ = try MaskWithInsufficientData(parsing: Data([0x12]))
@@ -264,8 +264,8 @@ extension ParsingTests.StructMaskParsingTest {
         var flags: UInt8
     }
 
-    @Test("Skip before mask fields")
-    func skipBeforeMaskParsing() throws {
+    @Test
+    func `skip before mask fields`() throws {
         // Skip 2 bytes, then parse mask byte: 1100 0011 = 0xC3
         let parsed = try SkipWithMask(parsing: Data([0xFF, 0xFF, 0b1100_0011]))
         #expect(parsed == SkipWithMask(value: 0b1100, flags: 0b0011))
@@ -297,8 +297,8 @@ extension ParsingTests.StructMaskParsingTest {
         var field: ParsingTests.StructMaskParsingTest.Strict6Bit
     }
 
-    @Test("Throws error when bitCount < Type.bitCount")
-    func insufficientBits() {
+    @Test
+    func `throws error when bitCount < Type.bitCount`() {
         #expect(throws: BitmaskParsableError.insufficientBitsAvailable) {
             try InsufficientBitsStruct(parsing: Data([0xFF]))
         }
@@ -310,8 +310,8 @@ extension ParsingTests.StructMaskParsingTest {
         var field: ParsingTests.StructMaskParsingTest.Strict6Bit
     }
 
-    @Test("Exact bitCount equal to Type.bitCount")
-    func sameBitCountBits() throws {
+    @Test
+    func `exact bitCount equal to Type.bitCount`() throws {
         // Input: 1011_0100 (first 6 bits: 101101 = 45)
         let parsed = try SameBitCountStruct(parsing: Data([0b1011_0100]))
         #expect(parsed == SameBitCountStruct(field: Strict6Bit(value: 0b101101)))
@@ -323,8 +323,8 @@ extension ParsingTests.StructMaskParsingTest {
         var field: ParsingTests.StructMaskParsingTest.Strict6Bit
     }
 
-    @Test("Takes MSB when bitCount > Type.bitCount (7 > 6)")
-    func sufficientBits() throws {
+    @Test
+    func `takes MSB when bitCount > Type.bitCount (7 > 6)`() throws {
         // Input: 1011_0101 (first 7 bits: 1011010 = 90)
         // Take MSB 6 bits: 101101 = 45
         let parsed = try SufficientBitsStruct(parsing: Data([0b1011_0101]))
@@ -337,8 +337,8 @@ extension ParsingTests.StructMaskParsingTest {
         var field: ParsingTests.StructMaskParsingTest.Strict6Bit
     }
 
-    @Test("Takes MSB when bitCount > Type.bitCount (15 > 6)")
-    func excessBits() throws {
+    @Test
+    func `takes MSB when bitCount > Type.bitCount (15 > 6)`() throws {
         let parsed = try ExcessBitsStruct(parsing: Data([0b1111_0000, 0b1111_0010]))
         #expect(parsed == ExcessBitsStruct(field: Strict6Bit(value: 0b111100)))
     }
@@ -362,8 +362,8 @@ extension ParsingTests.StructMaskParsingTest {
         var nibble: UInt8
     }
 
-    @Test("Little endian struct mask parses without error")
-    func littleEndianBasicMaskParsing() throws {
+    @Test
+    func `little endian struct mask parses without error`() throws {
         let parsed = try LittleEndianBasicMask(parsing: Data([0b1010_0011]))
         #expect(
             parsed == .init(
@@ -374,8 +374,8 @@ extension ParsingTests.StructMaskParsingTest {
         )
     }
 
-    @Test("Little endian struct mask - all zeros")
-    func littleEndianBasicMaskAllZeros() throws {
+    @Test
+    func `little endian struct mask - all zeros`() throws {
         let parsed = try LittleEndianBasicMask(parsing: Data([0x00]))
         #expect(
             parsed == .init(
@@ -386,8 +386,8 @@ extension ParsingTests.StructMaskParsingTest {
         )
     }
 
-    @Test("Little endian struct mask - all ones")
-    func littleEndianBasicMaskAllOnes() throws {
+    @Test
+    func `little endian struct mask - all ones`() throws {
         let parsed = try LittleEndianBasicMask(parsing: Data([0xFF]))
         #expect(
             parsed == .init(
@@ -415,8 +415,8 @@ extension ParsingTests.StructMaskParsingTest {
         var footer: UInt8
     }
 
-    @Test("Little endian mixed @parse and @mask fields")
-    func littleEndianMixedParseMaskParsing() throws {
+    @Test
+    func `little endian mixed @parse and @mask fields`() throws {
         let parsed = try LittleEndianMixedParseMask(parsing: Data([0x42, 0b1011_0101, 0x99]))
         #expect(parsed.header == 0x42)
         #expect(parsed.flag == 0b01)
@@ -438,8 +438,8 @@ extension ParsingTests.StructMaskParsingTest {
         var threeBit: ParsingTests.StructMaskParsingTest.ThreeBit
     }
 
-    @Test("Little endian struct with inferred bit count custom types parses")
-    func littleEndianWithCustomTypesParsing() throws {
+    @Test
+    func `little endian struct with inferred bit count custom types parses`() throws {
         let parsed = try LittleEndianWithCustomTypes(parsing: Data([0b1101_1011]))
         #expect(
             parsed == .init(
@@ -473,8 +473,8 @@ extension ParsingTests.StructMaskParsingTest {
         var fifth: UInt8
     }
 
-    @Test("Little endian multiple separate mask groups")
-    func littleEndianMultipleMaskGroupsParsing() throws {
+    @Test
+    func `little endian multiple separate mask groups`() throws {
         let parsed = try LittleEndianMultipleMaskGroups(parsing: Data([0b1011_0100, 0b1010_0110, 0xFF, 0b1101_0110]))
         #expect(
             parsed == .init(
@@ -502,8 +502,8 @@ extension ParsingTests.StructMaskParsingTest {
         var third: UInt8
     }
 
-    @Test("Little endian unaligned single byte parsing")
-    func littleEndianUnalignedSingleByte() throws {
+    @Test
+    func `little endian unaligned single byte parsing`() throws {
         let parsed = try LittleEndianUnalignedSingleByte(parsing: Data([0b1101_0101]))
         #expect(
             parsed == .init(
@@ -528,8 +528,8 @@ extension ParsingTests.StructMaskParsingTest {
         var third: UInt8
     }
 
-    @Test("Little endian struct spanning 3 bytes")
-    func littleEndianThreeByteCrossingParsing() throws {
+    @Test
+    func `little endian struct spanning 3 bytes`() throws {
         let parsed = try LittleEndianThreeByteCrossing(parsing: Data([0b1101_0101, 0b1011_0011, 0b1111_0000]))
         #expect(
             parsed == .init(
@@ -562,8 +562,8 @@ extension ParsingTests.StructMaskParsingTest {
         var b7: UInt8
     }
 
-    @Test("Little endian struct single bit fields")
-    func littleEndianSingleBitFieldsParsing() throws {
+    @Test
+    func `little endian struct single bit fields`() throws {
         // Input: 0b10101010
         let parsed = try LittleEndianSingleBitFields(parsing: Data([0b1010_1010]))
         // LSB order: b0=bit0=0, b1=bit1=1, etc.
@@ -598,8 +598,8 @@ extension ParsingTests.StructMaskParsingTest {
         var nine: UInt16
     }
 
-    @Test("Little endian struct with non-power-of-two fields")
-    func littleEndianNonPowerOfTwoParsing() throws {
+    @Test
+    func `little endian struct with non-power-of-two fields`() throws {
         let parsed = try LittleEndianNonPowerOfTwo(parsing: Data([0b1111_1010, 0b1001_0101, 0b1011_0011]))
         #expect(
             parsed == .init(
@@ -631,8 +631,8 @@ extension ParsingTests.StructMaskParsingTest {
         var second: UInt8
     }
 
-    @Test("Big vs Little endian struct - same data produces different values")
-    func bigVsLittleEndianStructComparison() throws {
+    @Test
+    func `big vs Little endian struct - same data produces different values`() throws {
         // Input: 0b10110011
         let bigParsed = try BigEndianStructComparison(parsing: Data([0b1011_0011]))
         // Big endian (MSB first): first=bits[0-2]=0b101, second=bits[3-7]=0b10011
@@ -682,8 +682,8 @@ extension ParsingTests.StructMaskParsingTest {
         var sixth: UInt8
     }
 
-    @Test("Little endian struct with multiple parse separators")
-    func littleEndianMultipleParseSeparatorsParsing() throws {
+    @Test
+    func `little endian struct with multiple parse separators`() throws {
         let parsed = try LittleEndianMultipleParseSeparators(parsing: Data([
             0b1101_0101, // mask group 1
             0xAA, // sep1
@@ -717,8 +717,8 @@ extension ParsingTests.StructMaskParsingTest {
         var second: UInt8
     }
 
-    @Test("Little endian struct with skip before mask")
-    func littleEndianWithSkipParsing() throws {
+    @Test
+    func `little endian struct with skip before mask`() throws {
         let parsed = try LittleEndianWithSkip(parsing: Data([0xFF, 0xFF, 0b1011_0011]))
         // After skip, parse mask byte: bits[0-3]=0b0011, bits[4-7]=0b1011
         #expect(
@@ -743,8 +743,8 @@ extension ParsingTests.StructMaskParsingTest {
         var seven: UInt8
     }
 
-    @Test("Little endian struct maximum values")
-    func littleEndianMaxValuesParsing() throws {
+    @Test
+    func `little endian struct maximum values`() throws {
         // All ones
         let parsed = try LittleEndianMaxValues(parsing: Data([0b1111_1111, 0b1111_1111]))
         #expect(
@@ -758,8 +758,8 @@ extension ParsingTests.StructMaskParsingTest {
 
     // MARK: - Little Endian All Zeros
 
-    @Test("Little endian struct all zeros")
-    func littleEndianAllZerosParsing() throws {
+    @Test
+    func `little endian struct all zeros`() throws {
         let parsed = try LittleEndianMaxValues(parsing: Data([0x00, 0x00]))
         #expect(
             parsed == .init(

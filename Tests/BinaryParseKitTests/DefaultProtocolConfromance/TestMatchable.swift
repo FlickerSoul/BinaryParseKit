@@ -9,7 +9,6 @@ import BinaryParseKit
 import Testing
 
 extension DefaultProtocolConformanceTests {
-    @Suite
     struct MatchableTests {}
 }
 

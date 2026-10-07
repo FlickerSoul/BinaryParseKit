@@ -11,10 +11,9 @@ import Testing
 // swiftlint:disable line_length file_length
 
 extension BinaryParseKitMacroTests {
-    @Suite
     struct `Test Parsing Struct` { // swiftlint:disable:this type_body_length
         @Test
-        func successfulParseStructMacroExpansion() {
+        func `successful parse struct macro expansion`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -123,7 +122,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func parseStructOnClass() {
+        func `parse struct on class`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -146,7 +145,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func parseStructOnEnum() {
+        func `parse struct on enum`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -167,7 +166,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func variableWithoutTypeAnnotation() {
+        func `variable without type annotation`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -192,7 +191,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func variableWithoutParseAttribute() {
+        func `variable without parse attribute`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -215,7 +214,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func multipleParseRestAttributes() {
+        func `multiple parse rest attributes`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -244,7 +243,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func nonTrailingParseRest() {
+        func `non trailing parse rest`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -273,7 +272,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func emptyStructWithNoParseableFields() {
+        func `empty struct with no parseable fields`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -314,7 +313,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidVariablePattern() {
+        func `invalid variable pattern`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -339,7 +338,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidParseAttributeArgument() {
+        func `invalid parse attribute argument`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -367,7 +366,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func conflictingByteCountArguments() {
+        func `conflicting byte count arguments`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -393,7 +392,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidByteCountLiteral() {
+        func `invalid byte count literal`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -419,7 +418,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func invalidByteCountOfKeyPath() {
+        func `invalid byte count of key path`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -445,7 +444,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func skipWithMissingArguments() {
+        func `skip with missing arguments`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -473,7 +472,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func skipWithWrongNumberOfArguments() {
+        func `skip with wrong number of arguments`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -501,7 +500,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func skipWithInvalidByteCount() {
+        func `skip with invalid byte count`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -529,7 +528,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func computedPropertyWithParse() {
+        func `computed property with parse`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -559,7 +558,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func byteCountParseConvertInParse() {
+        func `byte count parse convert in parse`() {
             assertMacro {
                 #"""
                 @ParseStruct
@@ -585,7 +584,7 @@ extension BinaryParseKitMacroTests {
         }
 
         @Test
-        func byteCountParseConvertInSkip() {
+        func `byte count parse convert in skip`() {
             assertMacro {
                 #"""
                 @ParseStruct

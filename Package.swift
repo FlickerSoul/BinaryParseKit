@@ -22,7 +22,9 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-syntax.git", .upToNextMajor(from: "602.0.0")),
+        .package(
+            url: "https://github.com/swiftlang/swift-syntax.git", "602.0.0" ..< "604.0.0",
+        ),
         .package(url: "https://github.com/apple/swift-binary-parsing.git", branch: "main"),
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.5"),

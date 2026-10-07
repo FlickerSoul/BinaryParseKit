@@ -12,7 +12,6 @@ import Testing
 
 // swiftlint:disable file_length line_length
 extension BinaryParseKitMacroTests {
-    @Suite
     struct `Test Parsing Enum` { // swiftlint:disable:this type_body_length
         @Test
         func `parse regular enum`() {

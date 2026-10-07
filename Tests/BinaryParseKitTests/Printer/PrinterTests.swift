@@ -7,5 +7,4 @@
 
 import Testing
 
-@Suite
 struct PrinterTests {}

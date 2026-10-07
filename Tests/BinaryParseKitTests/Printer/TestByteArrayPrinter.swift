@@ -17,7 +17,6 @@ typealias EnumCasePrinterIntel = PrinterIntel.EnumCasePrinterIntel
 typealias SkipPrinterIntel = PrinterIntel.SkipPrinterIntel
 
 extension PrinterTests {
-    @Suite
     struct ByteArrayPrinterTest {
         let printer = ByteArrayPrinter()
     }

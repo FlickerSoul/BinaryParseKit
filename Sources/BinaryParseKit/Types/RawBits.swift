@@ -146,7 +146,9 @@ extension RawBits: Equatable {
         for i in 0 ..< fullBytes {
             let lhsByte = lhs.data[lhs.data.startIndex + i]
             let rhsByte = rhs.data[rhs.data.startIndex + i]
-            if lhsByte != rhsByte { return false }
+            if lhsByte != rhsByte {
+                return false
+            }
         }
 
         if remainingBits > 0 {
@@ -154,7 +156,9 @@ extension RawBits: Equatable {
             let rhsByte = rhs.data[rhs.data.startIndex + fullBytes]
             // Mask to only compare the valid bits (MSB-first)
             let mask: UInt8 = 0xFF << (8 - remainingBits)
-            if (lhsByte & mask) != (rhsByte & mask) { return false }
+            if (lhsByte & mask) != (rhsByte & mask) {
+                return false
+            }
         }
 
         return true

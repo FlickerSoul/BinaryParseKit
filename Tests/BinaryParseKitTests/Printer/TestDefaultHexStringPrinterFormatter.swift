@@ -8,7 +8,7 @@
 import BinaryParseKit
 import Testing
 
-extension PrinterTests { @Suite struct DefaultHexStringPrinterFormatterTest {} }
+extension PrinterTests { struct DefaultHexStringPrinterFormatterTest {} }
 
 // MARK: - DefaultHexStringPrinterFormatter Tests
 

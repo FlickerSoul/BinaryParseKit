@@ -9,7 +9,7 @@ import BinaryParsing
 import Foundation
 import Testing
 
-extension ParsingTests { @Suite struct EnumParsingTest {} }
+extension ParsingTests { struct EnumParsingTest {} }
 
 extension ParsingTests.EnumParsingTest {
     // MARK: - Basic Enum Matching Tests
@@ -451,7 +451,7 @@ extension ParsingTests.EnumParsingTest {
 
 // MARK: - Length-Based Matching Tests
 
-extension ParsingTests { @Suite struct LengthMatchingTest {} }
+extension ParsingTests { struct LengthMatchingTest {} }
 
 extension ParsingTests.LengthMatchingTest {
     @ParseEnum
